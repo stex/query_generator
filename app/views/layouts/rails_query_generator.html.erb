@@ -3,6 +3,9 @@
   <title>Rails Query Generator Demo Layout</title>
 </head>
 
+<%= javascript_include_tag 'https://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.js' %>
+<%= javascript_include_tag "jquery_plugins/graph_dracula/dracula_graffle", "jquery_plugins/graph_dracula/raphael-min", "jquery_plugins/graph_dracula/dracula_graph" %>
+
 <body>
   <%= yield %>
 </body>
