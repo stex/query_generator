@@ -1,1 +1,1 @@
-require "rails_query_generator"
+require "query_generator"

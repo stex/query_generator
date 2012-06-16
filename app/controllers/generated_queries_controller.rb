@@ -1,7 +1,7 @@
 class GeneratedQueriesController < ApplicationController
 
   layout "rails_query_generator"
-  include QueryGenerator::HelperFunctions
+  include QueryGenerator
 
   def index
     @generated_queries = GeneratedQuery.all
