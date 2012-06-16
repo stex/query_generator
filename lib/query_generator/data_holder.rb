@@ -4,6 +4,7 @@ module QueryGenerator
 
   class DataHolder
     include Singleton
+    include HelperFunctions
 
     def initialize
       load_app_data
@@ -13,15 +14,6 @@ module QueryGenerator
       load_models
       load_associations
       generate_linkage_graph
-    end
-
-    def self.exclusions
-      @@exclusions ||= []
-    end
-
-    def self.exclusions=(excluded_classes)
-      @@exclusions = excluded_classes
-      self.instance.load_app_data
     end
 
     # Returns all models used in the application
@@ -112,7 +104,13 @@ module QueryGenerator
       #Also delete duplicates
       @models = (models_from_tables + models_from_files).uniq.sort {|x,y| x.to_s <=> y.to_s}
 
-      @models = @models - QueryGenerator::DataHolder.exclusions
+      exclusions = Configuration.get(:exclusions)
+
+      #Remove excluded classes
+      @models -= exclusions[:classes]
+
+      #Remove excluded modules
+      @models.reject! {|m| exclusions[:modules].include?(get_first_module(m))}
     end
 
     # Loads all associations for pre-fetched models
@@ -150,7 +148,7 @@ module QueryGenerator
 
           #If the (correct) class name was found and it's not in the exclude-list, add
           #an edge to the current node
-          if class_name && !QueryGenerator::DataHolder.exclusions.include?(class_name.constantize)
+          if class_name && !excluded_class?(class_name)
             node.is_connected_to! class_name, options
           end
         end
@@ -165,6 +163,14 @@ module QueryGenerator
       true
     rescue
       false
+    end
+
+    # Checks if the given class should be excluded from the linkage graph
+    #--------------------------------------------------------------
+    def excluded_class?(klass)
+      klass = klass.constantize unless klass.is_a?(Class)
+      exclusions = Configuration.get(:exclusions)
+      exclusions[:classes].include?(klass) || exclusions[:modules].include?(get_first_module(klass))
     end
 
     
