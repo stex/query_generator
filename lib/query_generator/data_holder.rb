@@ -219,7 +219,7 @@ module QueryGenerator
           return nil
       end
 
-      class_name = class_name.try(:classify)
+      class_name = class_name.to_s.try(:classify)
 
       if class_name && existing_class?(class_name)
         class_name

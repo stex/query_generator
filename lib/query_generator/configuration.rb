@@ -44,8 +44,7 @@ module QueryGenerator
 
     def initialize
       @configuration = HashWithIndifferentAccess.new
-      @configuration[:exclusions] = HashWithIndifferentAccess.new(:classes => [Audit, Attachment, SheetLayout, Page],
-                                                                  :modules => [Tolk, VestalVersions])
+      @configuration[:exclusions] = HashWithIndifferentAccess.new(:classes => [], :modules => [])
       @configuration[:javascript] = HashWithIndifferentAccess.new(:indicators => ["javascript:", "js:", "jQuery(", "$(", "$F("],
                                                                   :end_classes => [String, Symbol, Date, DateTime],
                                                                   :container_classes => [Array, Hash])
