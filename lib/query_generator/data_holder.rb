@@ -16,6 +16,13 @@ module QueryGenerator
       generate_linkage_graph
     end
 
+    def reload!
+      @models = nil
+      @associations = nil
+      @linkages = nil
+      load_app_data
+    end
+
     # Returns all models used in the application
     #--------------------------------------------------------------
     def models
@@ -31,7 +38,7 @@ module QueryGenerator
 
     # Returns linkages between all found models
     #--------------------------------------------------------------
-    def linkages
+    def linkage_graph
       @linkages
     end
 
@@ -148,6 +155,7 @@ module QueryGenerator
 
           #If the (correct) class name was found and it's not in the exclude-list, add
           #an edge to the current node
+          puts class_name.class if class_name.to_s == "Audit" && !excluded_class?(class_name)
           if class_name && !excluded_class?(class_name)
             node.is_connected_to! class_name, options
           end

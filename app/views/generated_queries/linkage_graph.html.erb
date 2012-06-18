@@ -1,16 +1,16 @@
 <div id="canvas"></div>
 <ul>
-  <% @dh.linkages.nodes.sort{|x,y| x.klass.to_s <=> y.klass.to_s}.each do |node| %>
+  <% @dh.linkage_graph.nodes.sort{|x,y| x.klass.to_s <=> y.klass.to_s}.each do |node| %>
     <li><%=  node.klass.to_s %></li>
   <% end %>
 </ul>
 
-Size: <%= @dh.linkages.nodes.size %>
+Size: <%= @dh.linkage_graph.nodes.size %>
 
 <script type="text/javascript">
   var g = new Graph();
 
-  <% @dh.linkages.nodes.each do |node| %>
+  <% @dh.linkage_graph.nodes.each do |node| %>
   g.addNode("<%= node.klass %>");
   <% node.edges.each do |end_point, options| %>
   g.addEdge("<%= node.klass %>", "<%= end_point %>", {directed: true, label: "<%= options[:name] %>"});

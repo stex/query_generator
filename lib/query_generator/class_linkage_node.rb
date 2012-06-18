@@ -20,6 +20,7 @@ module QueryGenerator
     def initialize(klass, edges = {})
       @klass = klass.to_s
       @edges = edges
+      @shortest_paths = HashWithIndifferentAccess.new
     end
 
     # Returns the class this node is attached to
@@ -30,6 +31,10 @@ module QueryGenerator
 
     def edges
       @edges
+    end
+
+    def graph
+      QueryGenerator::DataHolder.instance.linkage_graph
     end
 
     # Checks if this node is directly connected to another node
@@ -52,18 +57,38 @@ module QueryGenerator
       @edges[end_point.to_s] = options
     end
 
-    #def path_to(end_point)
-    #  existing_path = [@klass]
-    #  return existing_path if is_connected_to? end_point
-    #
-    #  @edges.each do |ep, options|
-    #    next_node = @graph.get_node(ep)
-    #    next_path = next_node.path_to(end_point)
-     #   return (existing_path + next_path) if next_path.any?
-    #  end
+    # Performs a Breadth First Search on the linkage graph
+    # to find a path to the given model.
+    # It will return the shortest one it finds.
+    #--------------------------------------------------------------
+    def get_shortest_path_to(model)
+      visited_models = []
+      model_queue = Queue.new
 
-    #  []
-    #end
+      path_to = HashWithIndifferentAccess.new
+
+      model_queue << @klass
+      visited_models << @klass
+
+      path_to[@klass] = []
+
+      until model_queue.empty?
+       current_model = model_queue.pop
+       current_node = graph.get_node(current_model)
+
+       return @shortest_paths[current_model] = path_to[current_model] if current_model.to_s == model.to_s
+
+       current_node.edges.each do |end_point, options|
+         unless visited_models.include?(end_point)
+           path_to[end_point] = path_to[current_model] + [end_point]
+           model_queue << end_point
+           visited_models << end_point
+         end
+       end
+      end
+
+      []
+     end
 
   end
 end

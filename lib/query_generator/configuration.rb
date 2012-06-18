@@ -33,41 +33,33 @@ module QueryGenerator
     include HelperFunctions
 
     def self.get(config_name)
-      self.instance.get(config_name.to_s)
+      self.instance
+      self.instance.get(config_name)
     end
 
     def self.set(config_name, value)
-      self.instance.set(config_name.to_s, value)
+      self.instance
+      self.instance.set(config_name, value)
     end
 
     def initialize
-      @configuration = {}
+      @configuration = HashWithIndifferentAccess.new
+      @configuration[:exclusions] = HashWithIndifferentAccess.new(:classes => [Audit, Attachment, SheetLayout, Page],
+                                                                  :modules => [Tolk, VestalVersions])
+      @configuration[:javascript] = HashWithIndifferentAccess.new(:indicators => ["javascript:", "js:", "jQuery(", "$(", "$F("],
+                                                                  :end_classes => [String, Symbol, Date, DateTime],
+                                                                  :container_classes => [Array, Hash])
     end
 
     def get(config_name)
-      @configuration[config_name] ||= get_default_configuration(config_name)
+      @configuration[config_name] ||= HashWithIndifferentAccess.new
     end
 
     def set(config_name, value)
       get(config_name)
-      @configuration.recursive_merge!({config_name => value})
-    end
+      @configuration.recursive_merge!(HashWithIndifferentAccess.new(config_name => value))
 
-    private
-
-    # Provides some default options for the plugin
-    #--------------------------------------------------------------
-    def get_default_configuration(config_name)
-      case config_name.to_s
-        when "exclusions"
-          {:classes => [], :modules => []}
-        when "javascript"
-          {:indicators => ["javascript:", "js:", "jQuery(", "$(", "$F("],
-           :end_classes => [String, Symbol, Date, DateTime],
-           :container_classes => [Array, Hash]}
-        else
-          {}
-      end
+      DataHolder.instance.reload! if config_name.to_s == "exclusions"
     end
   end
 end
