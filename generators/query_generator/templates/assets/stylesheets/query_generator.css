@@ -1,0 +1,37 @@
+#query_generator {}
+
+    #query_generator #wheel {
+        background-color: black;
+    }
+
+    #query_generator #models {
+        width: 30%;
+        float: left;
+    }
+
+    #query_generator #visualisation {
+        width: 65%;
+        float: left;
+        height: 600px;
+        border: 1px solid black;
+    }
+
+        #query_generator #visualisation  #graph {
+            height: 100%;
+        }
+
+        #query_generator #visualisation  #graph .block {
+            border: 1px solid black;
+            padding: 2px;
+            position: relative;
+            display: relative;
+            width: 200px;
+            min-height: 150px;
+            background-color: white;
+        }
+
+        #query_generator #visualisation  #graph .model {}
+
+            #query_generator #visualisation  #graph .model h3 {
+                text-align: center;
+            }

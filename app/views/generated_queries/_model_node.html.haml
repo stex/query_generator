@@ -1,0 +1,5 @@
+%h3= model
+%ul
+  - @dh.linkage_graph.get_node(model).connected_models.each do |cm|
+    %li
+      = link_to_function cm.human_name, "queryGenerator.graph.addConnection('#{model.to_s.underscore}', '#{cm.to_s.underscore}')"

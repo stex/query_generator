@@ -26,11 +26,11 @@ module QueryGenerator
       !(array1 & array2).empty?
     end
 
-    # Forwards the query to CanCan's can? function if the plugin
-    # is installed. Otherwise it simply returns true
+    # Forwards the query to CanCan's can? function if the usage of
+    # CanCan is enabled in the configuration. Otherwise it will just return true
     #--------------------------------------------------------------
-    def try_can?(action, subject, *extra_args)
-      defined?(CanCan) ? can?(action, subject, *extra_args) : true
+    def ccan?(action, subject, *extra_args)
+      Configuration.get(:access_control)[:use_cancan] ? can?(action, subject, *extra_args) : true
     end
 
   end

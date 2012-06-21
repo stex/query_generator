@@ -33,6 +33,12 @@ module QueryGenerator
       @edges
     end
 
+    # Returns all models which are directly connected to this node
+    #--------------------------------------------------------------
+    def connected_models
+      @edges.keys.map {|k| k.constantize }
+    end
+
     def graph
       QueryGenerator::DataHolder.instance.linkage_graph
     end
@@ -52,9 +58,13 @@ module QueryGenerator
     # Parameters:
     #  end_point:        Class or class name of the other model
     #  options:          Various association options coming from ActiveRecord.
+    #
+    # The edges are stored in the following format:
+    #  {ModelName => {association_name_1 => options_1, association_name_2 => options_2}}
     #--------------------------------------------------------------
     def is_connected_to!(end_point, options)
-      @edges[end_point.to_s] = options
+      @edges[end_point.to_s] ||= {}
+      @edges[end_point.to_s][options[:name]] = options
     end
 
     # Performs a Breadth First Search on the linkage graph
@@ -78,7 +88,7 @@ module QueryGenerator
 
        return @shortest_paths[current_model] = path_to[current_model] if current_model.to_s == model.to_s
 
-       current_node.edges.each do |end_point, options|
+       current_node.edges.each do |end_point, associations|
          unless visited_models.include?(end_point)
            path_to[end_point] = path_to[current_model] + [end_point]
            model_queue << end_point
@@ -88,7 +98,7 @@ module QueryGenerator
       end
 
       []
-     end
+    end
 
   end
 end

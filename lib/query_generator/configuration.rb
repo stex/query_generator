@@ -27,6 +27,17 @@ module QueryGenerator
   #     :indicators -- Array of javascript indicators. If a string starts with one of them, it won't be converted to a javascript string
   #     :end_classes -- Classes which do not contain any more classes to be converted
   #     :container_classes -- Classes which do contain other objects to be converted
+  #
+  # :controller
+  #   Options around the plugin controller, e.g. the layout used by the application.
+  #   Available options here:
+  #     :layout -- The layout file used to the render the actions. By default, the plugin brings its own layout
+  #
+  #  :access_control
+  #    Options to restrict access to the query generator (or applicaton models)
+  #    Available options here:
+  #      :use_cancan -- If this is set to true, the plugin will check user rights for each application model.
+  #                     This means that e.g. a model is not diplayed unless the user has the "read" ability for it.
 
   class Configuration
     include Singleton
@@ -45,9 +56,11 @@ module QueryGenerator
     def initialize
       @configuration = HashWithIndifferentAccess.new
       @configuration[:exclusions] = HashWithIndifferentAccess.new(:classes => [], :modules => [])
-      @configuration[:javascript] = HashWithIndifferentAccess.new(:indicators => ["javascript:", "js:", "jQuery(", "$(", "$F("],
+      @configuration[:javascript] = HashWithIndifferentAccess.new(:indicators => ["javascript:", "js:", "jQuery(", "$(", "$F(", "function("],
                                                                   :end_classes => [String, Symbol, Date, DateTime],
                                                                   :container_classes => [Array, Hash])
+      @configuration[:controller] = HashWithIndifferentAccess.new(:layout => "query_generator")
+      @configuration[:access_control] = HashWithIndifferentAccess.new(:use_cancan => false)
     end
 
     def get(config_name)

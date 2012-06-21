@@ -14,12 +14,14 @@ module QueryGenerator
       load_models
       load_associations
       generate_linkage_graph
+      log_erroneous_associations
     end
 
     def reload!
       @models = nil
       @associations = nil
       @linkages = nil
+      @erroneous_associations = nil
       load_app_data
     end
 
@@ -47,6 +49,12 @@ module QueryGenerator
     #--------------------------------------------------------------
     def associations_for(model)
       @associations[model.to_s.classify]
+    end
+
+    # Erroneous Connections found during structure analysis
+    #--------------------------------------------------------------
+    def erroneous_associations
+      @erroneous_associations ||= {}
     end
 
     # Searches for an association with the given name for the given
@@ -115,9 +123,13 @@ module QueryGenerator
 
       #Remove excluded classes
       @models -= exclusions[:classes]
+      @models -= [GeneratedQuery]
 
       #Remove excluded modules
       @models.reject! {|m| exclusions[:modules].include?(get_first_module(m))}
+
+      #Sort Models by name for later use
+      @models.sort! {|x,y| x.to_s <=> y.to_s}
     end
 
     # Loads all associations for pre-fetched models
@@ -153,10 +165,16 @@ module QueryGenerator
           #Find the end point class name for the current association
           class_name = get_end_point_class(model_name, name, options)
 
+          #Add an error for the association if the class could not be resolved
+          if class_name.blank?
+            @erroneous_associations ||= {}
+            @erroneous_associations[model_name] ||= []
+            @erroneous_associations[model_name] << {:association => name, :options => options}
+          end
+
           #If the (correct) class name was found and it's not in the exclude-list, add
           #an edge to the current node
-          puts class_name.class if class_name.to_s == "Audit" && !excluded_class?(class_name)
-          if class_name && !excluded_class?(class_name)
+          if class_name.present? && !excluded_class?(class_name)
             node.is_connected_to! class_name, options
           end
         end
@@ -203,28 +221,41 @@ module QueryGenerator
 
             through_class = get_end_point_class(model_name, through_association[:name], through_association)
 
-            #A custom association might have been set for the through association.
-            #If yes, use it.
-            name_to_use = options[:source].to_s || name
+            #A custom association might have been set for the through association. If yes, use it.
+            name_to_use = (options[:source] || name).to_s
 
             #Find correct association in model used by :through
             through_class_association = association_by_name(through_class, name_to_use.singularize)
 
             #Get model name from :through model
             if through_class_association
-              class_name = get_end_point_class(through_class, name, through_class_association)
+              class_name = get_end_point_class(through_class, name_to_use, through_class_association)
             end
           end
         else
           return nil
       end
 
-      class_name = class_name.to_s.try(:classify)
+      #Classify the class name unless a class name was given in the options (e.g.
+      # naming without using the conventions)
+      class_name = class_name.to_s.try(:classify) unless options[:class_name]
 
-      if class_name && existing_class?(class_name)
+      if class_name.present? && existing_class?(class_name)
         class_name
       else
         get_end_point_class(model_name, name, options, try_no + 1)
+      end
+    end
+
+    # Logs erroneous model associations if any were found
+    #--------------------------------------------------------------
+    def log_erroneous_associations
+      Rails.logger.warn "* QueryGenerator -- Erroneous associations:" if erroneous_associations.any?
+      erroneous_associations.each do |model, eas|
+        Rails.logger.warn "*  Model: #{model}"
+        eas.each do |ea|
+          Rails.logger.warn "*   Association: #{ea[:association]}"
+        end
       end
     end
   end

@@ -102,7 +102,7 @@ class String
     #If the result is javascript, don't convert it to a javascript string
     unless options[:ignore_javascript_indicators]
       for ji in QueryGenerator::Configuration.get(:javascript)[:indicators]
-        return self.sub(ji, "") if self.index(ji) == 0
+        return self.sub("javascript:", "").sub("js:", "") if self.index(ji) == 0
       end
     end
 

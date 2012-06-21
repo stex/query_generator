@@ -1,0 +1,3 @@
+- query_generator_session.models.each do |model|
+  .block.draggable.model{:id => model.to_s.underscore}
+    = model_node(model)
