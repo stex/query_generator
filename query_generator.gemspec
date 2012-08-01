@@ -16,5 +16,6 @@ Gem::Specification.new do |gem|
   gem.version       = QueryGenerator::VERSION
 
   gem.add_dependency("haml")
-  #gem.add_dependency("will_paginate")
+  gem.add_dependency("sass")
+  gem.add_dependency("will_paginate")
 end

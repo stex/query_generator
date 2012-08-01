@@ -1,5 +1,14 @@
 module QueryGenerator
 
+  # This class stores all information about the surrounding rails application the plugin needs
+  # to work correctly.
+  #
+  # In production environment, all models and associations are loaded on server start
+  # and hold here for later use.
+  #
+  # While building the linkage graph between the existing models, it will also log possible erroneous associations
+  # between the models (associations it could not resolve)
+
   require "singleton"
 
   class DataHolder
@@ -192,6 +201,7 @@ module QueryGenerator
     end
 
     # Checks if the given class should be excluded from the linkage graph
+    # TODO: Allow sub-modules, e.g. exclude Module1::Module2. At the moment only Module1 is possible
     #--------------------------------------------------------------
     def excluded_class?(klass)
       klass = klass.constantize unless klass.is_a?(Class)
@@ -205,7 +215,6 @@ module QueryGenerator
     # Steps:
     #   1. Normal naming, either custom class_name or singular association name
     #   2. has_many :through chain.
-    #      TODO: Does not support longer chains at the moment - or does it?
     #--------------------------------------------------------------
     def get_end_point_class(model_name, name, options, try_no = 1)
       class_name = nil

@@ -1,4 +1,7 @@
 class GeneratedQueriesController < ApplicationController
+  unloadable if Rails.env.development?
+
+  include QueryGenerator
 
   #Set the layout based on the current configuration
   layout QueryGenerator::Configuration.get(:controller)[:layout]

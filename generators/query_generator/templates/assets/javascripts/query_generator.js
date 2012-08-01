@@ -37,10 +37,15 @@ var queryGenerator = {
 
             jQuery(this.canvasSelector).append(newElem);
 
-            jsPlumb.draggable(id, { containment: queryGenerator.graph.canvasSelector, scroll: false });
-            //jQuery(newElem).draggable({ containment: queryGenerator.graph.canvasSelector, scroll: false })
+            jsPlumb.draggable(id, { containment: queryGenerator.graph.canvasSelector, scroll: false, handle: ".handle" });
         },
 
+        /**
+         * Adds a connection between two nodes
+         * @param model1
+         * @param model2
+         * @param label
+         */
         addConnection: function(model1, model2, label) {
             var myConnection = jsPlumb.connect({
                 source: model1,

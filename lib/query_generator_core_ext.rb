@@ -1,30 +1,4 @@
 class Hash
-  # Recursive merge functions
-  #
-  # Normal merge example:
-  #   {:a =>  "b", :c => {:d => "e"}}.merge({:c => {:g => "h"}})
-  #   #=> {:a => "b", :c => {:g => "h"}}
-  #
-  # Recursive merge example:
-  #   {:a =>  "b", :c => {:d => "e"}}.recursive_merge({:c => {:g => "h"}})
-  #   #=> {:a => "b", :c => {:g => "h", :d => "e"}}
-  #
-  def recursive_merge(h)
-    self.merge(h) {|key, _old, _new| if _old.class == Hash then _old.recursive_merge(_new) else _new end  }
-  end
-
-  def recursive_merge!(h)
-    self.merge!(h) {|key, _old, _new| if _old.class == Hash then _old.recursive_merge(_new) else _new end  }
-  end
-
-  def recursive_reverse_merge(h)
-    self.reverse_merge(h) {|key, _old, _new| if _old.class == Hash then _old.recursive_reverse_merge(_new) else _new end  }
-  end
-
-  def recursive_reverse_merge!(h)
-    self.reverse_merge!(h) {|key, _old, _new| if _old.class == Hash then _old.recursive_reverse_merge(_new) else _new end  }
-  end
-
   def escape_javascript(options = {})
     escape_keys = options[:escape_keys] || false
 

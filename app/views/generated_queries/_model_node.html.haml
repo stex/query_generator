@@ -1,4 +1,6 @@
-%h3= model
+.handle.ui-corner-all.ui-widget-header
+  = model
+
 %ul
   - @dh.linkage_graph.get_node(model).connected_models.each do |cm|
     %li

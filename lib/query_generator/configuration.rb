@@ -1,12 +1,12 @@
 module QueryGenerator
-  require "singleton"
-
   # Configuration holder for the whole plugin.
   #
   # You can set/override a configuration value by calling
   #   QueryGenerator::Configuration.set(key, value)
-  # Important: This is using a recursive merging function for ruby hashes. Please have a look at the core
-  #            extensions
+  #
+  # Important: This is using ActiveSupport's deep_merge function for ruby hashes.
+  #            The documentation can be found here:
+  #            http://rubydoc.info/docs/rails/2.3.8/ActiveSupport/CoreExtensions/Hash/DeepMerge
   #
   # Available options:
   #
@@ -16,7 +16,12 @@ module QueryGenerator
   #   It is a ruby hash with the two keys
   #     :classes and
   #     :modules
-  #   which both hold an array of Class / array of Module.
+  #   which both hold an array of Class / array of Module. By default, the plugin will not include
+  #   its own classes.
+  #
+  #   **Example** with models Model1, Model2, MyModule::Model3, MyModule::Model4
+  #   QueryGenerator::Configuration.set(:exclusions, :classes => [Model1, Model2], :modules => [MyModule])
+  #   The :modules-part in this example will exclude Model3 and Model4 without having to specify them.
   #
   # :javascript
   #   Options used by the core extensions for some classes, e.g. String, Hash, Array
@@ -34,44 +39,42 @@ module QueryGenerator
   #     :layout -- The layout file used to the render the actions. By default, the plugin brings its own layout
   #
   #  :access_control
-  #    Options to restrict access to the query generator (or applicaton models)
+  #    Options to restrict access to the query generator (or application models)
   #    Available options here:
   #      :use_cancan -- If this is set to true, the plugin will check user rights for each application model.
-  #                     This means that e.g. a model is not diplayed unless the user has the "read" ability for it.
+  #                     This means that e.g. a model is not displayed unless the user has the "read" ability for it.
+  #                     Default value is -false-
 
   class Configuration
-    include Singleton
+    unloadable if Rails.env.development?
+
     include HelperFunctions
 
     def self.get(config_name)
-      self.instance
-      self.instance.get(config_name)
+      initialize_configuration unless defined?(@@configuration)
+      @@configuration[config_name] ||= HashWithIndifferentAccess.new
     end
 
     def self.set(config_name, value)
-      self.instance
-      self.instance.set(config_name, value)
-    end
-
-    def initialize
-      @configuration = HashWithIndifferentAccess.new
-      @configuration[:exclusions] = HashWithIndifferentAccess.new(:classes => [], :modules => [])
-      @configuration[:javascript] = HashWithIndifferentAccess.new(:indicators => ["javascript:", "js:", "jQuery(", "$(", "$F(", "function("],
-                                                                  :end_classes => [String, Symbol, Date, DateTime],
-                                                                  :container_classes => [Array, Hash])
-      @configuration[:controller] = HashWithIndifferentAccess.new(:layout => "query_generator")
-      @configuration[:access_control] = HashWithIndifferentAccess.new(:use_cancan => false)
-    end
-
-    def get(config_name)
-      @configuration[config_name] ||= HashWithIndifferentAccess.new
-    end
-
-    def set(config_name, value)
-      get(config_name)
-      @configuration.recursive_merge!(HashWithIndifferentAccess.new(config_name => value))
+      initialize_configuration unless defined?(@@configuration)
+      @@configuration.deep_merge!(HashWithIndifferentAccess.new(config_name => value))
 
       DataHolder.instance.reload! if config_name.to_s == "exclusions"
     end
+
+    private
+
+    # Loads the initial configuration
+    #--------------------------------------------------------------
+    def self.initialize_configuration
+      @@configuration = HashWithIndifferentAccess.new
+      @@configuration[:exclusions] = HashWithIndifferentAccess.new(:classes => [], :modules => [QueryGenerator])
+      @@configuration[:javascript] = HashWithIndifferentAccess.new(:indicators => ["javascript:", "js:", "jQuery(", "$(", "$F(", "function("],
+                                                                  :end_classes => [String, Symbol, Date, DateTime],
+                                                                  :container_classes => [Array, Hash])
+      @@configuration[:controller] = HashWithIndifferentAccess.new(:layout => "query_generator")
+      @@configuration[:access_control] = HashWithIndifferentAccess.new(:use_cancan => false)
+    end
+
   end
 end
