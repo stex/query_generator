@@ -1,4 +1,4 @@
-queryGenerator =
+window.queryGenerator =
   nodes: null
   edges: null
 
@@ -8,6 +8,9 @@ queryGenerator =
     init: ->
       null
 
+    # Adds a node to the current graph. This will create
+    # a new draggable box inside the graph area
+    #--------------------------------------------------------------
     addNode: (id, content, type) ->
       type = "div" unless type?
 
@@ -20,22 +23,17 @@ queryGenerator =
 
       jsPlumb.draggable(id, { containment: queryGenerator.graph.canvasSelector, scroll: false, handle: ".handle" })
 
-    ###
-    * Adds a connection between two nodes
-    * @param model1
-    * @param model2
-    * @param label
-    ###
+    # Adds a connection between two nodes and visualizes it with
+    # jsPlumb (draws a connection between the two draggable boxes)
+    #--------------------------------------------------------------
     addConnection: (model1, model2, label) ->
-      myConnection = jsPlumb.connect({
+      jsPlumb.connect({
         source: model1,
         target: model2,
-        parameters:{}
+        parameters: {}
       })
 
-    removeNode: (node) ->
-      jQuery("#" + node).remove()
-
+    removeNode: (node) -> jQuery("#" + node).remove()
 
   ###
   ***********************************************

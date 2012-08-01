@@ -1,7 +1,6 @@
 (function() {
-  var queryGenerator;
 
-  queryGenerator = {
+  window.queryGenerator = {
     nodes: null,
     edges: null,
     graph: {
@@ -22,16 +21,8 @@
           handle: ".handle"
         });
       },
-      /*
-          * Adds a connection between two nodes
-          * @param model1
-          * @param model2
-          * @param label
-      */
-
       addConnection: function(model1, model2, label) {
-        var myConnection;
-        return myConnection = jsPlumb.connect({
+        return jsPlumb.connect({
           source: model1,
           target: model2,
           parameters: {}

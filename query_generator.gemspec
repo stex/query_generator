@@ -18,4 +18,11 @@ Gem::Specification.new do |gem|
   gem.add_dependency("haml")
   gem.add_dependency("sass")
   gem.add_dependency("will_paginate")
+
+  #Barista needs JSON and depending on your OS a javascript runtime
+  #Example Gemfile:
+  # gem "json"
+  # gem "barista"
+  # gem "therubyracer", :require => nil
+  gem.add_dependency("barista")
 end
