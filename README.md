@@ -35,11 +35,13 @@ QueryGenerator will automatically register itself as framework, so you don't hav
 
 Just have a look at http://coffeescript.org/
 
-Additional: Barista needs two things itself:
-* A javascript runtime, e.g.
+Barista has two dependencies itself:
+
+A javascript runtime, e.g.
 
     gem "therubyracer", :require => nil
-* If you are using ruby1.8.x, you need to install the JSON gem as well:
+
+If you are using ruby1.8.x, you need to install the JSON gem:
 
     gem "json"
 
