@@ -35,7 +35,8 @@ QueryGenerator will automatically register itself as framework, so you don't hav
 
 Just have a look at http://coffeescript.org/
 
-Barista has two dependencies itself:
+Barista has two dependencies itself. You have to add them to your Gemfile manually as they are either
+optional or you have multiple options to choose from.
 
 A javascript runtime, e.g.
 
