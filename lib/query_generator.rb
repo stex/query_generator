@@ -1,7 +1,7 @@
 require "query_generator/version"
 require "query_generator_core_ext"
 
-plugin_directory        = File.join(Rails.root, "vendor", "plugins", "query_generator")
+plugin_directory        = File.expand_path('../..', __FILE__)
 sass_directory          = File.join(plugin_directory, "app", "stylesheets")
 coffee_script_directory = File.join(plugin_directory, "app", "coffeescripts")
 

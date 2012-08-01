@@ -14,10 +14,4 @@ puts <<-EOS
   Alternatively, you can get all available options with
               script/generate query_generator
   to generate only certain files
-
-  The QueryGenerator has some gem dependencies:
-    - HAML:          A replacement for the normal .erb-templates. Don't worry, your .erb-files will still be parsed normally
-    - SASS:          A stylesheet parser
-    - Barista:       An adapter for CoffeeScript
-    - will_paginate: Simple pagination on ActiveRecord level
 EOS
