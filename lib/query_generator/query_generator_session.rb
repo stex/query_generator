@@ -25,6 +25,7 @@ module QueryGenerator
 
     def session_namespace
       @session[:query_generator] ||= {}
+      @session[:query_generator]
     end
 
   end

@@ -4,13 +4,15 @@
     #accordion
       - @dh.models.each do |model|
         - next unless ccan? :read, model
-        %p= link_to_remote(model.human_name, :url => query_generator_add_model_path(:model => model.to_s))
+        %p= link_to_remote(model.human_name, :url => add_model_generated_queries_path(:model => model.to_s))
 
 
   #visualisation
     #graph.canvas
       = render :partial => "query_graph"
 
+  #model-records-preview{:style => "display: none"}
+
 :javascript
-  queryGenerator.graph.init();
+  queryGenerator.init();
   queryGenerator.setNodes(#{@dh.linkage_graph.nodes.to_json});

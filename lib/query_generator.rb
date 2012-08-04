@@ -7,7 +7,7 @@ coffee_script_directory = File.join(plugin_directory, "app", "coffeescripts")
 
 #Make SASS parse the necessary stylesheet files.
 #This will also create them in the main application's public/ directory
-Sass::Plugin.add_template_location(sass_directory) if defined?(Sass::Plugin)
+Sass::Plugin.add_template_location(sass_directory)
 
 #Barista is a rails adapter for CoffeeScript
 #The following line will register this plugin as a framework and make CoffeeScript parse all

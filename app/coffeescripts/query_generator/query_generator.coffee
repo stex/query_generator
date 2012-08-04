@@ -2,6 +2,19 @@ window.queryGenerator =
   nodes: null
   edges: null
 
+  pageElements:
+    recordPreview: "#model-records-preview"
+
+  init: () ->
+    jQuery(this.pageElements.recordPreview).dialog(autoOpen: false, modal: true, width: "90%", height: "700")
+
+  # Used to display a model's records in a jQuery UI dialog
+  #--------------------------------------------------------------
+  displayModelRecords: (dialogTitle, content) ->
+    jQuery(this.pageElements.recordPreview).html(content)
+    jQuery(this.pageElements.recordPreview).dialog("option", {title: dialogTitle})
+    jQuery(this.pageElements.recordPreview).dialog("open")
+
   graph:
     canvasSelector: "#graph"
 

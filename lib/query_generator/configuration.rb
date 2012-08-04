@@ -29,8 +29,9 @@ module QueryGenerator
   #   Yes, you could use .to_json, but sometimes this does not produce exactly
   #   what you need.
   #   Available options here:
-  #     :indicators -- Array of javascript indicators. If a string starts with one of them, it won't be converted to a javascript string
-  #     :end_classes -- Classes which do not contain any more classes to be converted
+  #     :indicators        -- Array of javascript indicators. If a string starts with one of them,
+  #                           it won't be converted to a javascript string
+  #     :end_classes       -- Classes which do not contain any more classes to be converted
   #     :container_classes -- Classes which do contain other objects to be converted
   #
   # :controller
@@ -44,6 +45,15 @@ module QueryGenerator
   #      :use_cancan -- If this is set to true, the plugin will check user rights for each application model.
   #                     This means that e.g. a model is not displayed unless the user has the "read" ability for it.
   #                     Default value is -false-
+  #
+  #  :pagination
+  #    Options for the will_paginate gem.
+  #    Available options here:
+  #      :remote_renderer -- query_generator uses remote pagination in some views. As will_paginate does not
+  #                          allows this out of the box, a helper class is required. query_generator has its own
+  #                          remote renderer, but you can set your own if you already created one in your main
+  #                          application
+  #      :per_page        -- Sets how many records are displayed by default
 
   class Configuration
     unloadable if Rails.env.development?
@@ -74,6 +84,7 @@ module QueryGenerator
                                                                   :container_classes => [Array, Hash])
       @@configuration[:controller] = HashWithIndifferentAccess.new(:layout => "query_generator")
       @@configuration[:access_control] = HashWithIndifferentAccess.new(:use_cancan => false)
+      @@configuration[:pagination] = HashWithIndifferentAccess.new(:remote_renderer => "QueryGeneratorRemoteLinkRenderer", :per_page => 20)
     end
 
   end

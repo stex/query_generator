@@ -1,11 +1,10 @@
-en:
+de:
   query_generator:
     errors:
       model_not_found_or_permissions: The model %{model} does not exist or you don't have the necessary rights to access it.
-      record_insufficient_permissions: You don't have the necessary permissions to view this record.
     success:
       model_added: Successfully added the model %{model} to your current query
     dialog_titles:
-      model_record_preview: Preview of %{model} records
+      model_record_preview: Record preview for %{model}
     misc:
       column_header_title: "Type: %{type}, Default: %{default_value}"

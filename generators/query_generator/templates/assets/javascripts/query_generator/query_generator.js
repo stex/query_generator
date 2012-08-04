@@ -3,6 +3,24 @@
   window.queryGenerator = {
     nodes: null,
     edges: null,
+    pageElements: {
+      recordPreview: "#model-records-preview"
+    },
+    init: function() {
+      return jQuery(this.pageElements.recordPreview).dialog({
+        autoOpen: false,
+        modal: true,
+        width: "90%",
+        height: "700"
+      });
+    },
+    displayModelRecords: function(dialogTitle, content) {
+      jQuery(this.pageElements.recordPreview).html(content);
+      jQuery(this.pageElements.recordPreview).dialog("option", {
+        title: dialogTitle
+      });
+      return jQuery(this.pageElements.recordPreview).dialog("open");
+    },
     graph: {
       canvasSelector: "#graph",
       init: function() {

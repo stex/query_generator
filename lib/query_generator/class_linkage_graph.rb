@@ -28,6 +28,7 @@ module QueryGenerator
       get_node(klass) || add_node(klass)
     end
 
+    #to be deleted?
     def get_shortest_path_to(model1, model2)
       visited_models = []
       model_queue = Queue.new

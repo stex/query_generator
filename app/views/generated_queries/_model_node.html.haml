@@ -1,5 +1,6 @@
 .handle.ui-corner-all.ui-widget-header
-  = model
+  = model.human_name
+  = link_to_remote("RP", :url => preview_model_records_generated_queries_path(:model => model.to_s), :method => :get)
 
 %ul
   - @dh.linkage_graph.get_node(model).connected_models.each do |cm|

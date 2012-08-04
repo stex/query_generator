@@ -1,0 +1,5 @@
+if @model
+  page.call "queryGenerator.displayModelRecords", t("query_generator.dialog_titles.model_record_preview", :model => @model.human_name), (render :partial => "model_record_preview")
+end
+
+page[:flash].replace_html flash_messages
