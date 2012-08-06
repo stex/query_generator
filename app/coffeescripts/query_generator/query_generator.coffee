@@ -4,9 +4,11 @@ window.queryGenerator =
 
   pageElements:
     recordPreview: "#model-records-preview"
+    wizard: "#query-generator"
 
   init: () ->
     jQuery(this.pageElements.recordPreview).dialog(autoOpen: false, modal: true, width: "90%", height: "700")
+    queryGenerator.wizard.init()
 
   # Used to display a model's records in a jQuery UI dialog
   #--------------------------------------------------------------
@@ -14,6 +16,13 @@ window.queryGenerator =
     jQuery(this.pageElements.recordPreview).html(content)
     jQuery(this.pageElements.recordPreview).dialog("option", {title: dialogTitle})
     jQuery(this.pageElements.recordPreview).dialog("open")
+
+  wizard:
+    init: ->
+      jQuery(queryGenerator.pageElements.wizard).liteAccordion(
+        containerHeight: "95%",
+        containerWidth: "99%",
+        rounded: true, linkable: true).find("slide-content:first").show()
 
   graph:
     canvasSelector: "#graph"
@@ -50,14 +59,14 @@ window.queryGenerator =
 
   ###
   ***********************************************
-  *                 Callbacks
+  *                 Callbacks                   *
   ***********************************************
   ###
 
 
   ###
   ***********************************************
-  *              Getters / Setters
+  *              Getters / Setters              *
   ***********************************************
   ###
 
@@ -66,3 +75,15 @@ window.queryGenerator =
     queryGenerator.edges = []
 
     jQuery(jsonNodes).each (index, node) -> queryGenerator.edges[node.klass] = node.edges
+
+  ###
+  ***********************************************
+  *              Helper Functions               *
+  ***********************************************
+  ###
+  helpers:
+
+    windowHeightPercent: (percent) ->
+      jQuery(window).height() * (percent / 100)
+    windowWidthPercent: (percent) ->
+      jQuery(window).width() * (percent / 100)

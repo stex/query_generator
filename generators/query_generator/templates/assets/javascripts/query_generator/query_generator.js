@@ -4,15 +4,17 @@
     nodes: null,
     edges: null,
     pageElements: {
-      recordPreview: "#model-records-preview"
+      recordPreview: "#model-records-preview",
+      wizard: "#query-generator"
     },
     init: function() {
-      return jQuery(this.pageElements.recordPreview).dialog({
+      jQuery(this.pageElements.recordPreview).dialog({
         autoOpen: false,
         modal: true,
         width: "90%",
         height: "700"
       });
+      return queryGenerator.wizard.init();
     },
     displayModelRecords: function(dialogTitle, content) {
       jQuery(this.pageElements.recordPreview).html(content);
@@ -20,6 +22,16 @@
         title: dialogTitle
       });
       return jQuery(this.pageElements.recordPreview).dialog("open");
+    },
+    wizard: {
+      init: function() {
+        return jQuery(queryGenerator.pageElements.wizard).liteAccordion({
+          containerHeight: "95%",
+          containerWidth: "99%",
+          rounded: true,
+          linkable: true
+        }).find("slide-content:first").show();
+      }
     },
     graph: {
       canvasSelector: "#graph",
@@ -52,13 +64,13 @@
     },
     /*
       ***********************************************
-      *                 Callbacks
+      *                 Callbacks                   *
       ***********************************************
     */
 
     /*
       ***********************************************
-      *              Getters / Setters
+      *              Getters / Setters              *
       ***********************************************
     */
 
@@ -68,6 +80,20 @@
       return jQuery(jsonNodes).each(function(index, node) {
         return queryGenerator.edges[node.klass] = node.edges;
       });
+    },
+    /*
+      ***********************************************
+      *              Helper Functions               *
+      ***********************************************
+    */
+
+    helpers: {
+      windowHeightPercent: function(percent) {
+        return jQuery(window).height() * (percent / 100);
+      },
+      windowWidthPercent: function(percent) {
+        return jQuery(window).width() * (percent / 100);
+      }
     }
   };
 

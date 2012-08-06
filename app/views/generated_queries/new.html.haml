@@ -1,16 +1,26 @@
-#query_generator
-  #flash
-  #models
-    #accordion
-      - @dh.models.each do |model|
-        - next unless ccan? :read, model
-        %p= link_to_remote(model.human_name, :url => add_model_generated_queries_path(:model => model.to_s))
+#query-generator
+  %ol
+    %li
+      %h2 Slide Numero 1
+      %div.slide-content asdf
+    %li
+      %h2 Slide Numero 2
+      %div.slide-content fdsa
 
 
-  #visualisation
-    #graph.canvas
-      = render :partial => "query_graph"
+  -##flash
+  -##models
+  -#  #accordion
+  -#    - @dh.models.each do |model|
+  -#      - next unless ccan? :read, model
+  -#      %p= link_to_remote(model.human_name, :url => add_model_generated_queries_path(:model => model.to_s))
+  -#
+  -#
+  -##visualisation
+  -#  #graph.canvas
+  -#    = render :partial => "query_graph"
 
+  / Content for the model records preview dialog
   #model-records-preview{:style => "display: none"}
 
 :javascript

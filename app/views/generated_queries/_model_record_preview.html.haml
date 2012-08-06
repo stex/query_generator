@@ -14,4 +14,4 @@
           - else
             %td{:colspan => @model.columns.size}= t("query_generator.errors.record_insufficient_permissions")
 
-  = will_paginate @records, :renderer => QueryGenerator::Configuration.get(:pagination)[:remote_renderer], :remote => {}
+  = will_paginate @records, :renderer => conf(:pagination)[:remote_renderer], :remote => {}

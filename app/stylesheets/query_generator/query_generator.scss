@@ -17,7 +17,7 @@
 
       td {
         border-bottom: 1px solid #CCCCCC;
-        padding: 6px 8px;
+        padding: 4px 6px;
       }
     }
 
@@ -33,6 +33,7 @@
     &.records {
       margin-left: auto;
       margin-right: auto;
+      font-size: 12pt;
       td {
         &.boolean {
           text-align: center;

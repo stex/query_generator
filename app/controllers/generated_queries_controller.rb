@@ -1,13 +1,11 @@
 class GeneratedQueriesController < ApplicationController
   unloadable if Rails.env.development? #Don't cache this class in development environment, even if in gem
 
-  include QueryGenerator
-
   #Set the layout based on the current configuration
   layout QueryGenerator::Configuration.get(:controller)[:layout]
 
   #Make the query_generator_session available in views
-  helper_method :query_generator_session
+  helper_method :query_generator_session, :conf
 
   #Load the DataHolder for methods which need it.
   before_filter :load_data_holder_instance, :only => [:new, :edit, :add_model]
@@ -20,16 +18,16 @@ class GeneratedQueriesController < ApplicationController
   end
 
   def index
-    @generated_queries = GeneratedQuery.all.paginate(:page => params[:page], :per_page => 50)
+    @generated_queries = QueryGenerator::GeneratedQuery.all.paginate(:page => params[:page], :per_page => 50)
   end
 
   def new
-    @generated_query = GeneratedQuery.new
+    @generated_query = QueryGenerator::GeneratedQuery.new
     query_generator_session.init_for_generated_query(@generated_query)
   end
 
   def edit
-    @generated_query = Generated_query.find(params[:id])
+    @generated_query = QueryGenerator::Generated_query.find(params[:id])
   end
 
   # Displays the model's records as a preview. Can be used
@@ -37,7 +35,7 @@ class GeneratedQueriesController < ApplicationController
   #--------------------------------------------------------------
   def preview_model_records
     if @model
-      @records = @model.paginate(:page => params[:page], :per_page => QueryGenerator::Configuration.get(:pagination)[:per_page])
+      @records = @model.paginate(:page => params[:page], :per_page => conf(:pagination)[:per_page])
     end
 
     respond_to do |format|
@@ -81,5 +79,11 @@ class GeneratedQueriesController < ApplicationController
   def load_data_holder_instance
     @dh = QueryGenerator::DataHolder.instance
     QueryGenerator::Configuration.set(:exclusions, :classes => [Audit, Page, Sheet, SheetLayout, Attachment], :modules => [Tolk])
+  end
+
+  # A shortcut to get a configuration
+  #--------------------------------------------------------------
+  def conf(config_name)
+    QueryGenerator::Configuration.get(config_name)
   end
 end
