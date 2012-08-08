@@ -382,6 +382,7 @@
 
                 init : function() {
                     //Set globals which needed the core namespace
+
                     core.initMissingGlobals();
 
                     // test for ie
@@ -423,6 +424,7 @@
 
         if ( typeof methodOrOptions === 'object' || ! methodOrOptions ) {
             //Initialize a new accordion or return the existing one
+
             return elem.each(function() {
                 var liteAccordion;
 
