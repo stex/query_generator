@@ -39,14 +39,14 @@ module QueryGenerator
   #   Available options here:
   #     :layout -- The layout file used to the render the actions. By default, the plugin brings its own layout
   #
-  #  :access_control
+  # :access_control
   #    Options to restrict access to the query generator (or application models)
   #    Available options here:
   #      :use_cancan -- If this is set to true, the plugin will check user rights for each application model.
   #                     This means that e.g. a model is not displayed unless the user has the "read" ability for it.
   #                     Default value is -false-
   #
-  #  :pagination
+  # :pagination
   #    Options for the will_paginate gem.
   #    Available options here:
   #      :remote_renderer -- query_generator uses remote pagination in some views. As will_paginate does not
@@ -54,6 +54,13 @@ module QueryGenerator
   #                          remote renderer, but you can set your own if you already created one in your main
   #                          application
   #      :per_page        -- Sets how many records are displayed by default
+  #
+  # :localization
+  #   Options used to set the default formats for I18n.l
+  #   Available options here:
+  #     :date     -- Format for Date objects. Default is :short
+  #     :datetime -- Format for DateTime objects. Default is :short
+  #     :time     -- Format for Time objects. Default is :short
 
   class Configuration
     unloadable if Rails.env.development?
@@ -85,6 +92,7 @@ module QueryGenerator
       @@configuration[:controller] = HashWithIndifferentAccess.new(:layout => "query_generator")
       @@configuration[:access_control] = HashWithIndifferentAccess.new(:use_cancan => false)
       @@configuration[:pagination] = HashWithIndifferentAccess.new(:remote_renderer => "QueryGeneratorRemoteLinkRenderer", :per_page => 20)
+      @@configuration[:localization] = HashWithIndifferentAccess.new(:date => :short, :datetime => :short, :time => :short)
     end
 
   end

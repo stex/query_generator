@@ -4,7 +4,7 @@
     %title Rails Query Generator Demo Layout
 
     = stylesheet_link_tag "query_generator/query_generator"
-    = stylesheet_link_tag "query_generator/jquery_ui_aristo"
+    = stylesheet_link_tag "query_generator/jquery_ui_aristo", "query_generator/lite_accordion"
 
     = javascript_include_tag 'http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js'
     = javascript_include_tag 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.13/jquery-ui.min.js'
@@ -13,7 +13,6 @@
       $jQ = jQuery.noConflict();
 
     = javascript_include_tag "query_generator/jquery.jsPlumb-1.3.9-all-min",
-                             "query_generator/query_generator"
-
+                             "query_generator/query_generator", "query_generator/liteaccordion.jquery"
   %body
     = yield

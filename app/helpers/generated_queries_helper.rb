@@ -26,7 +26,7 @@ module GeneratedQueriesHelper
         title = attribute
         content = options[:truncate_strings] ? truncate(attribute, :length => 30, :separator => " ") : attribute
       when "Date", "DateTime", "Time"
-        content = l(attribute, :format => :short)
+        content = l(attribute, :format => conf(:localization)[attribute.class.to_s.downcase])
       when "TrueClass", "FalseClass"
         content = check_box_tag("tmp", "1", attribute, :id => nil, :onclick => "return false")
       else
