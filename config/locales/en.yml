@@ -9,3 +9,19 @@ en:
       model_record_preview: Preview of %{model} records
     misc:
       column_header_title: "Type: %{type}, Default: %{default_value}"
+      model: Model
+      associations: Associations
+      actions: Actions
+    wizard:
+      main_model:
+        slide_caption: Main Model
+        title: Please choose a main model to start your query.
+        description: "In Ruby on Rails (the framework you are using) SQL queries are usually based on one Model which executes the
+                                        query. Joins are made through associations afterwards which will be chosen in the next step."
+        success: Successfully set the main model.
+      associations:
+        slide_caption: Associations
+        title: Please choose associations for your main model
+        description: blabla
+      values:
+        slide_caption: Predefined Values

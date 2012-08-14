@@ -1,0 +1,8 @@
+if @model
+  page.call "queryGenerator.wizard.disableSlide", 0
+  page.call "queryGenerator.wizard.enableSlide", 1
+  page.call "queryGenerator.wizard.openSlide", 1
+
+  page.call "queryGenerator.graph.addNode", model_dom_id(@model), model_node(@model), {:mainModel => true}
+end
+

@@ -35,6 +35,30 @@ module GeneratedQueriesHelper
     result = content_tag(:span, content, :title => title)
   end
 
+  # Generates a dom_id for a model and an association
+  # This is in a helper function to keep it constant through
+  # the application
+  #--------------------------------------------------------------
+  def association_dom_id(model, association)
+    "model_#{model.to_s.underscore}_association_#{association}"
+  end
+
+  # Creates a dom_id for a model. Reason: see association_dom_id()
+  #--------------------------------------------------------------
+  def model_dom_id(model, options = {})
+    res = "model_#{model.to_s.underscore}"
+    res = [options[:prefix], res].join("_") if options[:prefix]
+    options[:include_hash] ? "#" + res : res
+  end
+
+  def association_quantity_icon(model, association)
+    node = dh.linkage_graph.get_node(model)
+    end_point = node.get_model_by_association(association)
+    options = node.edges[end_point.to_s][association.to_s]
+
+    macro = options[:macro]
+  end
+
   # Creates divs for each flash message type
   #--------------------------------------------------------------
   def flash_messages

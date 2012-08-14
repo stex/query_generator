@@ -10,7 +10,7 @@ module QueryGenerator
       klass = klass.class unless klass.is_a?(Class)
       parts = klass.to_s.split("::")
       parts.pop
-      parts.map {|p| p.constantize}
+      parts.map &:constantize
     end
 
     # Returns the topmost module for the given class

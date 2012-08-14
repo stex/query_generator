@@ -53,6 +53,8 @@ module QueryGenerator
       @linkages
     end
 
+    private
+
     # Getter for associations to make sure the hash key format
     # is always the same.
     #--------------------------------------------------------------
@@ -85,8 +87,6 @@ module QueryGenerator
 
       @associations[model_name][association.name.to_s] = options
     end
-
-    private
 
     # Loads all models in the application. This is done once as the
     # models usually don't change once the application was

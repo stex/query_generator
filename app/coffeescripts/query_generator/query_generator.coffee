@@ -18,44 +18,74 @@ window.queryGenerator =
     jQuery(this.pageElements.recordPreview).dialog("open")
 
   wizard:
+    # Creates the horizontal accordion which is used for the wizard
+    #--------------------------------------------------------------
     init: ->
       jQuery(queryGenerator.pageElements.wizard).liteAccordion(
-        containerHeight: "95%",
-        containerWidth: "99%",
-        rounded: true, linkable: true).find("slide-content:first").show()
+        containerHeight: "100%",
+        containerWidth: "100%",
+        contentPadding: 10,
+        linkable: true,
+        enumerateSlides: true).liteAccordion("disableSlide", 1).liteAccordion("disableSlide", 2)
+
+    # Shortcut to disable a wizard slide
+    #--------------------------------------------------------------
+    disableSlide: (nameOrIndex) -> jQuery(queryGenerator.pageElements.wizard).liteAccordion("disableSlide", nameOrIndex)
+
+    # Shortcut to enable a wizard slide
+    #--------------------------------------------------------------
+    enableSlide: (nameOrIndex) -> jQuery(queryGenerator.pageElements.wizard).liteAccordion("enableSlide", nameOrIndex)
+
+    # Shortcut to open the given wizard slide
+    #--------------------------------------------------------------
+    openSlide: (nameOrIndex) -> jQuery(queryGenerator.pageElements.wizard).liteAccordion("openSlide", nameOrIndex)
 
   graph:
     canvasSelector: "#graph"
-
     init: ->
       null
 
     # Adds a node to the current graph. This will create
     # a new draggable box inside the graph area
     #--------------------------------------------------------------
-    addNode: (id, content, type) ->
-      type = "div" unless type?
+    addNode: (id, content, options) ->
+      defaults =
+        type: "div"
+        mainModel: false
 
-      newElem = jQuery(document.createElement(type))
+      options = jQuery.extend({}, defaults, options)
+
+      newElem = jQuery(document.createElement(options.type))
         .addClass("block draggable model")
+        .addClass(options.mainModel && "main-model")
         .attr("id", id)
         .html(content)
 
-      jQuery(this.canvasSelector).append(newElem);
+      jQuery(@canvasSelector).append(newElem);
 
-      jsPlumb.draggable(id, { containment: queryGenerator.graph.canvasSelector, scroll: false, handle: ".handle" })
+      jsPlumb.draggable(newElem, { containment: queryGenerator.graph.canvasSelector, scroll: false, handle: ".handle" })
 
     # Adds a connection between two nodes and visualizes it with
     # jsPlumb (draws a connection between the two draggable boxes)
     #--------------------------------------------------------------
-    addConnection: (model1, model2, label) ->
-      jsPlumb.connect({
-        source: model1,
-        target: model2,
-        parameters: {}
-      })
+    addConnection: (elem1, elem2, options) ->
+      defaults =
+        source: jQuery(elem1)
+        target: jQuery(elem2)
+        connector:"StateMachine"
+        paintStyle:{lineWidth:3,strokeStyle:"#056"}
+        hoverPaintStyle:{strokeStyle:"#dbe300"}
+        endpoint:"Blank"
+        anchor:"Continuous"
+        overlays: [ ["PlainArrow", {location:1, width:20, length:12} ]]
 
-    removeNode: (node) -> jQuery("#" + node).remove()
+      options = jQuery.extend({}, defaults, options)
+
+      jsPlumb.connect(options)
+
+    removeNode: (node) ->
+      jsPlumb.detachAll(node)
+      jQuery("#" + node).remove()
 
   ###
   ***********************************************

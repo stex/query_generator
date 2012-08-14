@@ -26,11 +26,21 @@
     wizard: {
       init: function() {
         return jQuery(queryGenerator.pageElements.wizard).liteAccordion({
-          containerHeight: "95%",
-          containerWidth: "99%",
-          rounded: true,
-          linkable: true
-        }).find("slide-content:first").show();
+          containerHeight: "100%",
+          containerWidth: "100%",
+          contentPadding: 10,
+          linkable: true,
+          enumerateSlides: true
+        }).liteAccordion("disableSlide", 1).liteAccordion("disableSlide", 2);
+      },
+      disableSlide: function(nameOrIndex) {
+        return jQuery(queryGenerator.pageElements.wizard).liteAccordion("disableSlide", nameOrIndex);
+      },
+      enableSlide: function(nameOrIndex) {
+        return jQuery(queryGenerator.pageElements.wizard).liteAccordion("enableSlide", nameOrIndex);
+      },
+      openSlide: function(nameOrIndex) {
+        return jQuery(queryGenerator.pageElements.wizard).liteAccordion("openSlide", nameOrIndex);
       }
     },
     graph: {
@@ -38,27 +48,51 @@
       init: function() {
         return null;
       },
-      addNode: function(id, content, type) {
-        var newElem;
-        if (type == null) {
-          type = "div";
-        }
-        newElem = jQuery(document.createElement(type)).addClass("block draggable model").attr("id", id).html(content);
+      addNode: function(id, content, options) {
+        var defaults, newElem;
+        defaults = {
+          type: "div",
+          mainModel: false
+        };
+        options = jQuery.extend({}, defaults, options);
+        newElem = jQuery(document.createElement(options.type)).addClass("block draggable model").addClass(options.mainModel && "main-model").attr("id", id).html(content);
         jQuery(this.canvasSelector).append(newElem);
-        return jsPlumb.draggable(id, {
+        return jsPlumb.draggable(newElem, {
           containment: queryGenerator.graph.canvasSelector,
           scroll: false,
           handle: ".handle"
         });
       },
-      addConnection: function(model1, model2, label) {
-        return jsPlumb.connect({
-          source: model1,
-          target: model2,
-          parameters: {}
-        });
+      addConnection: function(elem1, elem2, options) {
+        var defaults;
+        defaults = {
+          source: jQuery(elem1),
+          target: jQuery(elem2),
+          connector: "StateMachine",
+          paintStyle: {
+            lineWidth: 3,
+            strokeStyle: "#056"
+          },
+          hoverPaintStyle: {
+            strokeStyle: "#dbe300"
+          },
+          endpoint: "Blank",
+          anchor: "Continuous",
+          overlays: [
+            [
+              "PlainArrow", {
+                location: 1,
+                width: 20,
+                length: 12
+              }
+            ]
+          ]
+        };
+        options = jQuery.extend({}, defaults, options);
+        return jsPlumb.connect(options);
       },
       removeNode: function(node) {
+        jsPlumb.detachAll(node);
         return jQuery("#" + node).remove();
       }
     },

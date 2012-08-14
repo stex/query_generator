@@ -1,5 +1,0 @@
-if @model
-  page.call "queryGenerator.graph.addNode", @model.to_s.underscore, model_node(@model)
-end
-
-page[:flash].replace_html flash_messages

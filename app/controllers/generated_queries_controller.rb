@@ -5,13 +5,10 @@ class GeneratedQueriesController < ApplicationController
   layout QueryGenerator::Configuration.get(:controller)[:layout]
 
   #Make the query_generator_session available in views
-  helper_method :query_generator_session, :conf
-
-  #Load the DataHolder for methods which need it.
-  before_filter :load_data_holder_instance, :only => [:new, :edit, :add_model]
+  helper_method :query_generator_session, :conf, :dh
 
   #Load the requested model from params
-  before_filter :load_model_from_params, :only => [:add_model, :preview_model_records]
+  before_filter :load_model_from_params, :only => [:add_association, :preview_model_records, :set_main_model]
 
   def query_generator_session
     @query_generator_session ||= QueryGenerator::QueryGeneratorSession.new(session)
@@ -30,6 +27,10 @@ class GeneratedQueriesController < ApplicationController
     @generated_query = QueryGenerator::Generated_query.find(params[:id])
   end
 
+  #--------------------------------------------------------------
+  #                       Wizard Actions
+  #--------------------------------------------------------------
+
   # Displays the model's records as a preview. Can be used
   # if the user is unsure what exactly the table contains
   #--------------------------------------------------------------
@@ -43,14 +44,40 @@ class GeneratedQueriesController < ApplicationController
     end
   end
 
-  # Adds a new model node to the currently edited GeneratedQuery.
-  # This happens only in the session, so nothing is saved yet.
-  #                                                          AJAX
+
+  # Adds a new association to the generated_query.
+  # Params which come in are the following:
+  #   :model       -- The model which already exists in the query
+  #   :association -- The association name in :model to be added
+  # If the mode which is the end point of the association does
+  # not exist in the query yet, it is automatically added
+  # (see query_generator_session)
   #--------------------------------------------------------------
-  def add_model
+  def add_association
     if @model
-      query_generator_session.add_model(@model)
-      flash.now[:notice] = t("query_generator.success.model_added", :model => @model.human_name)
+      @end_point = dh.linkage_graph.get_node(@model).get_model_by_association(params[:association])
+      @association = params[:association]
+
+      if ccan? :read, @end_point
+        @model_added = query_generator_session.add_association(@model, params[:association])
+        flash.now[:notice] = t("query_generator.success.model_added", :model => @model.human_name)
+      else
+        flash.now[:error] = t("query_generator.errors.model_not_found_or_permissions", :model => (@end_point.try(:human_name) || ""))
+        @end_point = nil
+      end
+    end
+
+    respond_to do |format|
+      format.js
+    end
+  end
+
+  # Sets the main model for a generated query
+  #--------------------------------------------------------------
+  def set_main_model
+    if @model
+      query_generator_session.main_model = @model
+      flash.now[:notice] = t("query_generator.wizard.main_model.success")
     end
 
     respond_to do |format|
@@ -65,7 +92,7 @@ class GeneratedQueriesController < ApplicationController
   # Tries to get the model from params and checks if the current
   # user has the necessary permissions to read its records
   # It automatically sets the instance variable @models and creates
-  # a flash error message
+  # a flash error message if the model couldn't be loaded for some reason
   #--------------------------------------------------------------
   def load_model_from_params
     @model = params[:model].try(:constantize)
@@ -76,9 +103,11 @@ class GeneratedQueriesController < ApplicationController
     end
   end
 
-  def load_data_holder_instance
-    @dh = QueryGenerator::DataHolder.instance
+  # Shortcut to get the DataHolder instance
+  #--------------------------------------------------------------
+  def dh
     QueryGenerator::Configuration.set(:exclusions, :classes => [Audit, Page, Sheet, SheetLayout, Attachment], :modules => [Tolk])
+    QueryGenerator::DataHolder.instance
   end
 
   # A shortcut to get a configuration

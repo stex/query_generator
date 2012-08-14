@@ -1,0 +1,23 @@
+%h2.title= t("query_generator.wizard.main_model.title")
+.information= t("query_generator.wizard.main_model.description")
+
+- form_remote_tag :url => set_main_model_generated_queries_path do
+  %table
+    %thead
+      %tr
+        %th
+        %th= t("query_generator.misc.model")
+        %th= t("query_generator.misc.associations")
+        %th= t("query_generator.misc.actions")
+
+    - dh.models.each do |model|
+      %tr{:class => cycle("odd", "even")}
+        %td= radio_button_tag "model", model.to_s, query_generator_session.main_model == model, :id => model_dom_id(model, :prefix => "main")
+        %td= label_tag model_dom_id(model, :prefix => "main"), model.human_name
+        %td
+          = dh.linkage_graph.get_node(model).connected_models.map {|m| m.human_name if ccan?(:read, m)}.compact.to_sentence
+        %td= link_to_remote("Preview", :url => preview_model_records_generated_queries_path(:model => model.to_s), :method => :get)
+
+
+  .buttons
+    = submit_tag

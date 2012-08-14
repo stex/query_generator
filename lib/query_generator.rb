@@ -1,5 +1,6 @@
 require "query_generator/version"
 require "query_generator_core_ext"
+require "sass/plugin" #Seems to be necessary for rails3 as ::Plugin is not available
 
 plugin_directory        = File.expand_path('../..', __FILE__)
 sass_directory          = File.join(plugin_directory, "app", "stylesheets")

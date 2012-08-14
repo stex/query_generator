@@ -5,6 +5,8 @@
  *   url:        http://nicolahibbert.com/liteaccordion-v2/
  *   demo:       http://www.nicolahibbert.com/demo/liteAccordion/
  *
+ *   Extended by Stefan Exner, 2012
+ *
  *   Version:    2.0.2
  *   Copyright:  (c) 2010-2011 Nicola Hibbert
  *   Licence:    MIT
@@ -16,9 +18,10 @@
     var LiteAccordion = function(elem, options) {
 
         var defaults = {
-                containerWidth : 960,                   // fixed (px)
-                containerHeight : 320,                  // fixed (px)
+                containerWidth : 960,                   // fixed (px) or percentual ("90%")
+                containerHeight : 320,                  // fixed (px) or percentual ("90%")
                 headerWidth: 48,                        // fixed (px)
+                contentPadding: 0,                      // fixed (px) padding from slide header
 
                 activateOn : 'click',                   // click or mouseover
                 firstSlide : 1,                         // displays slide (n) on page load
@@ -140,6 +143,15 @@
                         slide.removeClass("disabled");
                         core.bindOpenEvents(slide);
                     }
+                },
+
+                //Opens (triggers) the given slide
+                openSlide: function(nameOrIndex) {
+                    var slide = core.getSlideByNameOrIndex(nameOrIndex);
+
+                    if (slide != null) {
+                        slide.trigger("click");
+                    }
                 }
             },
 
@@ -161,7 +173,7 @@
                 },
 
                 getSlideByNameOrIndex: function(nameOrIndex) {
-                    if (settings.linkable && typeof nameOrIndex == "string") {
+                    if (typeof nameOrIndex == "string") {
                         index = $.inArray(nameOrIndex, slideNames);
                         if (index > -1 && index < slideNames.length)
                             return header.eq(index);
@@ -177,7 +189,20 @@
                 },
 
                 // set style properties
-                setStyles : function() {
+                // The resetStyles flag is used for window resize handling. If set to true,
+                // it will restore the slide defined in settings.firstSlide
+                setStyles : function(resetSlides) {
+                    if (typeof resetSlides == "undefined" || resetSlides == null)
+                        resetSlides = true;
+
+                    var selectedSlide = core.getSlideByNameOrIndex(settings.firstSlide - 1);
+                    var selectedSlideIndex = settings.firstSlide;
+
+                    if (!resetSlides) {
+                        selectedSlideIndex = core.currentSlide + 1;
+                        selectedSlide = slides.find(".selected");
+                    }
+
                     // set container heights, widths, theme & corner style
                     elem
                         .width(core.getContainerWidthInPx())
@@ -191,9 +216,9 @@
                         .addClass('slide')
                         .children(':first-child')
                         .width(core.getContainerHeightInPx())
-                        .height(settings.headerWidth)
-                        .eq(settings.firstSlide - 1)
-                        .addClass('selected');
+                        .height(settings.headerWidth);
+
+                    selectedSlide.addClass("selected");
 
                     // set initial positions for each slide
                     header.each(function(index) {
@@ -202,13 +227,13 @@
                             margin = header.first().next(),
                             offset = parseInt(margin.css('marginLeft'), 10) || parseInt(margin.css('marginRight'), 10) || 0;
 
-                        if (index >= settings.firstSlide) left += slideWidth;
+                        if (index >= selectedSlideIndex) left += slideWidth;
 
                         $this
                             .css('left', left)
                             .next()
                             .width(slideWidth - offset)
-                            .css({ left : left, paddingLeft : settings.headerWidth });
+                            .css({ left : left, paddingLeft : settings.headerWidth + settings.contentPadding });
 
                         // add number to bottom of tab
                         settings.enumerateSlides && $this.append('<b>' + (index + 1) + '</b>');
@@ -219,7 +244,7 @@
                 //Resizes the accordion if the window was resized (important for percentual width/height)
                 handleWindowResize: function() {
                     core.initMissingGlobals();
-                    core.setStyles();
+                    core.setStyles(false);
                 },
 
                 // bind click and mouseover events
@@ -388,6 +413,14 @@
                     // test for ie
                     if ($.browser.msie) core.ieClass();
 
+                    //Set slide name cache anyway
+                    slides.each(function(index, slide) {
+                        if ($(slide).attr('name'))
+                            slideNames.push(($(this).attr('name')).toLowerCase());
+                        else
+                            slideNames.push("no-name-" + index);
+                    });
+
                     // init styles and events
                     core.setStyles();
                     core.bindEvents();
@@ -397,14 +430,6 @@
 
                     // init hash links
                     if (settings.linkable && 'onhashchange' in window) core.linkable();
-
-                    //Set slide name cache anyway
-                    slides.each(function(index) {
-                        if ($(this).attr('name'))
-                            slideNames.push(($(this).attr('name')).toLowerCase());
-                        else
-                            slideNames.push("no-name-" + index);
-                    });
 
                     // init autoplay
                     settings.autoPlay && methods.play();
