@@ -23,9 +23,51 @@ module QueryGenerator
       @models = nil
     end
 
+    # Removes the given model from the currently managed GeneratedQuery
+    # Also removes all associations from and to it
+    # If other models are connected with this model as source, they
+    # are removed as well as they have no more connection to the graph
+    #--------------------------------------------------------------
+    def remove_model(model)
+      session_namespace[:models].delete(model.to_s)
+
+      removed_models = [model]
+
+      #Remove all associations with this model as source
+      associations_with_source(model).each do |association, target|
+        remove_association(model, association)
+        removed_models += remove_model(target)
+      end
+
+      #Remove all associations with this model as target
+      associations_with_target(model).each do |source, associations|
+        associations.each do |association|
+          remove_association(source, association)
+        end
+      end
+
+      @models = nil
+
+      removed_models
+    end
+
+    # Checks if the currently managed GeneratedQuery somehow uses
+    # the given model, either in the models or as main_model
+    #--------------------------------------------------------------
+    def uses_model?(model)
+      model = model.constantize unless model.is_a?(Class)
+      main_model == model || models.include?(model)
+    end
+
     def models
       session_namespace[:models] ||= []
       @models ||= session_namespace[:models].map {|m| m.constantize }
+    end
+
+    # Returns all models incl. the main model
+    #--------------------------------------------------------------
+    def used_models
+      models + [main_model]
     end
 
     # The main model for the generated query
@@ -44,16 +86,20 @@ module QueryGenerator
 
     # Returns all associations for the currently managed GeneratedQuery
     # Format:
-    # {source => [associations]}
+    # {SourceModel => {:association => TargetModel}}
     #--------------------------------------------------------------
-    def associations
-      return @associations if @associations
-      @associations = {}
+    def model_associations
+      return @model_associations if @model_associations
+      @model_associations = {}
 
       session_namespace[:associations].each do |source, associations|
-        @associations[source.constantize] = associations
+        source_model = source.constantize
+        associations.each do |association, target|
+          @model_associations[source_model] ||= HashWithIndifferentAccess.new
+          @model_associations[source_model][association] = target.constantize
+        end
       end
-      @associations
+      @model_associations
     end
 
     # Adds an association to the currently managed GeneratedQuery
@@ -65,29 +111,68 @@ module QueryGenerator
     # Returns true if the model was automatically added
     #
     # Associations are saved in the following format in the session:
-    # {"source" => [association1, association2, ...], ...}
+    # {"source" => {:association1 => "Target1", :association2 => "Target2"}
+    #
+    # The associations could be saved as simple array, but in some
+    # cases it makes sense to have easy access to the target without
+    # having to re-search it.
     #--------------------------------------------------------------
     def add_association(source, association)
       result = false
 
-      end_point = DataHolder.instance.linkage_graph.get_node(source).get_model_by_association(association)
+      target = DataHolder.instance.linkage_graph.get_node(source).get_model_by_association(association)
 
-      unless models.include?(end_point)
-        add_model(end_point)
+      unless models.include?(target)
+        add_model(target)
         result = true
       end
 
       session_namespace[:associations] ||= {}
-      session_namespace[:associations][source.to_s] ||= []
-      session_namespace[:associations][source.to_s] << association
+      session_namespace[:associations][source.to_s] ||= {}
+      session_namespace[:associations][source.to_s][association.to_s] = target.to_s
 
-      @associations = nil
+      @model_associations = nil
 
       result
     end
 
+    # Removes the given association from the currently managed
+    # GeneratedQuery
+    #--------------------------------------------------------------
+    def remove_association(source, association)
+      session_namespace[:associations][source.to_s].delete(association.to_s)
+      @model_associations = nil
+    end
 
     private
+
+    # Returns all associations which have the given model as source
+    # format: {:association1 => Target1}
+    #--------------------------------------------------------------
+    def associations_with_source(model)
+      model = model.constantize unless model.is_a?(Class)
+      model_associations[model] || []
+    end
+
+    # Returns all associations which have the given model as Target
+    # Format: {SourceModel => [:association1, :association2, ...], ...}
+    # as we already have the target
+    #--------------------------------------------------------------
+    def associations_with_target(model)
+      model = model.constantize unless model.is_a?(Class)
+      target_associations = {}
+
+      model_associations.each do |source, associations|
+        associations.each do |association, target|
+          if target == model
+            target_associations[source] ||= []
+            target_associations[source] << association
+          end
+        end
+      end
+
+      target_associations
+    end
 
     # Checks if the given namespace was already registered under the
     # session namespace

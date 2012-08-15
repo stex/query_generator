@@ -1,6 +1,7 @@
 window.queryGenerator =
-  nodes: null
-  edges: null
+  data:
+    nodes: {}
+    edges: {}
 
   pageElements:
     recordPreview: "#model-records-preview"
@@ -52,6 +53,7 @@ window.queryGenerator =
       defaults =
         type: "div"
         mainModel: false
+        placeNearSelector: ".main-model"
 
       options = jQuery.extend({}, defaults, options)
 
@@ -63,7 +65,14 @@ window.queryGenerator =
 
       jQuery(@canvasSelector).append(newElem);
 
+      #Place the main model in the center of the graph canvas
+      if (options.mainModel == true)
+        newElem.css("left", (jQuery(@canvasSelector).width() / 2) - (newElem.width() / 2))
+        newElem.css("top", (jQuery(@canvasSelector).height() / 2) - (newElem.height() / 2))
+
       jsPlumb.draggable(newElem, { containment: queryGenerator.graph.canvasSelector, scroll: false, handle: ".handle" })
+
+      queryGenerator.data.nodes[id] = newElem
 
     # Adds a connection between two nodes and visualizes it with
     # jsPlumb (draws a connection between the two draggable boxes)
@@ -83,8 +92,15 @@ window.queryGenerator =
 
       jsPlumb.connect(options)
 
+      queryGenerator.data.edges[elem1] = [] unless queryGenerator.data.edges[elem1]?
+      queryGenerator.data.edges[elem1].push jQuery(elem2)
+
+    # Removes the given node
+    #--------------------------------------------------------------
     removeNode: (node) ->
-      jsPlumb.detachAll(node)
+      #Delete all connections from and to this
+      jsPlumb.detachAllConnections(node)
+      #Remove the DOM element
       jQuery("#" + node).remove()
 
   ###

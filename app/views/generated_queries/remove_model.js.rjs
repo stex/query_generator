@@ -1,0 +1,10 @@
+if @model
+  @removed_models.each do |model|
+    page.call "queryGenerator.graph.removeNode", model_dom_id(model)
+  end
+
+  #Update all existing models, add new associations
+  query_generator_session.used_models.each do |model|
+    page[model_dom_id(model)].replace_html model_node(model)
+  end
+end

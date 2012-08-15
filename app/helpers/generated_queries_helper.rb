@@ -51,12 +51,24 @@ module GeneratedQueriesHelper
     options[:include_hash] ? "#" + res : res
   end
 
+  # Creates an image_tag for the given association
+  # ... once I found images which express them.
+  #--------------------------------------------------------------
   def association_quantity_icon(model, association)
     node = dh.linkage_graph.get_node(model)
     end_point = node.get_model_by_association(association)
     options = node.edges[end_point.to_s][association.to_s]
 
-    macro = options[:macro]
+    case options[:macro].to_s
+      when "has_many"
+        "1..*"
+      when "has_and_belongs_to_many"
+        "*..*"
+      when "belongs_to"
+        "*..1"
+      else
+        options[:macro]
+    end
   end
 
   # Creates divs for each flash message type

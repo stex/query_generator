@@ -1,14 +1,15 @@
 .handle.ui-corner-all.ui-widget-header
   = model.human_name
   - if model != query_generator_session.main_model
-    = link_to_remote("RP", :url => preview_model_records_generated_queries_path(:model => model.to_s), :method => :get)
+    =# link_to_remote("RP", :url => preview_model_records_generated_queries_path(:model => model.to_s), :method => :get)
+    = link_to_remote("X", :url => remove_model_generated_queries_path(:model => model.to_s), :confirm => t("query_generator.wizard.associations.remove_model_warning"))
 
 
 %table
-  - dh.linkage_graph.get_node(model).connected_model_associations.each do |association, end_point|
-    - next unless ccan? :read, end_point
-    - next if query_generator_session.main_model == end_point || query_generator_session.models.include?(end_point)
-    = render :partial => "association_row", :locals => {:model => model, :association => association, :end_point => end_point}
+  - dh.linkage_graph.get_node(model).connected_model_associations.each do |association, target|
+    - next unless ccan? :read, target
+    - next if query_generator_session.uses_model?(target)
+    = render :partial => "association_row", :locals => {:model => model, :association => association, :end_point => target}
 -#
 -#%ul
 -#

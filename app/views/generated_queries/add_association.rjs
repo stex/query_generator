@@ -1,14 +1,17 @@
-if @end_point
+if @target
   if @model_added
-    page.call "queryGenerator.graph.addNode", model_dom_id(@end_point), model_node(@end_point)
+    page.call "queryGenerator.graph.addNode", model_dom_id(@target), model_node(@target)
   end
 
-  #Remove the association from the calling model (simply to avoid pressing it twice)
-  page[model_dom_id(@end_point)].replace_html model_node(@end_point)
+  #Update all existing models, remove associations
+  query_generator_session.used_models.each do |model|
+    next if model == @target
+    page[model_dom_id(model)].replace_html model_node(model)
+  end
 
   #Add the visual connection between the models
   page.call "queryGenerator.graph.addConnection", model_dom_id(@model, :include_hash => true),
-            model_dom_id(@end_point, :include_hash => true),
+            model_dom_id(@target, :include_hash => true),
             {:overlays => [ ["PlainArrow", {:location => 1, :width => 20, :length => 12} ], ["Label", {:label => @association, :cssClass => "label"}]]}
 end
 

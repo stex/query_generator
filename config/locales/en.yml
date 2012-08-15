@@ -23,5 +23,6 @@ en:
         slide_caption: Associations
         title: Please choose associations for your main model
         description: blabla
+        remove_model_warning: If you remove this model, all models connected to it will be removed as well. Continue?
       values:
         slide_caption: Predefined Values

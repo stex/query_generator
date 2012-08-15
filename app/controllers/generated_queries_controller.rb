@@ -8,7 +8,7 @@ class GeneratedQueriesController < ApplicationController
   helper_method :query_generator_session, :conf, :dh
 
   #Load the requested model from params
-  before_filter :load_model_from_params, :only => [:add_association, :preview_model_records, :set_main_model]
+  before_filter :load_model_from_params, :only => [:add_association, :preview_model_records, :set_main_model, :remove_model]
 
   def query_generator_session
     @query_generator_session ||= QueryGenerator::QueryGeneratorSession.new(session)
@@ -55,16 +55,26 @@ class GeneratedQueriesController < ApplicationController
   #--------------------------------------------------------------
   def add_association
     if @model
-      @end_point = dh.linkage_graph.get_node(@model).get_model_by_association(params[:association])
+      @target = dh.linkage_graph.get_node(@model).get_model_by_association(params[:association])
       @association = params[:association]
 
-      if ccan? :read, @end_point
+      if ccan? :read, @target
         @model_added = query_generator_session.add_association(@model, params[:association])
         flash.now[:notice] = t("query_generator.success.model_added", :model => @model.human_name)
       else
-        flash.now[:error] = t("query_generator.errors.model_not_found_or_permissions", :model => (@end_point.try(:human_name) || ""))
-        @end_point = nil
+        flash.now[:error] = t("query_generator.errors.model_not_found_or_permissions", :model => (@target.try(:human_name) || ""))
+        @target = nil
       end
+    end
+
+    respond_to do |format|
+      format.js
+    end
+  end
+
+  def remove_model
+    if @model
+      @removed_models = query_generator_session.remove_model(@model)
     end
 
     respond_to do |format|
@@ -106,8 +116,9 @@ class GeneratedQueriesController < ApplicationController
   # Shortcut to get the DataHolder instance
   #--------------------------------------------------------------
   def dh
+    return @dh if @dh
     QueryGenerator::Configuration.set(:exclusions, :classes => [Audit, Page, Sheet, SheetLayout, Attachment], :modules => [Tolk])
-    QueryGenerator::DataHolder.instance
+    @dh = QueryGenerator::DataHolder.instance
   end
 
   # A shortcut to get a configuration

@@ -1,8 +1,10 @@
 (function() {
 
   window.queryGenerator = {
-    nodes: null,
-    edges: null,
+    data: {
+      nodes: {},
+      edges: {}
+    },
     pageElements: {
       recordPreview: "#model-records-preview",
       wizard: "#query-generator"
@@ -52,16 +54,22 @@
         var defaults, newElem;
         defaults = {
           type: "div",
-          mainModel: false
+          mainModel: false,
+          placeNearSelector: ".main-model"
         };
         options = jQuery.extend({}, defaults, options);
         newElem = jQuery(document.createElement(options.type)).addClass("block draggable model").addClass(options.mainModel && "main-model").attr("id", id).html(content);
         jQuery(this.canvasSelector).append(newElem);
-        return jsPlumb.draggable(newElem, {
+        if (options.mainModel === true) {
+          newElem.css("left", (jQuery(this.canvasSelector).width() / 2) - (newElem.width() / 2));
+          newElem.css("top", (jQuery(this.canvasSelector).height() / 2) - (newElem.height() / 2));
+        }
+        jsPlumb.draggable(newElem, {
           containment: queryGenerator.graph.canvasSelector,
           scroll: false,
           handle: ".handle"
         });
+        return queryGenerator.data.nodes[id] = newElem;
       },
       addConnection: function(elem1, elem2, options) {
         var defaults;
@@ -89,10 +97,14 @@
           ]
         };
         options = jQuery.extend({}, defaults, options);
-        return jsPlumb.connect(options);
+        jsPlumb.connect(options);
+        if (queryGenerator.data.edges[elem1] == null) {
+          queryGenerator.data.edges[elem1] = [];
+        }
+        return queryGenerator.data.edges[elem1].push(jQuery(elem2));
       },
       removeNode: function(node) {
-        jsPlumb.detachAll(node);
+        jsPlumb.detachAllConnections(node);
         return jQuery("#" + node).remove();
       }
     },
