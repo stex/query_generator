@@ -7,4 +7,6 @@ if @model
   query_generator_session.used_models.each do |model|
     page[model_dom_id(model)].replace_html model_node(model)
   end
+
+  page["progress"].replace_html render :partial => "progress"
 end

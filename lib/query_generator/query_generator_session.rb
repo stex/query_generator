@@ -92,11 +92,14 @@ module QueryGenerator
       return @model_associations if @model_associations
       @model_associations = {}
 
-      session_namespace[:associations].each do |source, associations|
-        source_model = source.constantize
-        associations.each do |association, target|
-          @model_associations[source_model] ||= HashWithIndifferentAccess.new
-          @model_associations[source_model][association] = target.constantize
+      #Test if there is at least one registered association
+      if has_value?(:associations)
+        session_namespace[:associations].each do |source, associations|
+          source_model = source.constantize
+          associations.each do |association, target|
+            @model_associations[source_model] ||= HashWithIndifferentAccess.new
+            @model_associations[source_model][association] = target.constantize
+          end
         end
       end
       @model_associations
@@ -144,7 +147,61 @@ module QueryGenerator
       @model_associations = nil
     end
 
+    # Generates a preview string for the currently managed
+    # GeneratedQuery
+    #--------------------------------------------------------------
+    def preview_string
+      result = ""
+
+      if main_model
+        joins = joins_for(main_model)
+
+        options = [":all"]
+        options << ":joins => #{joins.inspect}" if joins.any?
+
+        result = %{#{main_model}.find(#{options.join(", ")})}
+      end
+
+      result
+    end
+
     private
+
+    # Recursive function to build the joins array based on
+    # the used associations.
+    # If a model only has one association, the array around
+    # them will be removed for better readability
+    #--------------------------------------------------------------
+    def joins_for(model)
+      joins = []
+      #Test if there is at least one association for the given model
+      if model_associations[model].present? && model_associations[model].any?
+        association_amount = model_associations[model].size
+        model_associations[model].each do |association, target|
+          if is_end_association?(model, association)
+            if association_amount == 1
+              return association
+            else
+              joins << association
+            end
+          else
+            if association_amount == 1
+              return {association => joins_for(target)}
+            else
+              joins << {association => joins_for(target)}
+            end
+          end
+        end
+      end
+      joins
+    end
+
+    # Tests if this is the end of an association chain
+    #--------------------------------------------------------------
+    def is_end_association?(model, association)
+      target = model_associations[model][association]
+      model_associations[target].nil?
+    end
 
     # Returns all associations which have the given model as source
     # format: {:association1 => Target1}

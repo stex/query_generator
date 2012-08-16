@@ -5,7 +5,7 @@ window.queryGenerator =
 
   pageElements:
     recordPreview: "#model-records-preview"
-    wizard: "#query-generator"
+    wizard: "#wizard"
 
   init: () ->
     jQuery(this.pageElements.recordPreview).dialog(autoOpen: false, modal: true, width: "90%", height: "700")
@@ -23,7 +23,7 @@ window.queryGenerator =
     #--------------------------------------------------------------
     init: ->
       jQuery(queryGenerator.pageElements.wizard).liteAccordion(
-        containerHeight: "100%",
+        containerHeight: "90%",
         containerWidth: "100%",
         contentPadding: 10,
         linkable: true,
@@ -101,7 +101,20 @@ window.queryGenerator =
       #Delete all connections from and to this
       jsPlumb.detachAllConnections(node)
       #Remove the DOM element
-      jQuery("#" + node).remove()
+      jQuery("##{node}").remove()
+
+      #Remove the node from our local node list
+      delete queryGenerator.data.nodes[node]
+
+      #Sometimes elements get moved around, so we have to make sure, everything's still inside of the container
+      jQuery.each queryGenerator.data.nodes, (key, value) =>
+        offset = jQuery(value).offset()
+        parentOffset = jQuery(@canvasSelector).offset()
+        if offset.top < parentOffset.top
+          jQuery(value).offset({top: parentOffset.top, left: offset.left})
+        jsPlumb.repaint(value);
+
+
 
   ###
   ***********************************************

@@ -2,7 +2,10 @@ class CreateGeneratedQueries < ActiveRecord::Migration
   def self.up
     create_table :generated_queries do |t|
       t.string :name
-      t.text   :query
+
+      t.string :main_model
+      t.text   :associations
+      t.text   :values
 
       t.timestamps
     end

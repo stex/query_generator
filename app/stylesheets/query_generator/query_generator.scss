@@ -9,7 +9,8 @@ body {
 
 /* The query-generator namespace which can be used in cases the ID is not usable */
 .query-generator, #query-generator {
-  background-color: gray;
+  background-color: #A0A0A0;
+
   table {
     border-spacing: 0;
     background-color: white;
@@ -63,6 +64,12 @@ body {
       bottom: 20px;
       right: 20px;
     }
+  }
+
+  #progress {
+    padding: 10px;
+    height: 10%;
+    overflow: hidden;
   }
 
   #graph {

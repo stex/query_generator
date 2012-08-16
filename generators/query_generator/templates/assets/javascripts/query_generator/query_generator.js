@@ -7,7 +7,7 @@
     },
     pageElements: {
       recordPreview: "#model-records-preview",
-      wizard: "#query-generator"
+      wizard: "#wizard"
     },
     init: function() {
       jQuery(this.pageElements.recordPreview).dialog({
@@ -28,7 +28,7 @@
     wizard: {
       init: function() {
         return jQuery(queryGenerator.pageElements.wizard).liteAccordion({
-          containerHeight: "100%",
+          containerHeight: "90%",
           containerWidth: "100%",
           contentPadding: 10,
           linkable: true,
@@ -104,8 +104,22 @@
         return queryGenerator.data.edges[elem1].push(jQuery(elem2));
       },
       removeNode: function(node) {
+        var _this = this;
         jsPlumb.detachAllConnections(node);
-        return jQuery("#" + node).remove();
+        jQuery("#" + node).remove();
+        delete queryGenerator.data.nodes[node];
+        return jQuery.each(queryGenerator.data.nodes, function(key, value) {
+          var offset, parentOffset;
+          offset = jQuery(value).offset();
+          parentOffset = jQuery(_this.canvasSelector).offset();
+          if (offset.top < parentOffset.top) {
+            jQuery(value).offset({
+              top: parentOffset.top,
+              left: offset.left
+            });
+          }
+          return jsPlumb.repaint(value);
+        });
       }
     },
     /*
