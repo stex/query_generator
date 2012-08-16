@@ -2,7 +2,9 @@ module QueryGenerator
 
   class GeneratedQuery < ActiveRecord::Base
 
-    serialize :query, Hash
+    validates_presence_of :name
 
+    serialize :associations, Hash
+    serialize :values, Hash
   end
 end

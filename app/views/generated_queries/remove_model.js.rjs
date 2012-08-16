@@ -8,5 +8,5 @@ if @model
     page[model_dom_id(model)].replace_html model_node(model)
   end
 
-  page["progress"].replace_html render :partial => "progress"
+  page["progress"].replace_html update_progress
 end

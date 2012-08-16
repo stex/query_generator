@@ -71,6 +71,15 @@ module GeneratedQueriesHelper
     end
   end
 
+  # Updates the query progress in the wizard
+  #--------------------------------------------------------------
+  def update_progress
+    options = {}
+    options[:joins] = current_slide > 0
+
+    render :partial => "progress", :locals => {:options => options}
+  end
+
   # Creates divs for each flash message type
   #--------------------------------------------------------------
   def flash_messages

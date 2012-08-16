@@ -9,6 +9,9 @@
       recordPreview: "#model-records-preview",
       wizard: "#wizard"
     },
+    urls: {
+      values: "/generated_queries/set_values"
+    },
     init: function() {
       jQuery(this.pageElements.recordPreview).dialog({
         autoOpen: false,
@@ -28,7 +31,7 @@
     wizard: {
       init: function() {
         return jQuery(queryGenerator.pageElements.wizard).liteAccordion({
-          containerHeight: "90%",
+          containerHeight: "95%",
           containerWidth: "100%",
           contentPadding: 10,
           linkable: true,
@@ -43,6 +46,25 @@
       },
       openSlide: function(nameOrIndex) {
         return jQuery(queryGenerator.pageElements.wizard).liteAccordion("openSlide", nameOrIndex);
+      },
+      setStep: function(index) {
+        var i, _i;
+        for (i = _i = 0; _i <= 2; i = ++_i) {
+          this.disableSlide(i);
+        }
+        this.enableSlide(index);
+        return this.openSlide(index);
+      },
+      getModelBoxOffsets: function() {
+        var positions,
+          _this = this;
+        positions = {};
+        jQuery.each(queryGenerator.data.nodes, function(key, value) {
+          return positions[key] = [value.offset().top, value.offset().left];
+        });
+        return jQuery.param({
+          offsets: positions
+        });
       }
     },
     graph: {
@@ -97,11 +119,7 @@
           ]
         };
         options = jQuery.extend({}, defaults, options);
-        jsPlumb.connect(options);
-        if (queryGenerator.data.edges[elem1] == null) {
-          queryGenerator.data.edges[elem1] = [];
-        }
-        return queryGenerator.data.edges[elem1].push(jQuery(elem2));
+        return jsPlumb.connect(options);
       },
       removeNode: function(node) {
         var _this = this;
@@ -120,6 +138,14 @@
           }
           return jsPlumb.repaint(value);
         });
+      },
+      removeAllNodes: function() {
+        var _this = this;
+        jQuery.each(queryGenerator.data.nodes, function(key, value) {
+          jsPlumb.detachAllConnections(value);
+          return jQuery(value).remove();
+        });
+        return queryGenerator.data.nodes = {};
       }
     },
     /*

@@ -14,7 +14,7 @@ if @target
             model_dom_id(@target, :include_hash => true),
             {:overlays => [ ["PlainArrow", {:location => 1, :width => 20, :length => 12} ], ["Label", {:label => @association, :cssClass => "label"}]]}
 
-  page["progress"].replace_html render :partial => "progress"
+  page["progress"].replace_html update_progress
 end
 
 page[:flash].replace_html flash_messages

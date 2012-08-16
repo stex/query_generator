@@ -5,7 +5,7 @@ class GeneratedQueriesController < ApplicationController
   layout QueryGenerator::Configuration.get(:controller)[:layout]
 
   #Make the query_generator_session available in views
-  helper_method :query_generator_session, :conf, :dh
+  helper_method :query_generator_session, :conf, :dh, :current_slide
 
   #Load the requested model from params
   before_filter :load_model_from_params, :only => [:add_association, :preview_model_records, :set_main_model, :remove_model]
@@ -31,6 +31,41 @@ class GeneratedQueriesController < ApplicationController
   #                       Wizard Actions
   #--------------------------------------------------------------
 
+  # Loads the previous wizard step.
+  # At the moment this is just opening the chosen accordion slide,
+  # but additional things might come im handy here.
+  #--------------------------------------------------------------
+  def load_previous_wizard_step
+    @current_slide = params[:current].to_i - 1
+
+    respond_to do |format|
+      format.js
+    end
+  end
+
+  # Sets the main model for the generated query
+  # Leads to the second wizard step
+  #--------------------------------------------------------------
+  def set_main_model
+    if @model
+      #Check if there was an old main_model set. If yes and the new one is different,
+      #delete the chosen associations and values
+      if query_generator_session.main_model != @model
+        query_generator_session.reset(:associations)
+        query_generator_session.reset(:values)
+        query_generator_session.reset(:model_offsets)
+        @main_model_changed = true
+      end
+
+      query_generator_session.main_model = @model
+      flash.now[:notice] = t("query_generator.wizard.main_model.success")
+    end
+
+    respond_to do |format|
+      format.js
+    end
+  end
+
   # Displays the model's records as a preview. Can be used
   # if the user is unsure what exactly the table contains
   #--------------------------------------------------------------
@@ -43,7 +78,6 @@ class GeneratedQueriesController < ApplicationController
       format.js
     end
   end
-
 
   # Adds a new association to the generated_query.
   # Params which come in are the following:
@@ -72,6 +106,8 @@ class GeneratedQueriesController < ApplicationController
     end
   end
 
+  # Removes a model from the generated query
+  #--------------------------------------------------------------
   def remove_model
     if @model
       @removed_models = query_generator_session.remove_model(@model)
@@ -82,12 +118,17 @@ class GeneratedQueriesController < ApplicationController
     end
   end
 
-  # Sets the main model for a generated query
+  # Leads to the third wizard step
   #--------------------------------------------------------------
-  def set_main_model
-    if @model
-      query_generator_session.main_model = @model
-      flash.now[:notice] = t("query_generator.wizard.main_model.success")
+  def set_values
+    query_generator_session.reset(:model_offsets)
+
+    #Save the model box offsets
+    params[:offsets].each do |key, offset_array|
+      model = key.sub("model_", "").classify
+      offset_top = offset_array.first.to_i
+      offset_left = offset_array.last.to_i
+      query_generator_session.set_model_offset(model, offset_top, offset_left)
     end
 
     respond_to do |format|
@@ -98,6 +139,20 @@ class GeneratedQueriesController < ApplicationController
   private
 
   include QueryGenerator::HelperFunctions
+
+  def current_slide
+    return @current_slide if @current_slide
+
+    @current_slide = case params[:action].to_s
+                       when "new"
+                         0
+                       when "set_main_model", "add_association", "remove_model"
+                         2
+                       else
+                         3
+
+                     end
+  end
 
   # Tries to get the model from params and checks if the current
   # user has the necessary permissions to read its records

@@ -7,6 +7,9 @@ window.queryGenerator =
     recordPreview: "#model-records-preview"
     wizard: "#wizard"
 
+  urls:
+    values: "/generated_queries/set_values"
+
   init: () ->
     jQuery(this.pageElements.recordPreview).dialog(autoOpen: false, modal: true, width: "90%", height: "700")
     queryGenerator.wizard.init()
@@ -23,7 +26,7 @@ window.queryGenerator =
     #--------------------------------------------------------------
     init: ->
       jQuery(queryGenerator.pageElements.wizard).liteAccordion(
-        containerHeight: "90%",
+        containerHeight: "95%",
         containerWidth: "100%",
         contentPadding: 10,
         linkable: true,
@@ -40,6 +43,24 @@ window.queryGenerator =
     # Shortcut to open the given wizard slide
     #--------------------------------------------------------------
     openSlide: (nameOrIndex) -> jQuery(queryGenerator.pageElements.wizard).liteAccordion("openSlide", nameOrIndex)
+
+    # Sets the current wizard step and disables all other slides
+    #--------------------------------------------------------------
+    setStep: (index) ->
+      @disableSlide(i) for i in [0..2]
+      @enableSlide(index)
+      @openSlide(index)
+
+    # Generates the model offsets for the third step
+    # in the format {dom_id => [offsetTop, offsetLeft]}
+    #--------------------------------------------------------------
+    getModelBoxOffsets: ->
+      positions = {}
+
+      jQuery.each queryGenerator.data.nodes, (key, value) =>
+        positions[key] = [value.offset().top, value.offset().left]
+
+      jQuery.param {offsets: positions}
 
   graph:
     canvasSelector: "#graph"
@@ -92,8 +113,8 @@ window.queryGenerator =
 
       jsPlumb.connect(options)
 
-      queryGenerator.data.edges[elem1] = [] unless queryGenerator.data.edges[elem1]?
-      queryGenerator.data.edges[elem1].push jQuery(elem2)
+#      queryGenerator.data.edges[elem1] = [] unless queryGenerator.data.edges[elem1]?
+#      queryGenerator.data.edges[elem1].push jQuery(elem2)
 
     # Removes the given node
     #--------------------------------------------------------------
@@ -113,6 +134,14 @@ window.queryGenerator =
         if offset.top < parentOffset.top
           jQuery(value).offset({top: parentOffset.top, left: offset.left})
         jsPlumb.repaint(value);
+
+    # Removes all nodes from the current graph
+    #--------------------------------------------------------------
+    removeAllNodes: () ->
+      jQuery.each queryGenerator.data.nodes, (key, value) =>
+        jsPlumb.detachAllConnections(value)
+        jQuery(value).remove()
+      queryGenerator.data.nodes = {}
 
 
 

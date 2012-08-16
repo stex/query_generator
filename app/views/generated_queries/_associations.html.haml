@@ -3,3 +3,7 @@
 
 #graph
   = render :partial => "query_graph"
+
+.buttons
+  = button_to_remote t("query_generator.wizard.associations.button_prev"), :url => load_previous_wizard_step_generated_queries_path(:current => 1), :method => :get
+  = button_to_remote t("query_generator.wizard.associations.button_next"), :url => set_values_generated_queries_path, :method => :post, :with => "queryGenerator.wizard.getModelBoxOffsets()"

@@ -1,10 +1,9 @@
 if @model
-  page.call "queryGenerator.wizard.disableSlide", 0
-  page.call "queryGenerator.wizard.enableSlide", 1
-  page.call "queryGenerator.wizard.openSlide", 1
-
-  page.call "queryGenerator.graph.addNode", model_dom_id(@model), model_node(@model), {:mainModel => true}
-
-  page["progress"].replace_html render :partial => "progress"
+  if @main_model_changed
+    page.call "queryGenerator.graph.removeAllNodes"
+    page.call "queryGenerator.graph.addNode", model_dom_id(@model), model_node(@model), {:mainModel => true}
+  end
+  page["progress"].replace_html update_progress
+  page.call "queryGenerator.wizard.setStep", 1
 end
 

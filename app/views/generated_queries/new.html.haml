@@ -15,22 +15,11 @@
         %h2
           %span= t("query_generator.wizard.values.slide_caption")
         #step3.slide-content
-          asdf
-
-
-  -##flash
-  -##models
-  -#  #accordion
-  -#    - @dh.models.each do |model|
-  -#      - next unless ccan? :read, model
-  -#      %p= link_to_remote(model.human_name, :url => add_model_generated_queries_path(:model => model.to_s))
-  -#
-  -#
-
 
   / Content for the model records preview dialog
   #model-records-preview{:style => "display: none"}
 
+  /Progress / Preview
   #progress= render :partial => "progress"
 
 :javascript

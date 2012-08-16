@@ -1,0 +1,2 @@
+page.call "queryGenerator.wizard.setStep", current_slide
+page["progress"].replace_html update_progress

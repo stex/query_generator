@@ -1,0 +1,3 @@
+page["step3"].replace_html render :partial => "values"
+page.call "queryGenerator.wizard.setStep", 2
+page["progress"].replace_html update_progress

@@ -150,19 +150,42 @@ module QueryGenerator
     # Generates a preview string for the currently managed
     # GeneratedQuery
     #--------------------------------------------------------------
-    def preview_string
+    def preview_string(options = {})
+      options.reverse_merge!({:joins => false})
+
       result = ""
 
       if main_model
         joins = joins_for(main_model)
 
-        options = [":all"]
-        options << ":joins => #{joins.inspect}" if joins.any?
+        parameters = [":all"]
+        parameters << ":joins => #{joins.inspect}" if options[:joins] && joins.any?
 
-        result = %{#{main_model}.find(#{options.join(", ")})}
+        result = %{#{main_model}.find(#{parameters.join(", ")})}
       end
 
       result
+    end
+
+    # Resets the given namespace
+    #--------------------------------------------------------------
+    def reset(namespace)
+      session_namespace.delete(namespace)
+    end
+
+    # To save the model layout the user created, we have to save
+    # the model box offsets
+    #--------------------------------------------------------------
+    def model_offsets
+      session_namespace[:model_offsets] ||= {}
+      session_namespace[:model_offsets]
+    end
+
+    # Sets the offset for the given model
+    #--------------------------------------------------------------
+    def set_model_offset(model, top, left)
+      session_namespace[:model_offsets] ||= {}
+      session_namespace[:model_offsets][model.to_s] = [top, left]
     end
 
     private

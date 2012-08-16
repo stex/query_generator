@@ -1,7 +1,8 @@
 %h2.title= t("query_generator.wizard.main_model.title")
 .information= t("query_generator.wizard.main_model.description")
 
-- form_remote_tag :url => set_main_model_generated_queries_path do
+-# Create form to submit the main model. Prevent submitting if no model was chosen yet
+- form_remote_tag :url => set_main_model_generated_queries_path, :before => %{if (jQuery("input[name=model]:checked").size() < 1) return false;} do
   %table
     %thead
       %tr
@@ -20,4 +21,4 @@
 
 
   .buttons
-    = submit_tag
+    = submit_tag t("query_generator.wizard.main_model.button_next")
