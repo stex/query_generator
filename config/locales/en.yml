@@ -12,6 +12,8 @@ en:
       model: Model
       associations: Associations
       actions: Actions
+      primary_key: Primary Key
+      belongs_to_key: Key for belongs_to association to %{model}
     wizard:
       main_model:
         slide_caption: Main Model
@@ -29,5 +31,10 @@ en:
         button_prev: &#171; Set Main Model
       values:
         slide_caption: Predefined Values
+        title: Predefined Values
+        description: blabla
         button_prev: &#171;
         button_next: Finish Query
+        values_table:
+          headers:
+            column_name: Column Name

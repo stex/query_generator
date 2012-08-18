@@ -1,1 +1,12 @@
-= model.human_name
+.values_block{:id => model_dom_id(model, :prefix => "values")}
+  %table
+    %thead
+      %tr
+        %th.icon
+        %th= t("query_generator.wizard.values.values_table.headers.column_name")
+    %tbody
+      - model.columns.each do |column|
+        %tr
+          %td.icon= column_symbol(model, column)
+          %td
+            = column.name

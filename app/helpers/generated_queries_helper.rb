@@ -39,8 +39,10 @@ module GeneratedQueriesHelper
   # This is in a helper function to keep it constant through
   # the application
   #--------------------------------------------------------------
-  def association_dom_id(model, association)
-    "model_#{model.to_s.underscore}_association_#{association}"
+  def association_dom_id(model, association, options = {})
+    res = "model_#{model.to_s.underscore}_association_#{association}"
+    res = [options[:prefix], res].join("_") if options[:prefix]
+    options[:include_hash] ? "#" + res : res
   end
 
   # Creates a dom_id for a model. Reason: see association_dom_id()
@@ -69,6 +71,24 @@ module GeneratedQueriesHelper
       else
         options[:macro]
     end
+  end
+
+  def column_symbol(model, column)
+    image_path = nil
+    options = {}
+
+    if column.primary
+      image_path = "query_generator/key.png"
+      options[:title] = t("query_generator.misc.primary_key")
+    end
+
+    association = dh.column_is_belongs_to_key?(model, column.name)
+    if association
+      image_path = "query_generator/foreign-key.png"
+      options[:title] = t("query_generator.misc.belongs_to_key", :model => dh.linkage_graph.get_node(model).get_model_by_association(association[:name]))
+    end
+
+    image_path ? image_tag(image_path, options) : ""
   end
 
   # Updates the query progress in the wizard

@@ -2,13 +2,15 @@
 
 @import "lite_accordion";
 
-body {
+body.query-generator-layout {
   background-color: #333333;
   margin: 0;
 }
 
 /* The query-generator namespace which can be used in cases the ID is not usable */
 .query-generator, #query-generator {
+  font-size: 11pt;
+
   background-color: #A0A0A0;
 
   table {
@@ -26,6 +28,15 @@ body {
       td {
         border-bottom: 1px solid #CCCCCC;
         padding: 4px 6px;
+
+        &.icon {
+          width: 20px;
+
+          img {
+            width: 16px;
+          }
+        }
+
       }
     }
 
@@ -54,8 +65,14 @@ body {
   }
 
   .slide-content {
-    padding: 5px;
-    background-color: #fffafa;
+    .header {
+      padding: 5px;
+    }
+
+    .content {
+      border-top: 1px solid black;
+      padding: 5px;
+    }
 
     .buttons {
       background-color: #e2d0d0;
@@ -74,7 +91,6 @@ body {
 
   #graph {
     height: 100%;
-    border-top: 1px solid black;
 
     .block {
       border: 1px solid black;
@@ -106,6 +122,38 @@ body {
         font-weight: normal;
         cursor: move;
       }
+    }
+  }
+
+  #step3 {
+    .content {
+      text-align: center;
+
+      .values_block {
+        padding: 10px;
+        border: 1px solid black;
+        margin-right: 20px;
+        width: 45%;
+        height: 300px;
+        overflow: scroll;
+        float: left;
+
+        table {
+          td {
+            text-align: left;
+          }
+        }
+      }
+    }
+  }
+
+  .clear {
+    &:after {
+      content:".";
+      clear:both;
+      display:block;
+      height:0;
+      visibility:hidden;
     }
   }
 }

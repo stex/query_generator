@@ -2,6 +2,7 @@ module QueryGenerator
 
   # This class stores all information about the surrounding rails application the plugin needs
   # to work correctly.
+  # It also holds functionality to make model/column/association access easier.
   #
   # In production environment, all models and associations are loaded on server start
   # and hold here for later use.
@@ -14,6 +15,8 @@ module QueryGenerator
   class DataHolder
     include Singleton
     include HelperFunctions
+
+    unloadable if Rails.env.development? #Don't cache this class in development environment, even if in gem
 
     def initialize
       load_app_data
@@ -53,6 +56,16 @@ module QueryGenerator
       @linkages
     end
 
+    #Checks if the given column is the primary key for a belongs_to
+    #association in the given model
+    #--------------------------------------------------------------
+    def column_is_belongs_to_key?(model, column_name)
+      associations_for(model).each do |association_name, options|
+        return options if options[:macro].to_s == "belongs_to" && column_name.to_s == options[:primary_key].to_s
+      end
+      nil
+    end
+
     private
 
     # Getter for associations to make sure the hash key format
@@ -75,12 +88,25 @@ module QueryGenerator
       associations_for(model)[association.to_s]
     end
 
+    # Returns the selected model column object
+    #--------------------------------------------------------------
+    def model_column_by_name(model, column_name)
+      model.columns.detect {|column| column.name == column_name}
+    end
+
     # Setter for a new association to make sure, the hash key
     # format is always the same.
+    # Format: {"model_name" => {"association_name" => {options/information}}}
     #--------------------------------------------------------------
     def add_association(association)
       model_name = association.active_record.to_s
+
+      #The foreign key might not be resolved if the association itself is erroneous
+      foreign_key = association.association_foreign_key rescue nil
+      primary_key = association.primary_key_name rescue nil
       options = association.options.merge({:macro => association.macro, :name => association.name})
+      options[:foreign_key] = foreign_key if foreign_key
+      options[:primary_key] = primary_key if primary_key
 
       @associations ||= {}
       @associations[model_name] ||= {}
