@@ -14,6 +14,7 @@ en:
       actions: Actions
       primary_key: Primary Key
       belongs_to_key: Key for belongs_to association to %{model}
+      model_table: %{model} (%{table})
     wizard:
       main_model:
         slide_caption: Main Model
@@ -29,12 +30,12 @@ en:
         remove_model_warning: If you remove this model, all models connected to it will be removed as well. Continue?
         button_next: Set Values &raquo;
         button_prev: &#171; Set Main Model
-      values:
-        slide_caption: Predefined Values
-        title: Predefined Values
+      conditions:
+        slide_caption: Conditions
+        title: Conditions
         description: blabla
         button_prev: &#171;
         button_next: Finish Query
-        values_table:
+        columns_table:
           headers:
             column_name: Column Name

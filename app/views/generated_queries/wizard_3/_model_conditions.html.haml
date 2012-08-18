@@ -1,0 +1,19 @@
+%fieldset.values_block{:id => model_dom_id(model, :prefix => "values")}
+  %legend= t("query_generator.misc.model_table", :model => model.human_name, :table => model.table_name)
+  %table
+    %thead
+      %tr
+        %th.icon
+        %th= t("query_generator.wizard.conditions.columns_table.headers.column_name")
+        %th
+        %th As
+    %tbody
+      - model.columns.each do |column|
+        %tr{:id => column_dom_id(model, column)}
+          %td.icon= column_symbol(model, column)
+          %td
+            = column.name
+          %td
+            use column
+          %td
+            as

@@ -6,8 +6,8 @@ module GeneratedQueriesHelper
     QueryGenerator::Configuration.get(:access_control)[:use_cancan] ? can?(action, subject, *extra_args) : true
   end
 
-  def model_node(model)
-    render :partial => "model_node", :locals => {:model => model}
+  def model_node(model, partial = "generated_queries/wizard_2a/model_node")
+    render :partial => partial, :locals => {:model => model}
   end
 
   # Creates a <th> element for a given sql table column
@@ -40,17 +40,19 @@ module GeneratedQueriesHelper
   # the application
   #--------------------------------------------------------------
   def association_dom_id(model, association, options = {})
-    res = "model_#{model.to_s.underscore}_association_#{association}"
-    res = [options[:prefix], res].join("_") if options[:prefix]
-    options[:include_hash] ? "#" + res : res
+    handle_dom_id_options("model_#{model.to_s.underscore}_association_#{association}", options)
   end
 
   # Creates a dom_id for a model. Reason: see association_dom_id()
   #--------------------------------------------------------------
   def model_dom_id(model, options = {})
-    res = "model_#{model.to_s.underscore}"
-    res = [options[:prefix], res].join("_") if options[:prefix]
-    options[:include_hash] ? "#" + res : res
+    handle_dom_id_options("model_#{model.to_s.underscore}", options)
+  end
+
+  # builds a dom ID based on the model object and the column object
+  #--------------------------------------------------------------
+  def column_dom_id(model, column, options = {})
+    handle_dom_id_options("model_#{model.to_s.underscore}_column_#{column.name}", options)
   end
 
   # Creates an image_tag for the given association
@@ -110,5 +112,13 @@ module GeneratedQueriesHelper
       end
     end
     elements.join()
+  end
+
+  private
+
+  def handle_dom_id_options(res, options)
+    res = [options[:prefix], res].join("_") if options[:prefix]
+    res = [res, options[:suffix]].join("_") if options[:suffix]
+    options[:include_hash] ? "#" + res : res
   end
 end

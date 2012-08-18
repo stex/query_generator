@@ -8,7 +8,8 @@ class GeneratedQueriesController < ApplicationController
   helper_method :query_generator_session, :conf, :dh, :current_slide
 
   #Load the requested model from params
-  before_filter :load_model_from_params, :only => [:add_association, :preview_model_records, :set_main_model, :remove_model]
+  before_filter :load_model_from_params, :only => [:add_association, :preview_model_records,
+                                                   :set_main_model, :remove_model, :toggle_table_column]
 
   def query_generator_session
     @query_generator_session ||= QueryGenerator::QueryGeneratorSession.new(session)
@@ -42,6 +43,10 @@ class GeneratedQueriesController < ApplicationController
       format.js
     end
   end
+
+  #####################
+  #### STEP 1
+  #####################
 
   # Sets the main model for the generated query
   # Leads to the second wizard step
@@ -78,6 +83,10 @@ class GeneratedQueriesController < ApplicationController
       format.js
     end
   end
+
+  #####################
+  #### STEP 2
+  #####################
 
   # Adds a new association to the generated_query.
   # Params which come in are the following:
@@ -118,9 +127,29 @@ class GeneratedQueriesController < ApplicationController
     end
   end
 
+  # Replaces the column boxes with the association_boxes
+  #--------------------------------------------------------------
+  def choose_model_associations
+    respond_to do |format|
+      format.js {render "toggle_model_boxes"}
+    end
+  end
+
+  # Replaces the association boxes with model columns
+  # to let the user choose the columns he'd like to use in the
+  # query
+  #--------------------------------------------------------------
+  def choose_model_columns
+    @columns = true
+
+    respond_to do |format|
+      format.js {render "toggle_model_boxes"}
+    end
+  end
+
   # Leads to the third wizard step
   #--------------------------------------------------------------
-  def set_values
+  def set_conditions
     query_generator_session.reset(:model_offsets)
 
     #Save the model box offsets
@@ -133,6 +162,18 @@ class GeneratedQueriesController < ApplicationController
 
     respond_to do |format|
       format.js
+    end
+  end
+
+
+
+  # Toggles if a table column is used for the current query
+  # Important: That does not mean that it will be displayed when
+  #            the query is executed!
+  #--------------------------------------------------------------
+  def toggle_table_column
+    if @model
+
     end
   end
 

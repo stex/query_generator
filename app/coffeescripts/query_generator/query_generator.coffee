@@ -133,7 +133,7 @@ window.queryGenerator =
         parentOffset = jQuery(@canvasSelector).offset()
         if offset.top < parentOffset.top
           jQuery(value).offset({top: parentOffset.top, left: offset.left})
-        jsPlumb.repaint(value);
+        jsPlumb.repaint(value)
 
     # Removes all nodes from the current graph
     #--------------------------------------------------------------
@@ -142,6 +142,14 @@ window.queryGenerator =
         jsPlumb.detachAllConnections(value)
         jQuery(value).remove()
       queryGenerator.data.nodes = {}
+
+    # Repaints all connections in the graph.
+    # This is necessary when the boxes were manipulated through
+    # js
+    #--------------------------------------------------------------
+    repaintConnections: () ->
+      jQuery.each queryGenerator.data.nodes, (key, value) =>
+        jsPlumb.repaint(value)
 
 
 

@@ -5,15 +5,15 @@
         %h2
           %span= t("query_generator.wizard.main_model.slide_caption")
         #step1.slide-content
-          = render :partial => "main_model"
+          = render :partial => "generated_queries/wizard_1/main_model"
       %li{:name => "associations"}
         %h2
           %span= t("query_generator.wizard.associations.slide_caption")
         #step2.slide-content
-          = render :partial => "associations"
+          = render :partial => "generated_queries/wizard_2a/associations"
       %li{:name => "values"}
         %h2
-          %span= t("query_generator.wizard.values.slide_caption")
+          %span= t("query_generator.wizard.conditions.slide_caption")
         #step3.slide-content
 
   / Content for the model records preview dialog

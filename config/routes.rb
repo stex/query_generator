@@ -4,7 +4,9 @@ ActionController::Routing::Routes.draw do |map|
                                                     :preview_model_records     => :get,
                                                     :set_main_model            => :post,
                                                     :remove_model              => :post,
-                                                    :set_values                => :post,
-                                                    :load_previous_wizard_step => :get}
+                                                    :set_conditions            => :post,
+                                                    :load_previous_wizard_step => :get,
+                                                    :choose_model_columns      => :get,
+                                                    :choose_model_associations => :get}
 
 end

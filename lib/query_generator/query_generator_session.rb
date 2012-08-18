@@ -1,5 +1,13 @@
 # Session helper for creating / editing generated queries
 
+# Session Namespaces:
+#
+#   :models        -- ["model1", "model2", ...]
+#   :associations  -- {"source" => {:association1 => "Target1", :association2 => "Target2"}
+#   :main_model    -- "Main Model used for query"
+#   :model_offsets -- {"model" => [top, left]}
+#   :columns       -- {"model" => ["column1", "column2", ...]}
+
 module QueryGenerator
 
   class QueryGeneratorSession
@@ -186,6 +194,12 @@ module QueryGenerator
     def set_model_offset(model, top, left)
       session_namespace[:model_offsets] ||= {}
       session_namespace[:model_offsets][model.to_s] = [top, left]
+    end
+
+
+
+    def toggle_used_column(model, column)
+
     end
 
     private

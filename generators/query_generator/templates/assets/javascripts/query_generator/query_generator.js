@@ -146,6 +146,12 @@
           return jQuery(value).remove();
         });
         return queryGenerator.data.nodes = {};
+      },
+      repaintConnections: function() {
+        var _this = this;
+        return jQuery.each(queryGenerator.data.nodes, function(key, value) {
+          return jsPlumb.repaint(value);
+        });
       }
     },
     /*

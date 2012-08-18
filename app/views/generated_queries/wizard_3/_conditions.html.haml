@@ -1,0 +1,11 @@
+.header
+  %h2.title= t("query_generator.wizard.conditions.title")
+  .information= t("query_generator.wizard.conditions.description")
+
+.content
+  = render :partial => "model_conditions", :collection => query_generator_session.used_models, :as => :model
+
+.buttons
+  = button_to_remote t("query_generator.wizard.conditions.button_prev"), :url => load_previous_wizard_step_generated_queries_path(:current => 2), :method => :get
+
+  .clear
