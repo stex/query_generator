@@ -1,11 +1,8 @@
-%h2.title= t("query_generator.wizard.associations.title")
-.information= t("query_generator.wizard.associations.description")
+#step2_header.header
+  = render :partial => "generated_queries/wizard_2a/header"
 
-#graph
+#graph.content
   = render :partial => "generated_queries/wizard_2a/query_graph"
 
-.buttons
-  = button_to_remote t("query_generator.wizard.associations.button_prev"), :url => load_previous_wizard_step_generated_queries_path(:current => 1), :method => :get
-  = button_to_remote t("query_generator.wizard.associations.button_next"), :url => set_conditions_generated_queries_path, :method => :post, :with => "queryGenerator.wizard.getModelBoxOffsets()"
-  = link_to_remote "Associations", :url => choose_model_associations_generated_queries_path, :method => :get
-  = link_to_remote "Columns", :url => choose_model_columns_generated_queries_path, :method => :get
+#step2_buttons.buttons
+  = render :partial => "generated_queries/wizard_2a/buttons"

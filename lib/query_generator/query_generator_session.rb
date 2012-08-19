@@ -196,13 +196,31 @@ module QueryGenerator
       session_namespace[:model_offsets][model.to_s] = [top, left]
     end
 
-
-
+    # Toggles if the currently managed query includes the given column
+    #--------------------------------------------------------------
     def toggle_used_column(model, column)
+      session_namespace[:columns] ||= {}
+      session_namespace[model.to_s] ||= []
+      if session_namespace[model.to_s].include?(column.to_s)
+        session_namespace[model.to_s].delete(column.to_s)
+      else
+        session_namespace[model.to_s] << column.to_s
+      end
+    end
 
+    # Checks if the currently managed query includes the given column
+    #--------------------------------------------------------------
+    def uses_column?(model, column_name)
+      used_columns_for(model).include?(column_name)
     end
 
     private
+
+    # Returns all columns used for the given model
+    #--------------------------------------------------------------
+    def used_columns_for(model)
+      session_namespace[:columns] ? session_namespace[:columns][model.to_s] : []
+    end
 
     # Recursive function to build the joins array based on
     # the used associations.
@@ -247,7 +265,6 @@ module QueryGenerator
       model = model.constantize unless model.is_a?(Class)
       model_associations[model] || []
     end
-
     # Returns all associations which have the given model as Target
     # Format: {SourceModel => [:association1, :association2, ...], ...}
     # as we already have the target

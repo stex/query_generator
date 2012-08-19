@@ -99,6 +99,8 @@ body.query-generator-layout {
       min-width: 200px;
       min-height: 150px;
       background-color: white;
+      max-height: 400px;
+      overflow-y: scroll;
 
       &.main-model {
         border: 1px solid red;

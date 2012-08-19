@@ -1,4 +1,4 @@
 %tr{:id => column_dom_id(model, column, :prefix => "step2")}
   %td.icon= column_symbol(model, column)
   %td
-    = column.name
+    = link_to_remote column.name, :url => toggle_table_column_generated_queries_path(:model => model.to_s, :column => column.name), :method => :get

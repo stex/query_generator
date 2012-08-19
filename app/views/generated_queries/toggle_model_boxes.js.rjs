@@ -1,7 +1,10 @@
-partial = @columns ? "generated_queries/wizard_2b/model_columns_node" : "generated_queries/wizard_2a/model_node"
+wizard_step = @columns ? "2b" : "2a"
+
+page["step2_buttons"].replace_html :partial => "generated_queries/wizard_#{wizard_step}/buttons"
+page["step2_header"].replace_html :partial => "generated_queries/wizard_#{wizard_step}/header"
 
 query_generator_session.used_models.each do |model|
-  page[model_dom_id(model)].replace_html model_node(model, partial)
+  page[model_dom_id(model)].replace_html model_node(model, "generated_queries/wizard_#{wizard_step}/model_node")
 end
 
 page.call "queryGenerator.graph.repaintConnections"

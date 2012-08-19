@@ -7,6 +7,7 @@ ActionController::Routing::Routes.draw do |map|
                                                     :set_conditions            => :post,
                                                     :load_previous_wizard_step => :get,
                                                     :choose_model_columns      => :get,
-                                                    :choose_model_associations => :get}
+                                                    :choose_model_associations => :get,
+                                                    :toggle_table_column       => :get}
 
 end

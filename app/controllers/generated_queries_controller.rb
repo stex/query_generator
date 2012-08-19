@@ -165,15 +165,19 @@ class GeneratedQueriesController < ApplicationController
     end
   end
 
-
-
   # Toggles if a table column is used for the current query
   # Important: That does not mean that it will be displayed when
   #            the query is executed!
+  # TODO: probably better test if it's an actual column...
   #--------------------------------------------------------------
   def toggle_table_column
     if @model
+      column = params[:column]
+      query_generator_session.toggle_used_column(@model, column)
+    end
 
+    respond_to do |format|
+      format.js
     end
   end
 
