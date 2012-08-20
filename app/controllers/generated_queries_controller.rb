@@ -19,6 +19,8 @@ class GeneratedQueriesController < ApplicationController
     @generated_queries = QueryGenerator::GeneratedQuery.all.paginate(:page => params[:page], :per_page => 50)
   end
 
+  # TODO: Check if there is an unfinished query int he session and reload it.
+  #--------------------------------------------------------------
   def new
     @generated_query = QueryGenerator::GeneratedQuery.new
     query_generator_session.init_for_generated_query(@generated_query)

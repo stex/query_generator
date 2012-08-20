@@ -6,7 +6,7 @@
 #   :associations  -- {"source" => {:association1 => "Target1", :association2 => "Target2"}
 #   :main_model    -- "Main Model used for query"
 #   :model_offsets -- {"model" => [top, left]}
-#   :columns       -- {"model" => ["column1", "column2", ...]}
+#   :columns       -- [{column_1_options}, {column_2_options}, ...]
 
 module QueryGenerator
 
@@ -19,12 +19,12 @@ module QueryGenerator
 
     def init_for_generated_query(generated_query)
       @session[:query_generator] = nil
+      create_namespaces
     end
 
     # Adds the given model to the associations list
     #--------------------------------------------------------------
     def add_model(model)
-      session_namespace[:models] ||= []
       if model != self.main_model && !session_namespace[:models].include?(model.to_s)
         session_namespace[:models] << model.to_s
       end
@@ -68,14 +68,13 @@ module QueryGenerator
     end
 
     def models
-      session_namespace[:models] ||= []
       @models ||= session_namespace[:models].map {|m| m.constantize }
     end
 
     # Returns all models incl. the main model
     #--------------------------------------------------------------
     def used_models
-      models + [main_model]
+      [main_model] + models
     end
 
     # The main model for the generated query
@@ -138,7 +137,6 @@ module QueryGenerator
         result = true
       end
 
-      session_namespace[:associations] ||= {}
       session_namespace[:associations][source.to_s] ||= {}
       session_namespace[:associations][source.to_s][association.to_s] = target.to_s
 
@@ -179,47 +177,65 @@ module QueryGenerator
     #--------------------------------------------------------------
     def reset(namespace)
       session_namespace.delete(namespace)
+      create_namespaces
     end
 
     # To save the model layout the user created, we have to save
     # the model box offsets
     #--------------------------------------------------------------
     def model_offsets
-      session_namespace[:model_offsets] ||= {}
       session_namespace[:model_offsets]
     end
 
     # Sets the offset for the given model
     #--------------------------------------------------------------
     def set_model_offset(model, top, left)
-      session_namespace[:model_offsets] ||= {}
       session_namespace[:model_offsets][model.to_s] = [top, left]
     end
 
     # Toggles if the currently managed query includes the given column
     #--------------------------------------------------------------
     def toggle_used_column(model, column)
-      session_namespace[:columns] ||= {}
-      session_namespace[model.to_s] ||= []
-      if session_namespace[model.to_s].include?(column.to_s)
-        session_namespace[model.to_s].delete(column.to_s)
-      else
-        session_namespace[model.to_s] << column.to_s
-      end
+      column_name = column.is_a?(String) ? column : column.name
+      uses_column?(model, column_name) ? remove_column(model, column_name) : add_column(:model => model, :column_name => column_name)
     end
 
     # Checks if the currently managed query includes the given column
     #--------------------------------------------------------------
-    def uses_column?(model, column_name)
-      used_columns_for(model).include?(column_name)
+    def uses_column?(model, column)
+      column_name = column.is_a?(String) ? column : column.name
+      !(session_namespace[:columns].detect {|c| c["model"] == model.to_s && c["column_name"] == column_name.to_s}).nil?
+    end
+
+    # Returns all selected columns for the currently managed generated query
+    # Format: [Column1, Column2, Column3]
+    # They will automatically be sorted by column position
+    #--------------------------------------------------------------
+    def used_columns
+      @used_columns ||= session_namespace[:columns].map {|c| QueryColumn.new(c)}
     end
 
     private
 
-    # Returns all columns used for the given model
+    # Makes sure the necessary namespaces are set in the session
     #--------------------------------------------------------------
-    def used_columns_for(model)
-      session_namespace[:columns] ? session_namespace[:columns][model.to_s] : []
+    def create_namespaces
+      session_namespace[:models] ||= []
+      session_namespace[:associations] ||= {}
+      session_namespace[:model_offsets] ||= {}
+      session_namespace[:columns] ||= []
+    end
+
+    def add_column(options = {})
+      options.merge!({:position => session_namespace[:columns].size})
+      new_column = QueryColumn.new(options)
+      session_namespace[:columns] << new_column.serialized_options
+      @used_columns = nil
+    end
+
+    def remove_column(model, column)
+      session_namespace[:columns].delete_if {|c| c["model"] == model.to_s && c["column_name"] == column.to_s}
+      @used_columns = nil
     end
 
     # Recursive function to build the joins array based on

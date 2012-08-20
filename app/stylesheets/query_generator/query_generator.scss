@@ -25,6 +25,11 @@ body.query-generator-layout {
         color: #262b33;
       }
 
+      &.active {
+        background-color: green;
+      }
+
+
       td {
         border-bottom: 1px solid #CCCCCC;
         padding: 4px 6px;
