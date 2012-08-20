@@ -1,26 +1,17 @@
 #query-generator
-  #wizard
-    %ol
-      %li{:name => "main-model"}
-        %h2
-          %span= t("query_generator.wizard.main_model.slide_caption")
-        #step1.slide-content
-          = render :partial => "generated_queries/wizard_1/main_model"
-      %li{:name => "associations"}
-        %h2
-          %span= t("query_generator.wizard.associations.slide_caption")
-        #step2.slide-content
-          = render :partial => "generated_queries/wizard_2a/associations"
-      %li{:name => "values"}
-        %h2
-          %span= t("query_generator.wizard.conditions.slide_caption")
-        #step3.slide-content
+  #step1.wizard
+    = render :partial => "generated_queries/wizard_1/main_model"
+  #step2.wizard{:style => "display: none"}
+    = render :partial => "generated_queries/wizard_2a/associations"
+  #step3.wizard{:style => "display: none"}
 
   / Content for the model records preview dialog
   #model-records-preview{:style => "display: none"}
 
   /Progress / Preview
   #progress= render :partial => "progress"
+
+  .ajax-indicator{:style => "display: none"} Loading...
 
 :javascript
   queryGenerator.init();

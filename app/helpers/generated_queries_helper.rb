@@ -55,6 +55,10 @@ module GeneratedQueriesHelper
     handle_dom_id_options("model_#{model.to_s.underscore}_column_#{column.name}", options)
   end
 
+  def previous_step_button(caption, current = current_step)
+    button_to_remote caption, :url => load_previous_wizard_step_generated_queries_path(:current => current), :method => :get
+  end
+
   # Creates an image_tag for the given association
   # ... once I found images which express them.
   #--------------------------------------------------------------
@@ -97,7 +101,7 @@ module GeneratedQueriesHelper
   #--------------------------------------------------------------
   def update_progress
     options = {}
-    options[:joins] = current_slide > 0
+    options[:joins] = current_step > 1
 
     render :partial => "progress", :locals => {:options => options}
   end

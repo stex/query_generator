@@ -1,2 +1,6 @@
-page.call "queryGenerator.wizard.setStep", current_slide
+for i in (1..3)
+  page["step#{i}"].hide
+end
+page["step#{current_step}"].show
+
 page["progress"].replace_html update_progress

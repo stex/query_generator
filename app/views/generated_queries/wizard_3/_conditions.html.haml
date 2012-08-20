@@ -13,6 +13,6 @@
             = qc.column_name
 
 .buttons
-  = button_to_remote t("query_generator.wizard.conditions.button_prev"), :url => load_previous_wizard_step_generated_queries_path(:current => 2), :method => :get
+  = previous_step_button t("query_generator.wizard.conditions.button_prev"), 3
 
   .clear

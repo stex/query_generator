@@ -7,12 +7,9 @@ window.queryGenerator =
     recordPreview: "#model-records-preview"
     wizard: "#wizard"
 
-  urls:
-    values: "/generated_queries/set_values"
-
   init: () ->
     jQuery(this.pageElements.recordPreview).dialog(autoOpen: false, modal: true, width: "90%", height: "700")
-    queryGenerator.wizard.init()
+    @helpers.createAjaxIndicator()
 
   # Used to display a model's records in a jQuery UI dialog
   #--------------------------------------------------------------
@@ -22,35 +19,6 @@ window.queryGenerator =
     jQuery(this.pageElements.recordPreview).dialog("open")
 
   wizard:
-    # Creates the horizontal accordion which is used for the wizard
-    #--------------------------------------------------------------
-    init: ->
-      jQuery(queryGenerator.pageElements.wizard).liteAccordion(
-        containerHeight: "95%",
-        containerWidth: "100%",
-        contentPadding: 10,
-        linkable: true,
-        enumerateSlides: true).liteAccordion("disableSlide", 1).liteAccordion("disableSlide", 2)
-
-    # Shortcut to disable a wizard slide
-    #--------------------------------------------------------------
-    disableSlide: (nameOrIndex) -> jQuery(queryGenerator.pageElements.wizard).liteAccordion("disableSlide", nameOrIndex)
-
-    # Shortcut to enable a wizard slide
-    #--------------------------------------------------------------
-    enableSlide: (nameOrIndex) -> jQuery(queryGenerator.pageElements.wizard).liteAccordion("enableSlide", nameOrIndex)
-
-    # Shortcut to open the given wizard slide
-    #--------------------------------------------------------------
-    openSlide: (nameOrIndex) -> jQuery(queryGenerator.pageElements.wizard).liteAccordion("openSlide", nameOrIndex)
-
-    # Sets the current wizard step and disables all other slides
-    #--------------------------------------------------------------
-    setStep: (index) ->
-      @disableSlide(i) for i in [0..2]
-      @enableSlide(index)
-      @openSlide(index)
-
     # Generates the model offsets for the third step
     # in the format {dom_id => [offsetTop, offsetLeft]}
     #--------------------------------------------------------------
@@ -64,8 +32,6 @@ window.queryGenerator =
 
   graph:
     canvasSelector: "#graph"
-    init: ->
-      null
 
     # Adds a node to the current graph. This will create
     # a new draggable box inside the graph area
@@ -85,11 +51,6 @@ window.queryGenerator =
         .html(content)
 
       jQuery(@canvasSelector).append(newElem);
-
-      #Place the main model in the center of the graph canvas
-      if (options.mainModel == true)
-        newElem.css("left", (jQuery(@canvasSelector).width() / 2) - (newElem.width() / 2))
-        newElem.css("top", (jQuery(@canvasSelector).height() / 2) - (newElem.height() / 2))
 
       jsPlumb.draggable(newElem, { containment: queryGenerator.graph.canvasSelector, scroll: false, handle: ".handle" })
 
@@ -183,3 +144,9 @@ window.queryGenerator =
       jQuery(window).height() * (percent / 100)
     windowWidthPercent: (percent) ->
       jQuery(window).width() * (percent / 100)
+
+    createAjaxIndicator: () ->
+      jQuery(document).ajaxStart () ->
+        jQuery("#query-generator > .ajax-indicator").show()
+      jQuery(document).ajaxStop () ->
+        jQuery("#query-generator > .ajax-indicator").hide()

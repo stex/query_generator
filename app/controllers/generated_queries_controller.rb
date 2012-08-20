@@ -5,7 +5,7 @@ class GeneratedQueriesController < ApplicationController
   layout QueryGenerator::Configuration.get(:controller)[:layout]
 
   #Make the query_generator_session available in views
-  helper_method :query_generator_session, :conf, :dh, :current_slide
+  helper_method :query_generator_session, :conf, :dh, :current_step
 
   #Load the requested model from params
   before_filter :load_model_from_params, :only => [:add_association, :preview_model_records,
@@ -39,7 +39,7 @@ class GeneratedQueriesController < ApplicationController
   # but additional things might come im handy here.
   #--------------------------------------------------------------
   def load_previous_wizard_step
-    @current_slide = params[:current].to_i - 1
+    @current_step = params[:current].to_i - 1
 
     respond_to do |format|
       format.js
@@ -187,12 +187,12 @@ class GeneratedQueriesController < ApplicationController
 
   include QueryGenerator::HelperFunctions
 
-  def current_slide
-    return @current_slide if @current_slide
+  def current_step
+    return @current_step if @current_step
 
-    @current_slide = case params[:action].to_s
+    @current_step = case params[:action].to_s
                        when "new"
-                         0
+                         1
                        when "set_main_model", "add_association", "remove_model"
                          2
                        else

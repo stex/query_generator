@@ -17,14 +17,12 @@ en:
       model_table: %{model} (%{table})
     wizard:
       main_model:
-        slide_caption: Main Model
         title: Please choose a main model to start your query.
         description: "In Ruby on Rails (the framework you are using) SQL queries are usually based on one Model which executes the
                                         query. Joins are made through associations afterwards which will be chosen in the next step."
         success: Successfully set the main model.
         button_next: Set Associations &raquo;
       associations:
-        slide_caption: Associations and Columns
         title: Please choose associations for your main model
         description: blabla
         remove_model_warning: If you remove this model, all models connected to it will be removed as well. Continue?
@@ -36,10 +34,9 @@ en:
         button_next: Set Conditions and Output columns &raquo;
         button_prev: &#171; Choose Associations
       conditions:
-        slide_caption: Conditions
         title: Conditions
         description: blabla
-        button_prev: &#171;
+        button_prev: &#171; Choose Columns
         button_next: Finish Query
         columns_table:
           headers:

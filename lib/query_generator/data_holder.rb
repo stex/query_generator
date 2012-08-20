@@ -72,7 +72,7 @@ module QueryGenerator
     # is always the same.
     #--------------------------------------------------------------
     def associations_for(model)
-      @associations[model.to_s.classify]
+      @associations[model.to_s]
     end
 
     # Erroneous Connections found during structure analysis
