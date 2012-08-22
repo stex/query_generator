@@ -1,10 +1,43 @@
-de:
+en:
   query_generator:
     errors:
       model_not_found_or_permissions: The model %{model} does not exist or you don't have the necessary rights to access it.
+      record_insufficient_permissions: You don't have the necessary permissions to view this record.
     success:
       model_added: Successfully added the model %{model} to your current query
     dialog_titles:
-      model_record_preview: Record preview for %{model}
+      model_record_preview: Preview of %{model} records
     misc:
       column_header_title: "Type: %{type}, Default: %{default_value}"
+      model: Model
+      associations: Associations
+      actions: Actions
+      primary_key: Primary Key
+      belongs_to_key: Key for belongs_to association to %{model}
+      model_table: %{model} (%{table})
+    wizard:
+      main_model:
+        title: Please choose a main model to start your query.
+        description: "In Ruby on Rails (the framework you are using) SQL queries are usually based on one Model which executes the
+                                        query. Joins are made through associations afterwards which will be chosen in the next step."
+        success: Successfully set the main model.
+        button_next: Set Associations &raquo;
+      associations:
+        title: Please choose associations for your main model
+        description: blabla
+        remove_model_warning: If you remove this model, all models connected to it will be removed as well. Continue?
+        button_next: Choose Columns &raquo;
+        button_prev: "&#171; Set Main Model"
+      columns:
+        title: Please choose the columns you'd like to use in your query
+        description: The columns you active in this screen can be used later for conditions.
+        button_next: Set Conditions and Output columns &raquo;
+        button_prev: "&#171; Choose Associations"
+      conditions:
+        title: Conditions
+        description: blabla
+        button_prev: "&#171; Choose Columns"
+        button_next: Finish Query
+        columns_table:
+          headers:
+            column_name: Column Name

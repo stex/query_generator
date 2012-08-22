@@ -59,6 +59,10 @@ module GeneratedQueriesHelper
     button_to_remote caption, :url => load_previous_wizard_step_generated_queries_path(:current => current), :method => :get
   end
 
+  def step_forward?
+    @step_direction == :forward
+  end
+
   # Creates an image_tag for the given association
   # ... once I found images which express them.
   #--------------------------------------------------------------
@@ -99,7 +103,7 @@ module GeneratedQueriesHelper
 
   # Updates the query progress in the wizard
   #--------------------------------------------------------------
-  def update_progress
+  def render_current_progress
     options = {}
     options[:joins] = current_step > 1
 
@@ -118,7 +122,15 @@ module GeneratedQueriesHelper
     elements.join()
   end
 
+  # Renders the given wizard step and partial
+  #--------------------------------------------------------------
+  def render_wizard_partial(step, partial, locals = {})
+    render :partial => "generated_queries/wizard_#{step}/#{partial}", :locals => locals
+  end
+
   private
+
+
 
   def handle_dom_id_options(res, options)
     res = [options[:prefix], res].join("_") if options[:prefix]

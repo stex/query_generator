@@ -3,9 +3,13 @@ window.queryGenerator =
     nodes: {}
     edges: {}
 
+  callbacks: {
+    dragStop: (event, ui) ->
+      alert(ui)
+  }
+
   pageElements:
     recordPreview: "#model-records-preview"
-    wizard: "#wizard"
 
   init: () ->
     jQuery(this.pageElements.recordPreview).dialog(autoOpen: false, modal: true, width: "90%", height: "700")
@@ -17,18 +21,6 @@ window.queryGenerator =
     jQuery(this.pageElements.recordPreview).html(content)
     jQuery(this.pageElements.recordPreview).dialog("option", {title: dialogTitle})
     jQuery(this.pageElements.recordPreview).dialog("open")
-
-  wizard:
-    # Generates the model offsets for the third step
-    # in the format {dom_id => [offsetTop, offsetLeft]}
-    #--------------------------------------------------------------
-    getModelBoxOffsets: ->
-      positions = {}
-
-      jQuery.each queryGenerator.data.nodes, (key, value) =>
-        positions[key] = [value.offset().top, value.offset().left]
-
-      jQuery.param {offsets: positions}
 
   graph:
     canvasSelector: "#graph"
@@ -52,7 +44,10 @@ window.queryGenerator =
 
       jQuery(@canvasSelector).append(newElem);
 
-      jsPlumb.draggable(newElem, { containment: queryGenerator.graph.canvasSelector, scroll: false, handle: ".handle" })
+      jsPlumb.draggable(newElem,
+        containment: queryGenerator.graph.canvasSelector,
+        scroll: false, handle: ".handle",
+        stop: queryGenerator.callbacks.dragStop)
 
       queryGenerator.data.nodes[id] = newElem
 
@@ -112,6 +107,13 @@ window.queryGenerator =
       jQuery.each queryGenerator.data.nodes, (key, value) =>
         jsPlumb.repaint(value)
 
+    # Returns the serialized model box offsets for the given draggable element
+    #--------------------------------------------------------------
+    getModelBoxOffset: (ui) ->
+      jQuery.param {
+        offset: [ui.offset.top, ui.offset.left],
+        model: ui.helper.attr("id").replace("model_", "")
+      }
 
 
   ###

@@ -5,9 +5,13 @@
       nodes: {},
       edges: {}
     },
+    callbacks: {
+      dragStop: function(event, ui) {
+        return alert(ui);
+      }
+    },
     pageElements: {
-      recordPreview: "#model-records-preview",
-      wizard: "#wizard"
+      recordPreview: "#model-records-preview"
     },
     init: function() {
       jQuery(this.pageElements.recordPreview).dialog({
@@ -25,19 +29,6 @@
       });
       return jQuery(this.pageElements.recordPreview).dialog("open");
     },
-    wizard: {
-      getModelBoxOffsets: function() {
-        var positions,
-          _this = this;
-        positions = {};
-        jQuery.each(queryGenerator.data.nodes, function(key, value) {
-          return positions[key] = [value.offset().top, value.offset().left];
-        });
-        return jQuery.param({
-          offsets: positions
-        });
-      }
-    },
     graph: {
       canvasSelector: "#graph",
       addNode: function(id, content, options) {
@@ -53,7 +44,8 @@
         jsPlumb.draggable(newElem, {
           containment: queryGenerator.graph.canvasSelector,
           scroll: false,
-          handle: ".handle"
+          handle: ".handle",
+          stop: queryGenerator.callbacks.dragStop
         });
         return queryGenerator.data.nodes[id] = newElem;
       },
@@ -115,6 +107,12 @@
         var _this = this;
         return jQuery.each(queryGenerator.data.nodes, function(key, value) {
           return jsPlumb.repaint(value);
+        });
+      },
+      getModelBoxOffset: function(ui) {
+        return jQuery.param({
+          offset: [ui.offset.top, ui.offset.left],
+          model: ui.helper.attr("id").replace("model_", "")
         });
       }
     },

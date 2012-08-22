@@ -1,0 +1,14 @@
+if step_forward?
+  if @model
+    page["query-generator-header"].replace_html render_wizard_partial("2a", "header")
+    page["query-generator-content"].replace_html render_wizard_partial("2a", "content")
+    page["query-generator-footer"].replace_html render_wizard_partial("2a", "footer")
+
+    #Add model nodes to the page
+    page.call "queryGenerator.graph.removeAllNodes"
+    page.call "queryGenerator.graph.addNode", model_dom_id(@model), model_node(@model), {:mainModel => true}
+    query_generator_session.models.each do |model|
+      page.call "queryGenerator.graph.addNode", model_dom_id(model), model_node(model)
+    end
+  end
+end

@@ -9,7 +9,8 @@ class GeneratedQueriesController < ApplicationController
 
   #Load the requested model from params
   before_filter :load_model_from_params, :only => [:add_association, :preview_model_records,
-                                                   :set_main_model, :remove_model, :toggle_table_column]
+                                                   :set_main_model, :remove_model, :toggle_table_column,
+                                                   :set_model_offset]
 
   def query_generator_session
     @query_generator_session ||= QueryGenerator::QueryGeneratorSession.new(session)
@@ -66,10 +67,12 @@ class GeneratedQueriesController < ApplicationController
 
       query_generator_session.main_model = @model
       flash.now[:notice] = t("query_generator.wizard.main_model.success")
+
+      set_step_direction(:forward)
     end
 
     respond_to do |format|
-      format.js
+      format.js {render :template => "generated_queries/wizard_2a/step_switch.js.rjs"}
     end
   end
 
@@ -183,9 +186,25 @@ class GeneratedQueriesController < ApplicationController
     end
   end
 
+  # Saves the model box offset for later use
+  #--------------------------------------------------------------
+  def set_model_offset
+    if @model
+      offset_top = params[:offset].first.to_i
+      offset_left = params[:offset].last.to_i
+      query_generator_session.set_model_offset(@model, offset_top, offset_left)
+    end
+
+    render :nothing => true
+  end
+
   private
 
   include QueryGenerator::HelperFunctions
+
+  def set_step_direction(direction)
+    @step_direction = direction
+  end
 
   def current_step
     return @current_step if @current_step
@@ -207,7 +226,7 @@ class GeneratedQueriesController < ApplicationController
   # a flash error message if the model couldn't be loaded for some reason
   #--------------------------------------------------------------
   def load_model_from_params
-    @model = params[:model].try(:constantize)
+    @model = params[:model].classify.constantize rescue nil
 
     if @model.nil? || !ccan?(:read, @model)
       flash.now[:error] = t("query_generator.errors.model_not_found_or_permissions", :model => (@model.try(:human_name) || params[:model]))

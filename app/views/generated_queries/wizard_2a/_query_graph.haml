@@ -1,9 +1,0 @@
-- if query_generator_session.main_model
-  .block.draggable.model.main-model{:id => model_dom_id(query_generator_session.main_model)}
-    = model_node(query_generator_session.main_model)
-
-- query_generator_session.models.each do |model|
-  .block.draggable.model{:id => model_dom_id(model)}
-    = model_node(model)
-
-.clear

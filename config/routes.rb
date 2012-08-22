@@ -8,6 +8,7 @@ ActionController::Routing::Routes.draw do |map|
                                                     :load_previous_wizard_step => :get,
                                                     :choose_model_columns      => :get,
                                                     :choose_model_associations => :get,
-                                                    :toggle_table_column       => :get}
+                                                    :toggle_table_column       => :get,
+                                                    :set_model_offset          => :post}
 
 end
