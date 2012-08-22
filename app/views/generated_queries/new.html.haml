@@ -1,17 +1,17 @@
 #query-generator
-  #step1.wizard
-    = render :partial => "generated_queries/wizard_1/main_model"
-  #step2.wizard{:style => "display: none"}
-    = render :partial => "generated_queries/wizard_2a/associations"
-  #step3.wizard{:style => "display: none"}
+  #query-generator-header= render :partial => "generated_queries/wizard_1/header"
+  #query-generator-content= render :partial => "generated_queries/wizard_1/content"
+  #query-generator-footer= render :partial => "generated_queries/wizard_1/footer"
 
   / Content for the model records preview dialog
   #model-records-preview{:style => "display: none"}
-
-  /Progress / Preview
-  #progress= render :partial => "progress"
 
   .ajax-indicator{:style => "display: none"} Loading...
 
 :javascript
   queryGenerator.init();
+
+  //The remote function has to be created here as in some system the token might be submitted with every request
+  queryGenerator.callbacks.dragStop = function(event, ui) {
+    #{remote_function(:url => set_model_offset_generated_queries_path, :with => "queryGenerator.graph.getModelBoxOffset(ui)")}
+  }

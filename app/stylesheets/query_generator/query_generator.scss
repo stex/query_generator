@@ -66,95 +66,76 @@ body.query-generator-layout {
     }
   }
 
+  #query-generator-header {
+    padding: 20px;
+    border-bottom: 1px solid black;
+  }
+
+  #query-generator-content {
+    padding: 10px;
+
+    #graph {
+      min-height: 650px;
+    }
+  }
+
+  #query-generator-footer {
+    padding: 10px;
+
+    .buttons {
+      padding: 10px;
+      float: right;
+      width: 25%;
+      text-align: right;
+    }
+
+    .progress {
+      float: left;
+      width: 70%;
+    }
+
+  }
+
   .ajax-indicator {
     position: fixed;
     top: 20px;
     right: 50px;
   }
 
-  .wizard {
-    .header {
+  #graph {
+    height: 100%;
+
+    .block {
+      border: 1px solid black;
+      padding: 2px;
+      position: relative;
+      min-width: 200px;
+      min-height: 150px;
+      background-color: white;
+      max-height: 400px;
+      overflow-y: scroll;
+
+      &.main-model {
+        border: 1px solid red;
+      }
+    }
+
+    .label {
       padding: 5px;
+      border: 1px solid #346789;
+      background-color: white;
+      opacity: 0.8;
+      z-index: 100;
     }
 
-    .content {
-      border-top: 1px solid black;
-      padding: 5px;
-      min-height: 650px;
-    }
+    .model {
+      display: block;
+      float: left;
 
-    .buttons {
-      background-color: #e2d0d0;
-      padding: 10px 20px;
-      position: absolute;
-      bottom: 20px;
-      right: 20px;
-    }
-
-    #graph {
-      height: 100%;
-
-      .block {
-        border: 1px solid black;
-        padding: 2px;
-        position: relative;
-        min-width: 200px;
-        min-height: 150px;
-        background-color: white;
-        max-height: 400px;
-        overflow-y: scroll;
-
-        &.main-model {
-          border: 1px solid red;
-        }
-      }
-
-      .label {
-        padding: 5px;
-        border: 1px solid #346789;
-        background-color: white;
-        opacity: 0.8;
-        z-index: 100;
-      }
-
-      .model {
-        display: block;
-        float: left;
-
-        .handle {
-          text-align: center;
-          font-weight: normal;
-          cursor: move;
-        }
-      }
-    }
-
-  }
-
-  #progress {
-    padding: 10px;
-    height: 10%;
-    overflow: hidden;
-  }
-
-  #step3 {
-    .content {
-      text-align: center;
-
-      .values_block {
-        padding: 10px;
-        border: 1px solid black;
-        margin-right: 20px;
-        width: 45%;
-        height: 300px;
-        overflow: scroll;
-        float: left;
-
-        table {
-          td {
-            text-align: left;
-          }
-        }
+      .handle {
+        text-align: center;
+        font-weight: normal;
+        cursor: move;
       }
     }
   }
