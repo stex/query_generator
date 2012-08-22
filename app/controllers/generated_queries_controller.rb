@@ -5,7 +5,7 @@ class GeneratedQueriesController < ApplicationController
   layout QueryGenerator::Configuration.get(:controller)[:layout]
 
   #Make the query_generator_session available in views
-  helper_method :query_generator_session, :conf, :dh, :current_step
+  helper_method :query_generator_session, :conf, :dh, :current_step, :human_model_name
 
   #Load the requested model from params
   before_filter :load_model_from_params, :only => [:add_association, :preview_model_records,
@@ -108,9 +108,9 @@ class GeneratedQueriesController < ApplicationController
 
       if ccan? :read, @target
         @model_added = query_generator_session.add_association(@model, params[:association])
-        flash.now[:notice] = t("query_generator.success.model_added", :model => @model.human_name)
+        flash.now[:notice] = t("query_generator.success.model_added", :model => human_model_name(@model))
       else
-        flash.now[:error] = t("query_generator.errors.model_not_found_or_permissions", :model => (@target.try(:human_name) || ""))
+        flash.now[:error] = t("query_generator.errors.model_not_found_or_permissions", :model => (human_model_name(@target) || ""))
         @target = nil
       end
     end
@@ -229,7 +229,7 @@ class GeneratedQueriesController < ApplicationController
     @model = params[:model].classify.constantize rescue nil
 
     if @model.nil? || !ccan?(:read, @model)
-      flash.now[:error] = t("query_generator.errors.model_not_found_or_permissions", :model => (@model.try(:human_name) || params[:model]))
+      flash.now[:error] = t("query_generator.errors.model_not_found_or_permissions", :model => (human_model_name(@model) || params[:model]))
       @model = nil
     end
   end

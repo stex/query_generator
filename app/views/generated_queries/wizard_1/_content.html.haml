@@ -14,6 +14,6 @@
     - dh.models.each do |model|
       %tr{:class => cycle("odd", "even")}
         %td= radio_button_tag "model", model.to_s, query_generator_session.main_model == model, :id => model_dom_id(model, :prefix => "main")
-        %td= label_tag model_dom_id(model, :prefix => "main"), model.human_name
-        %td= dh.linkage_graph.get_node(model).connected_models.map {|m| m.human_name if ccan?(:read, m)}.compact.to_sentence
+        %td= label_tag model_dom_id(model, :prefix => "main"), human_model_name(model)
+        %td= dh.linkage_graph.get_node(model).connected_models.map {|m| human_model_name(m) if ccan?(:read, m)}.compact.to_sentence
         %td= link_to_remote("Preview", :url => preview_model_records_generated_queries_path(:model => model.to_s), :method => :get)
