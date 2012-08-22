@@ -14,7 +14,6 @@ module QueryGenerator
 
   class DataHolder
     include Singleton
-    include HelperFunctions
 
     unloadable if Rails.env.development? #Don't cache this class in development environment, even if in gem
 
@@ -280,6 +279,30 @@ module QueryGenerator
       else
         get_end_point_class(model_name, name, options, try_no + 1)
       end
+    end
+
+    # Returns all modules for a given class.
+    # Example: get_modules(QueryGenerator::Configuration)
+    #          #=> [QueryGenerator]
+    #--------------------------------------------------------------
+    def get_modules(klass)
+      klass = klass.class unless klass.is_a?(Class)
+      parts = klass.to_s.split("::")
+      parts.pop
+      parts.map &:constantize
+    end
+
+    # Returns the topmost module for the given class
+    #--------------------------------------------------------------
+    def get_first_module(klass)
+      get_modules(klass).first
+    end
+
+    # Tests if the first array includes any elements of the second array
+    # .any? is not used as it's not supported by older rails versions
+    #--------------------------------------------------------------
+    def array_include?(array1, array2)
+      !(array1 & array2).empty?
     end
 
     # Logs erroneous model associations if any were found
