@@ -1,4 +1,4 @@
-ActionController::Routing::Routes.draw do |map|
+Rails.application.routes.draw do |map|
 
   map.resources :generated_queries, :collection => {:add_association           => :post,
                                                     :preview_model_records     => :get,
