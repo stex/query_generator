@@ -14,14 +14,14 @@ en:
       actions: Actions
       primary_key: Primary Key
       belongs_to_key: Key for belongs_to association to %{model}
-      model_table: %{model} (%{table})
+      model_table: "%{model} (%{table})"
     wizard:
       main_model:
         title: Please choose a main model to start your query.
         description: "In Ruby on Rails (the framework you are using) SQL queries are usually based on one Model which executes the
                                         query. Joins are made through associations afterwards which will be chosen in the next step."
         success: Successfully set the main model.
-        button_next: Set Associations &raquo;
+        button_next: "Set Associations &raquo;"
       associations:
         title: Please choose associations for your main model
         description: blabla
