@@ -125,8 +125,11 @@ module GeneratedQueriesHelper
   # Renders the given wizard step and partial
   #--------------------------------------------------------------
   def render_wizard_partial(step, partial, locals = {})
-    render :partial => "generated_queries/wizard_#{step}/#{partial}", :locals => locals
+    render :partial => wizard_file(step, partial), :locals => locals
   end
+
+
+
 
   private
 

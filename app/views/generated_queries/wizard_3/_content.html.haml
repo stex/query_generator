@@ -1,0 +1,8 @@
+%table
+  %thead
+    %tr
+      - query_generator_session.used_columns.each do |qc|
+        %th
+          = qc.model.human_name
+          %br
+          = qc.column_name

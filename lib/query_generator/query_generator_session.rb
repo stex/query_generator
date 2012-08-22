@@ -54,6 +54,9 @@ module QueryGenerator
         end
       end
 
+      #remove offsets saved for this model
+      session_namespace[:model_offsets].delete(model.to_s)
+
       @models = nil
 
       removed_models
@@ -84,8 +87,16 @@ module QueryGenerator
     end
 
     # Sets the main model for the generated query
+    # If the main model is different from the previous one,
+    # most namespaces will be reset.
     #--------------------------------------------------------------
     def main_model=(model)
+      #Check if there was an old main_model set. If yes and the new one is different,
+      #delete the chosen associations and values
+      if session_namespace[:main_model] != model.to_s
+        create_namespaces(true)
+      end
+
       session_namespace[:main_model] = model.to_s
       @main_model = model
     end
@@ -173,18 +184,10 @@ module QueryGenerator
       result
     end
 
-    # Resets the given namespace
+    # Returns the saved model offsets for the given model
     #--------------------------------------------------------------
-    def reset(namespace)
-      session_namespace.delete(namespace)
-      create_namespaces
-    end
-
-    # To save the model layout the user created, we have to save
-    # the model box offsets
-    #--------------------------------------------------------------
-    def model_offsets
-      session_namespace[:model_offsets]
+    def model_offsets(model)
+      session_namespace[:model_offsets][model.to_s]
     end
 
     # Sets the offset for the given model
@@ -219,11 +222,18 @@ module QueryGenerator
 
     # Makes sure the necessary namespaces are set in the session
     #--------------------------------------------------------------
-    def create_namespaces
-      session_namespace[:models] ||= []
-      session_namespace[:associations] ||= {}
-      session_namespace[:model_offsets] ||= {}
-      session_namespace[:columns] ||= []
+    def create_namespaces(force = false)
+      if force
+        session_namespace[:models] = []
+        session_namespace[:associations] = {}
+        session_namespace[:model_offsets] = {}
+        session_namespace[:columns] = []
+      else
+        session_namespace[:models] ||= []
+        session_namespace[:associations] ||= {}
+        session_namespace[:model_offsets] ||= {}
+        session_namespace[:columns] ||= []
+      end
     end
 
     def add_column(options = {})

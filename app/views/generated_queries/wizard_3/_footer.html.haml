@@ -1,0 +1,7 @@
+.progress
+  = render_current_progress
+
+.buttons
+  = button_to_remote t("query_generator.wizard.conditions.button_prev"), :url => choose_model_columns_generated_queries_path, :method => :get
+
+.clear

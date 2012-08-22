@@ -31,27 +31,9 @@
     },
     graph: {
       canvasSelector: "#graph",
-      addNode: function(id, content, options) {
-        var defaults, newElem;
-        defaults = {
-          type: "div",
-          mainModel: false,
-          placeNearSelector: ".main-model"
-        };
-        options = jQuery.extend({}, defaults, options);
-        newElem = jQuery(document.createElement(options.type)).addClass("block draggable model").addClass(options.mainModel && "main-model").attr("id", id).html(content);
-        jQuery(this.canvasSelector).append(newElem);
-        jsPlumb.draggable(newElem, {
-          containment: queryGenerator.graph.canvasSelector,
-          scroll: false,
-          handle: ".handle",
-          stop: queryGenerator.callbacks.dragStop
-        });
-        return queryGenerator.data.nodes[id] = newElem;
-      },
-      addConnection: function(elem1, elem2, options) {
-        var defaults;
-        defaults = {
+      addConnection: function(elem1, elem2, _label) {
+        var options;
+        options = {
           source: jQuery(elem1),
           target: jQuery(elem2),
           connector: "StateMachine",
@@ -71,48 +53,58 @@
                 width: 20,
                 length: 12
               }
+            ], [
+              "Label", {
+                label: _label,
+                cssClass: "label"
+              }
             ]
           ]
         };
-        options = jQuery.extend({}, defaults, options);
         return jsPlumb.connect(options);
       },
       removeNode: function(node) {
-        var _this = this;
         jsPlumb.detachAllConnections(node);
         jQuery("#" + node).remove();
-        delete queryGenerator.data.nodes[node];
-        return jQuery.each(queryGenerator.data.nodes, function(key, value) {
+        return jQuery("" + this.canvasSelector + " > .draggable").each(function(index) {
           var offset, parentOffset;
-          offset = jQuery(value).offset();
-          parentOffset = jQuery(_this.canvasSelector).offset();
+          offset = jQuery(this).offset();
+          parentOffset = jQuery(queryGenerator.graph.canvasSelector).offset();
           if (offset.top < parentOffset.top) {
-            jQuery(value).offset({
+            jQuery(this).offset({
               top: parentOffset.top,
               left: offset.left
             });
           }
-          return jsPlumb.repaint(value);
+          return jsPlumb.repaint(this);
         });
-      },
-      removeAllNodes: function() {
-        var _this = this;
-        jQuery.each(queryGenerator.data.nodes, function(key, value) {
-          jsPlumb.detachAllConnections(value);
-          return jQuery(value).remove();
-        });
-        return queryGenerator.data.nodes = {};
       },
       repaintConnections: function() {
-        var _this = this;
-        return jQuery.each(queryGenerator.data.nodes, function(key, value) {
-          return jsPlumb.repaint(value);
+        return jQuery("" + this.canvasSelector + " > .draggable").each(function(index) {
+          return jsPlumb.repaint(this);
         });
+      },
+      createDraggable: function(id) {
+        return jsPlumb.draggable(id, {
+          containment: queryGenerator.graph.canvasSelector,
+          scroll: false,
+          handle: ".handle",
+          stop: queryGenerator.callbacks.dragStop
+        });
+      },
+      createDraggables: function(selectorCommand) {
+        return this.createDraggable(jQuery(selectorCommand));
       },
       getModelBoxOffset: function(ui) {
         return jQuery.param({
           offset: [ui.offset.top, ui.offset.left],
           model: ui.helper.attr("id").replace("model_", "")
+        });
+      },
+      setModelBoxOffset: function(id, _top, _left) {
+        return jQuery("#" + id).offset({
+          top: _top,
+          left: _left
         });
       }
     },

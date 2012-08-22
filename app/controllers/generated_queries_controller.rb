@@ -5,7 +5,7 @@ class GeneratedQueriesController < ApplicationController
   layout QueryGenerator::Configuration.get(:controller)[:layout]
 
   #Make the query_generator_session available in views
-  helper_method :query_generator_session, :conf, :dh, :current_step, :human_model_name
+  helper_method :query_generator_session, :conf, :dh, :current_step, :human_model_name, :wizard_file
 
   #Load the requested model from params
   before_filter :load_model_from_params, :only => [:add_association, :preview_model_records,
@@ -35,36 +35,23 @@ class GeneratedQueriesController < ApplicationController
   #                       Wizard Actions
   #--------------------------------------------------------------
 
-  # Loads the previous wizard step.
-  # At the moment this is just opening the chosen accordion slide,
-  # but additional things might come im handy here.
-  #--------------------------------------------------------------
-  def load_previous_wizard_step
-    @current_step = params[:current].to_i - 1
-
-    respond_to do |format|
-      format.js
-    end
-  end
-
   #####################
   #### STEP 1
   #####################
+
+  # Displays the models
+  #--------------------------------------------------------------
+  def choose_main_model
+    respond_to do |format|
+      format.js {render wizard_file("1", "step_switch")}
+    end
+  end
 
   # Sets the main model for the generated query
   # Leads to the second wizard step
   #--------------------------------------------------------------
   def set_main_model
     if @model
-      #Check if there was an old main_model set. If yes and the new one is different,
-      #delete the chosen associations and values
-      if query_generator_session.main_model != @model
-        query_generator_session.reset(:associations)
-        query_generator_session.reset(:values)
-        query_generator_session.reset(:model_offsets)
-        @main_model_changed = true
-      end
-
       query_generator_session.main_model = @model
       flash.now[:notice] = t("query_generator.wizard.main_model.success")
 
@@ -136,7 +123,7 @@ class GeneratedQueriesController < ApplicationController
   #--------------------------------------------------------------
   def choose_model_associations
     respond_to do |format|
-      format.js {render "toggle_model_boxes"}
+      format.js {render wizard_file("2a", "step_switch")}
     end
   end
 
@@ -145,28 +132,20 @@ class GeneratedQueriesController < ApplicationController
   # query
   #--------------------------------------------------------------
   def choose_model_columns
-    @columns = true
+    set_step_direction(:forward) if params[:forward]
 
     respond_to do |format|
-      format.js {render "toggle_model_boxes"}
+      format.js {render wizard_file("2b", "step_switch")}
     end
   end
 
   # Leads to the third wizard step
   #--------------------------------------------------------------
   def set_conditions
-    query_generator_session.reset(:model_offsets)
-
-    #Save the model box offsets
-    params[:offsets].each do |key, offset_array|
-      model = key.sub("model_", "").classify
-      offset_top = offset_array.first.to_i
-      offset_left = offset_array.last.to_i
-      query_generator_session.set_model_offset(model, offset_top, offset_left)
-    end
+    set_step_direction(:forward) if params[:forward]
 
     respond_to do |format|
-      format.js
+      format.js {render wizard_file("3", "step_switch")}
     end
   end
 
@@ -246,5 +225,11 @@ class GeneratedQueriesController < ApplicationController
   #--------------------------------------------------------------
   def conf(config_name)
     QueryGenerator::Configuration.get(config_name)
+  end
+
+  # Just a shortcut to get the correct file name
+  #--------------------------------------------------------------
+  def wizard_file(step, file_name)
+    "generated_queries/wizard_#{step}/#{file_name}"
   end
 end

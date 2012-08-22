@@ -1,7 +1,6 @@
 .handle.ui-corner-all.ui-widget-header
-  = model.human_name
+  = human_model_name(model)
   - if model != query_generator_session.main_model
-    =# link_to_remote("RP", :url => preview_model_records_generated_queries_path(:model => model.to_s), :method => :get)
     = link_to_remote("X", :url => remove_model_generated_queries_path(:model => model.to_s), :confirm => t("query_generator.wizard.associations.remove_model_warning"))
 
 

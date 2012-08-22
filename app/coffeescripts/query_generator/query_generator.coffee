@@ -25,37 +25,11 @@ window.queryGenerator =
   graph:
     canvasSelector: "#graph"
 
-    # Adds a node to the current graph. This will create
-    # a new draggable box inside the graph area
-    #--------------------------------------------------------------
-    addNode: (id, content, options) ->
-      defaults =
-        type: "div"
-        mainModel: false
-        placeNearSelector: ".main-model"
-
-      options = jQuery.extend({}, defaults, options)
-
-      newElem = jQuery(document.createElement(options.type))
-        .addClass("block draggable model")
-        .addClass(options.mainModel && "main-model")
-        .attr("id", id)
-        .html(content)
-
-      jQuery(@canvasSelector).append(newElem);
-
-      jsPlumb.draggable(newElem,
-        containment: queryGenerator.graph.canvasSelector,
-        scroll: false, handle: ".handle",
-        stop: queryGenerator.callbacks.dragStop)
-
-      queryGenerator.data.nodes[id] = newElem
-
     # Adds a connection between two nodes and visualizes it with
     # jsPlumb (draws a connection between the two draggable boxes)
     #--------------------------------------------------------------
-    addConnection: (elem1, elem2, options) ->
-      defaults =
+    addConnection: (elem1, elem2, _label) ->
+      options =
         source: jQuery(elem1)
         target: jQuery(elem2)
         connector:"StateMachine"
@@ -63,9 +37,7 @@ window.queryGenerator =
         hoverPaintStyle:{strokeStyle:"#dbe300"}
         endpoint:"Blank"
         anchor:"Continuous"
-        overlays: [ ["PlainArrow", {location:1, width:20, length:12} ]]
-
-      options = jQuery.extend({}, defaults, options)
+        overlays: [ ["PlainArrow", {location:1, width:20, length:12}], ["Label", {label: _label, cssClass: "label"}]]
 
       jsPlumb.connect(options)
 
@@ -80,32 +52,31 @@ window.queryGenerator =
       #Remove the DOM element
       jQuery("##{node}").remove()
 
-      #Remove the node from our local node list
-      delete queryGenerator.data.nodes[node]
-
       #Sometimes elements get moved around, so we have to make sure, everything's still inside of the container
-      jQuery.each queryGenerator.data.nodes, (key, value) =>
-        offset = jQuery(value).offset()
-        parentOffset = jQuery(@canvasSelector).offset()
+      jQuery("#{@canvasSelector} > .draggable").each (index) ->
+        offset = jQuery(@).offset()
+        parentOffset = jQuery(queryGenerator.graph.canvasSelector).offset()
         if offset.top < parentOffset.top
-          jQuery(value).offset({top: parentOffset.top, left: offset.left})
-        jsPlumb.repaint(value)
+          jQuery(@).offset({top: parentOffset.top, left: offset.left})
+        jsPlumb.repaint(@)
 
-    # Removes all nodes from the current graph
-    #--------------------------------------------------------------
-    removeAllNodes: () ->
-      jQuery.each queryGenerator.data.nodes, (key, value) =>
-        jsPlumb.detachAllConnections(value)
-        jQuery(value).remove()
-      queryGenerator.data.nodes = {}
 
     # Repaints all connections in the graph.
     # This is necessary when the boxes were manipulated through
     # js
     #--------------------------------------------------------------
     repaintConnections: () ->
-      jQuery.each queryGenerator.data.nodes, (key, value) =>
-        jsPlumb.repaint(value)
+      jQuery("#{@canvasSelector} > .draggable").each (index) ->
+        jsPlumb.repaint(@)
+
+    createDraggable: (id) ->
+      jsPlumb.draggable(id,
+        containment: queryGenerator.graph.canvasSelector,
+        scroll: false, handle: ".handle",
+        stop: queryGenerator.callbacks.dragStop)
+
+    createDraggables: (selectorCommand) ->
+      @createDraggable(jQuery(selectorCommand))
 
     # Returns the serialized model box offsets for the given draggable element
     #--------------------------------------------------------------
@@ -114,6 +85,11 @@ window.queryGenerator =
         offset: [ui.offset.top, ui.offset.left],
         model: ui.helper.attr("id").replace("model_", "")
       }
+
+    setModelBoxOffset: (id, _top, _left) ->
+      jQuery("##{id}").offset
+        top: _top,
+        left: _left
 
 
   ###

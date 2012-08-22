@@ -4,11 +4,12 @@ ActionController::Routing::Routes.draw do |map|
                                                     :preview_model_records     => :get,
                                                     :set_main_model            => :post,
                                                     :remove_model              => :post,
-                                                    :set_conditions            => :post,
+                                                    :set_conditions            => :get,
                                                     :load_previous_wizard_step => :get,
                                                     :choose_model_columns      => :get,
                                                     :choose_model_associations => :get,
                                                     :toggle_table_column       => :get,
-                                                    :set_model_offset          => :post}
+                                                    :set_model_offset          => :post,
+                                                    :choose_main_model         => :get}
 
 end
