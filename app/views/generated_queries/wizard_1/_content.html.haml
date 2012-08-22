@@ -1,7 +1,8 @@
 -# Create form to submit the main model. Prevent submitting if no model was chosen yet
-- form_remote_tag :url => set_main_model_generated_queries_path,
-                  :before => %{if (jQuery("input[name=model]:checked").size() < 1) return false;},
-                  :html => {:id => "generated_query_main_model_form"} do
+- form_tag set_main_model_generated_queries_path,
+           :before => %{if (jQuery("input[name=model]:checked").size() < 1) return false;},
+           :remote => true,
+           :html => {:id => "generated_query_main_model_form"} do
   %table
     %thead
       %tr

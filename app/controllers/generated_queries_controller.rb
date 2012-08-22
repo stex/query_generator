@@ -17,7 +17,7 @@ class GeneratedQueriesController < ApplicationController
   end
 
   def index
-    @generated_queries = QueryGenerator::GeneratedQuery.all.paginate(:page => params[:page], :per_page => 50)
+    @generated_queries = QueryGenerator::GeneratedQuery.paginate(:page => params[:page], :per_page => 50)
   end
 
   # TODO: Check if there is an unfinished query int he session and reload it.
@@ -238,7 +238,7 @@ class GeneratedQueriesController < ApplicationController
   #--------------------------------------------------------------
   def dh
     return @dh if @dh
-    QueryGenerator::Configuration.set(:exclusions, :classes => [Audit, Page, Sheet, SheetLayout, Attachment], :modules => [Tolk])
+    #QueryGenerator::Configuration.set(:exclusions, :classes => [Audit, Page, Sheet, SheetLayout, Attachment], :modules => [Tolk])
     @dh = QueryGenerator::DataHolder.instance
   end
 
