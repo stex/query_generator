@@ -1,14 +1,17 @@
-Rails.application.routes.draw do |map|
+Rails.application.routes.draw do
 
-  map.resources :generated_queries, :collection => {:add_association           => :post,
-                                                    :preview_model_records     => :get,
-                                                    :set_main_model            => :post,
-                                                    :remove_model              => :post,
-                                                    :set_conditions            => :post,
-                                                    :load_previous_wizard_step => :get,
-                                                    :choose_model_columns      => :get,
-                                                    :choose_model_associations => :get,
-                                                    :toggle_table_column       => :get,
-                                                    :set_model_offset          => :post}
-
+  resources :generated_queries do
+    collection do
+      post :add_association
+      get  :preview_model_records
+      post :set_main_model
+      post :remove_model
+      post :set_conditions
+      get  :load_previous_wizard_step
+      get  :choose_model_columns
+      get  :choose_model_associations
+      get  :toggle_table_column
+      post :set_model_offset
+    end
+  end
 end
