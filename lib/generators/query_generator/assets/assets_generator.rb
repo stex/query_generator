@@ -5,8 +5,9 @@ module QueryGenerator
 
       desc "Copy necessary assets to the application directory"
       def copy_assets
-        directory "assets/images", "public/images"
-        directory "assets/javascripts", "public/javascripts"
+        directory "assets/images", "app/assets/images"
+        directory "assets/javascripts", "app/assets/javascripts"
+        directory "assets/stylesheets", "app/assets/stylesheets"
       end
     end
   end

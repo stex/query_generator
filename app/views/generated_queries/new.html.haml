@@ -12,6 +12,3 @@
   queryGenerator.init();
 
   //The remote function has to be created here as in some system the token might be submitted with every request
-  queryGenerator.callbacks.dragStop = function(event, ui) {
-    #{remote_function(:url => set_model_offset_generated_queries_path, :with => "queryGenerator.graph.getModelBoxOffset(ui)")}
-  }
