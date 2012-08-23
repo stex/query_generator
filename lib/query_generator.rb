@@ -17,4 +17,5 @@ Sass::Plugin.add_template_location(sass_directory)
 Barista::Framework.register('QueryGenerator', coffee_script_directory) if defined?(Barista::Framework)
 
 module QueryGenerator
+  WIZARD_STEPS = ["main_model", "associations", "columns", "conditions"]
 end

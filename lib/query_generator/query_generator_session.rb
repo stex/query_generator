@@ -22,6 +22,23 @@ module QueryGenerator
       create_namespaces
     end
 
+    def current_step
+      @current_step ||= session_namespace[:current_step] || 1
+    end
+
+    def current_step=(step)
+      session_namespace[:current_step] = @current_step = step.to_i
+    end
+
+    def generated_query
+      @generated_query ||= GeneratedQuery.find(session_namespace[:generated_query_id])
+    end
+
+    def generated_query=(generated_query)
+      session_namespace[:generated_query_id] = generated_query.id
+      @generated_query = generated_query
+    end
+
     # Adds the given model to the associations list
     #--------------------------------------------------------------
     def add_model(model)
@@ -212,10 +229,25 @@ module QueryGenerator
 
     # Returns all selected columns for the currently managed generated query
     # Format: [Column1, Column2, Column3]
-    # They will automatically be sorted by column position
     #--------------------------------------------------------------
     def used_columns
       @used_columns ||= session_namespace[:columns].map {|c| QueryColumn.new(c)}
+    end
+
+    def change_column_position(model, column, amount = 1)
+      column_options = get_column_from_namespace(model, column)
+      next_column = get_column_by_position(column_options["position"] + amount)
+      column_options["position"] += amount
+      next_column["position"] -= amount
+      session_namespace[:columns].sort! {|x,y| x["position"] <=> y["position"]}
+      @used_columns = nil
+    end
+
+    def update_column_options(model, column, options = {})
+      col = get_column_from_namespace(model, column)
+      qc = used_columns[col["position"]]
+      qc.update_options(options)
+      session_namespace[:columns][col["position"]] = qc.serialized_options
     end
 
     private
@@ -234,6 +266,15 @@ module QueryGenerator
         session_namespace[:model_offsets] ||= {}
         session_namespace[:columns] ||= []
       end
+    end
+
+    def get_column_from_namespace(model, column)
+      column_name = column.is_a?(String) ? column : column.name
+      session_namespace[:columns].detect {|c| c["model"] == model.to_s && c["column_name"] == column_name.to_s}
+    end
+
+    def get_column_by_position(position)
+      session_namespace[:columns].detect {|c| c["position"] == position.to_i}
     end
 
     def add_column(options = {})

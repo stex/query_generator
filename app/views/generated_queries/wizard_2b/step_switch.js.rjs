@@ -1,3 +1,4 @@
+#Replace header and footer regardless from where we're coming
 page["query-generator-header"].replace_html render_wizard_partial("2b", "header")
 page["query-generator-footer"].replace_html render_wizard_partial("2b", "footer")
 
@@ -8,7 +9,7 @@ if step_forward?
   end
 
   page.call "queryGenerator.graph.repaintConnections"
-else
+else #if coming from the 3rd step, we have to repaint all model boxes and add connections
   page["query-generator-content"].replace_html render_wizard_partial("2b", "content")
   page.call "queryGenerator.graph.createDraggables", ".draggable"
 

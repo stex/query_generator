@@ -31,13 +31,16 @@ en:
       columns:
         title: Please choose the columns you'd like to use in your query
         description: The columns you active in this screen can be used later for conditions.
-        button_next: Set Conditions and Output columns &raquo;
+        button_next: Set Conditions &raquo;
         button_prev: &#171; Choose Associations
       conditions:
         title: Conditions
         description: blabla
         button_prev: &#171; Choose Columns
         button_next: Finish Query
-        columns_table:
-          headers:
-            column_name: Column Name
+        move_right: "&raquo;"
+        move_left: "&#171;"
+        rows:
+          positions: Column Position
+          show: Show
+          custom_name: Output Name

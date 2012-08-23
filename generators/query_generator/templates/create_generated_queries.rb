@@ -4,8 +4,10 @@ class CreateGeneratedQueries < ActiveRecord::Migration
       t.string :name
 
       t.string :main_model
+      t.text   :models
       t.text   :associations
-      t.text   :values
+      t.text   :offsets
+      t.text   :columns
 
       t.timestamps
     end

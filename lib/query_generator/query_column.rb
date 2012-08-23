@@ -7,6 +7,7 @@ module QueryGenerator
     # column_name -- The column name in the model table
     # position    -- The position this column will be displayed in
     # name        -- The SQL "as" parameter. If not set, column_name will be used
+    # output      -- If set to +true+, the column will be shown in the output table
 
     unloadable if Rails.env.development? #Don't cache this class in development environment, even if in gem
 
@@ -15,6 +16,12 @@ module QueryGenerator
       #is necessary here, as the setters contain additional
       #code
       serialized_values.each do |key, value|
+        self.send("#{key}=", value)
+      end
+    end
+
+    def update_options(options = {})
+      options.each do |key, value|
         self.send("#{key}=", value)
       end
     end
@@ -51,6 +58,15 @@ module QueryGenerator
       @custom_name = custom_name
     end
 
+    def output
+      @output
+    end
+
+    def output=(output)
+      @output = output
+      @output ||= false
+    end
+
     # Returns the column values as basic ruby classes (hash, string, array)
     #--------------------------------------------------------------
     def serialized_options
@@ -58,7 +74,8 @@ module QueryGenerator
           "model" => model.to_s,
           "position" => position,
           "column_name" => column_name,
-          "name" => @custom_name
+          "name" => @custom_name,
+          "output" => output
       }
     end
 

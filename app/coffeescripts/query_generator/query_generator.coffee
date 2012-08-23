@@ -4,8 +4,7 @@ window.queryGenerator =
     edges: {}
 
   callbacks: {
-    dragStop: (event, ui) ->
-      alert(ui)
+    dragStop: null
   }
 
   pageElements:
@@ -90,8 +89,19 @@ window.queryGenerator =
       jQuery("##{id}").offset
         top: _top,
         left: _left
-
-
+      
+    # Expects a hash {id => [offsetTop, offsetLeft}
+    #--------------------------------------------------------------
+    setModelBoxOffsets: (offsets) ->
+      jQuery.each offsets, (key, value) =>
+        @setModelBoxOffset(key, value[0], value[1])
+      
+    # expects connections in the format [[elem1, elem2, label]]
+    #--------------------------------------------------------------
+    addConnections: (connections) ->
+      for connection in connections
+        @addConnection(connection[0], connection[1], connection[2])
+                                 
   ###
   ***********************************************
   *                 Callbacks                   *

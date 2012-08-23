@@ -6,9 +6,7 @@
       edges: {}
     },
     callbacks: {
-      dragStop: function(event, ui) {
-        return alert(ui);
-      }
+      dragStop: null
     },
     pageElements: {
       recordPreview: "#model-records-preview"
@@ -106,6 +104,21 @@
           top: _top,
           left: _left
         });
+      },
+      setModelBoxOffsets: function(offsets) {
+        var _this = this;
+        return jQuery.each(offsets, function(key, value) {
+          return _this.setModelBoxOffset(key, value[0], value[1]);
+        });
+      },
+      addConnections: function(connections) {
+        var connection, _i, _len, _results;
+        _results = [];
+        for (_i = 0, _len = connections.length; _i < _len; _i++) {
+          connection = connections[_i];
+          _results.push(this.addConnection(connection[0], connection[1], connection[2]));
+        }
+        return _results;
       }
     },
     /*

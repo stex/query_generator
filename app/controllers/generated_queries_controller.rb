@@ -5,12 +5,13 @@ class GeneratedQueriesController < ApplicationController
   layout QueryGenerator::Configuration.get(:controller)[:layout]
 
   #Make the query_generator_session available in views
-  helper_method :query_generator_session, :conf, :dh, :current_step, :human_model_name, :wizard_file
+  helper_method :query_generator_session, :conf, :dh, :human_model_name, :wizard_file, :model_dom_id, :handle_dom_id_options
 
   #Load the requested model from params
   before_filter :load_model_from_params, :only => [:add_association, :preview_model_records,
                                                    :set_main_model, :remove_model, :toggle_table_column,
-                                                   :set_model_offset]
+                                                   :set_model_offset, :inc_column_position, :decr_column_position,
+                                                   :update_column_options]
 
   def query_generator_session
     @query_generator_session ||= QueryGenerator::QueryGeneratorSession.new(session)
@@ -24,11 +25,42 @@ class GeneratedQueriesController < ApplicationController
   #--------------------------------------------------------------
   def new
     @generated_query = QueryGenerator::GeneratedQuery.new
-    query_generator_session.init_for_generated_query(@generated_query)
+    query_generator_session.current_step = 1
+    query_generator_session.generated_query = @generated_query
+    redirect_to generated_query_wizard_path(:wizard_step => "main_model")
   end
 
   def edit
-    @generated_query = QueryGenerator::Generated_query.find(params[:id])
+    query_generator_session.generated_query = QueryGenerator::Generated_query.find(params[:id])
+  end
+
+  # The action to display the main wizard steps
+  #--------------------------------------------------------------
+  def wizard
+    @wizard_step = QueryGenerator::WIZARD_STEPS.index(params[:wizard_step]) + 1
+
+    #Make sure everything is set up for the current step. If not, redirect the user to the step he deserves.
+    if @wizard_step > 1 && query_generator_session.main_model.nil?
+      redirect_to generated_query_wizard_path(:wizard_step => "main_model") and return
+    end
+
+    #Special values we need for some steps
+    case @wizard_step
+      when 2, 3
+        @model_offsets = {}
+        query_generator_session.used_models.each do |model|
+          offsets = query_generator_session.model_offsets(model)
+          @model_offsets[model_dom_id(model)] = offsets if offsets
+        end
+        @model_connections = []
+        query_generator_session.model_associations.each do |model, associations|
+          associations.each do |association_name, target|
+            @model_connections << [model_dom_id(model, :include_hash => true), model_dom_id(target, :include_hash => true), association_name]
+          end
+        end
+    end
+
+    query_generator_session.current_step = @wizard_step
   end
 
   #--------------------------------------------------------------
@@ -39,28 +71,18 @@ class GeneratedQueriesController < ApplicationController
   #### STEP 1
   #####################
 
-  # Displays the models
-  #--------------------------------------------------------------
-  def choose_main_model
-    respond_to do |format|
-      format.js {render wizard_file("1", "step_switch")}
-    end
-  end
-
   # Sets the main model for the generated query
   # Leads to the second wizard step
   #--------------------------------------------------------------
   def set_main_model
     if @model
       query_generator_session.main_model = @model
+      query_generator_session.current_step = 2
       flash.now[:notice] = t("query_generator.wizard.main_model.success")
-
-      set_step_direction(:forward)
+      redirect_to generated_query_wizard_path(:wizard_step => "associations") and return
     end
 
-    respond_to do |format|
-      format.js {render :template => "generated_queries/wizard_2a/step_switch.js.rjs"}
-    end
+    render :nothing => true
   end
 
   # Displays the model's records as a preview. Can be used
@@ -119,36 +141,6 @@ class GeneratedQueriesController < ApplicationController
     end
   end
 
-  # Replaces the column boxes with the association_boxes
-  #--------------------------------------------------------------
-  def choose_model_associations
-    respond_to do |format|
-      format.js {render wizard_file("2a", "step_switch")}
-    end
-  end
-
-  # Replaces the association boxes with model columns
-  # to let the user choose the columns he'd like to use in the
-  # query
-  #--------------------------------------------------------------
-  def choose_model_columns
-    set_step_direction(:forward) if params[:forward]
-
-    respond_to do |format|
-      format.js {render wizard_file("2b", "step_switch")}
-    end
-  end
-
-  # Leads to the third wizard step
-  #--------------------------------------------------------------
-  def set_conditions
-    set_step_direction(:forward) if params[:forward]
-
-    respond_to do |format|
-      format.js {render wizard_file("3", "step_switch")}
-    end
-  end
-
   # Toggles if a table column is used for the current query
   # Important: That does not mean that it will be displayed when
   #            the query is executed!
@@ -164,6 +156,45 @@ class GeneratedQueriesController < ApplicationController
       format.js
     end
   end
+
+  # Moves the given column to the right
+  #--------------------------------------------------------------
+  def inc_column_position
+    if @model
+      query_generator_session.change_column_position(@model, params[:column], 1)
+    end
+
+    respond_to do |format|
+      format.js {render wizard_file(4, "update_columns_table")}
+    end
+  end
+
+  # Moves the given column to the left
+  #--------------------------------------------------------------
+  def decr_column_position
+    if @model
+      query_generator_session.change_column_position(@model, params[:column], -1)
+    end
+
+    respond_to do |format|
+      format.js {render wizard_file(4, "update_columns_table")}
+    end
+  end
+
+  def update_column_options
+    if @model
+      column = params[:column]
+      option = params[:option]
+      value = params[:options][option] rescue nil
+
+      query_generator_session.update_column_options(@model, column, option => value)
+    end
+
+    respond_to do |format|
+      format.js {render wizard_file(4, "update_columns_table")}
+    end
+  end
+
 
   # Saves the model box offset for later use
   #--------------------------------------------------------------
@@ -183,20 +214,6 @@ class GeneratedQueriesController < ApplicationController
 
   def set_step_direction(direction)
     @step_direction = direction
-  end
-
-  def current_step
-    return @current_step if @current_step
-
-    @current_step = case params[:action].to_s
-                       when "new"
-                         1
-                       when "set_main_model", "add_association", "remove_model"
-                         2
-                       else
-                         3
-
-                     end
   end
 
   # Tries to get the model from params and checks if the current
@@ -230,6 +247,18 @@ class GeneratedQueriesController < ApplicationController
   # Just a shortcut to get the correct file name
   #--------------------------------------------------------------
   def wizard_file(step, file_name)
-    "generated_queries/wizard_#{step}/#{file_name}"
+    "generated_queries/wizard/step_#{step}/#{file_name}"
+  end
+
+  # Creates a dom_id for a model. Reason: see association_dom_id()
+  #--------------------------------------------------------------
+  def model_dom_id(model, options = {})
+    handle_dom_id_options("model_#{model.to_s.underscore}", options)
+  end
+
+  def handle_dom_id_options(res, options)
+    res = [options[:prefix], res].join("_") if options[:prefix]
+    res = [res, options[:suffix]].join("_") if options[:suffix]
+    options[:include_hash] ? "#" + res : res
   end
 end

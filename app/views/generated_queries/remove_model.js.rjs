@@ -8,5 +8,5 @@ if @model
     page[model_dom_id(model)].replace_html model_node(model)
   end
 
-  page["query-generator-footer"].replace_html render_wizard_partial("2a", "footer")
+  page["query-generator-footer"].replace_html render_wizard_partial(2, "footer")
 end

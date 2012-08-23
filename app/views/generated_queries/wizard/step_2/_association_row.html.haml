@@ -1,0 +1,12 @@
+-# This partial is used to display an association row in the second wizard step.
+-# It is in a partial to make adding associations dynamically easier
+-# Locals needed:
+-# model       -- The model the association belongs to
+-# association -- The association name
+-# end_point   -- The association's end point
+
+%tr{:id => association_dom_id(model, association)}
+  %td= end_point.human_name
+  %td
+    = link_to_remote(association, :url => add_association_generated_queries_path(:model => model.to_s, :association => association))
+    =# association_quantity_icon(model, association)
