@@ -1,6 +1,7 @@
 if @target
   if @model_added
-    page.call "queryGenerator.graph.addNode", model_dom_id(@target), model_node(@target)
+    page["graph"].append render_wizard_partial 2, "model_node_wrapper", :model => @target
+    page.call "queryGenerator.graph.createDraggable", model_dom_id(@target)
   end
 
   #Update all existing models, remove associations
@@ -11,10 +12,9 @@ if @target
 
   #Add the visual connection between the models
   page.call "queryGenerator.graph.addConnection", model_dom_id(@model, :include_hash => true),
-            model_dom_id(@target, :include_hash => true),
-            {:overlays => [ ["PlainArrow", {:location => 1, :width => 20, :length => 12} ], ["Label", {:label => @association, :cssClass => "label"}]]}
+            model_dom_id(@target, :include_hash => true), @association
 
-  page["progress"].replace_html update_progress
+  page["query-generator-footer"].replace_html render_wizard_partial(2, "footer")
 end
 
 page[:flash].replace_html flash_messages

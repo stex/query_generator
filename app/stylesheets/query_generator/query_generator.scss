@@ -39,6 +39,14 @@ body.query-generator-layout {
           }
         }
 
+        &.row-header {
+          background-color: #add8e6;
+        }
+
+        &.center {
+          text-align: center;
+        }
+
       }
     }
 
@@ -81,12 +89,27 @@ body.query-generator-layout {
 
   #query-generator-footer {
     padding: 10px;
+    border-top: 1px solid black;
 
     .buttons {
       padding: 10px;
       float: right;
       width: 25%;
       text-align: right;
+
+      a {
+        &:link {
+          border-style: solid;
+          border-width : 1px 4px 4px 1px;
+          text-decoration : none;
+          padding : 4px;
+          border-color : #69f #00f #00f #69f;
+        }
+
+        &:hover {
+          border-color: #ccc;
+        }
+      }
     }
 
     .progress {

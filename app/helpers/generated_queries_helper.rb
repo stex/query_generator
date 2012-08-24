@@ -6,7 +6,7 @@ module GeneratedQueriesHelper
     QueryGenerator::Configuration.get(:access_control)[:use_cancan] ? can?(action, subject, *extra_args) : true
   end
 
-  def model_node(model, partial = "generated_queries/wizard_2a/model_node")
+  def model_node(model, partial = wizard_file(2, "model_node"))
     render :partial => partial, :locals => {:model => model}
   end
 
@@ -43,11 +43,7 @@ module GeneratedQueriesHelper
     handle_dom_id_options("model_#{model.to_s.underscore}_association_#{association}", options)
   end
 
-  # Creates a dom_id for a model. Reason: see association_dom_id()
-  #--------------------------------------------------------------
-  def model_dom_id(model, options = {})
-    handle_dom_id_options("model_#{model.to_s.underscore}", options)
-  end
+
 
   # builds a dom ID based on the model object and the column object
   #--------------------------------------------------------------
@@ -55,32 +51,8 @@ module GeneratedQueriesHelper
     handle_dom_id_options("model_#{model.to_s.underscore}_column_#{column.name}", options)
   end
 
-  def previous_step_button(caption, current = current_step)
-    button_to_remote caption, :url => load_previous_wizard_step_generated_queries_path(:current => current), :method => :get
-  end
-
   def step_forward?
     @step_direction == :forward
-  end
-
-  # Creates an image_tag for the given association
-  # ... once I found images which express them.
-  #--------------------------------------------------------------
-  def association_quantity_icon(model, association)
-    node = dh.linkage_graph.get_node(model)
-    end_point = node.get_model_by_association(association)
-    options = node.edges[end_point.to_s][association.to_s]
-
-    case options[:macro].to_s
-      when "has_many"
-        "1..*"
-      when "has_and_belongs_to_many"
-        "*..*"
-      when "belongs_to"
-        "*..1"
-      else
-        options[:macro]
-    end
   end
 
   def column_symbol(model, column)
@@ -105,7 +77,7 @@ module GeneratedQueriesHelper
   #--------------------------------------------------------------
   def render_current_progress
     options = {}
-    options[:joins] = current_step > 1
+    options[:joins] = query_generator_session.current_step > 1
 
     render :partial => "progress", :locals => {:options => options}
   end
@@ -125,16 +97,23 @@ module GeneratedQueriesHelper
   # Renders the given wizard step and partial
   #--------------------------------------------------------------
   def render_wizard_partial(step, partial, locals = {})
-    render :partial => "generated_queries/wizard_#{step}/#{partial}", :locals => locals
+    render :partial => wizard_file(step, partial), :locals => locals
   end
+
+  # Generates the remote function to update a column option
+  # in the third wizard step
+  #--------------------------------------------------------------
+  def update_column_option(query_column, option, options = {})
+    options.merge!({:model => query_column.model.to_s, :column => query_column.column_name, :option => option})
+    remote_function(:url => update_column_options_generated_queries_path(options), :with => "jQuery(this).serialize()")
+  end
+
+
+
 
   private
 
 
 
-  def handle_dom_id_options(res, options)
-    res = [options[:prefix], res].join("_") if options[:prefix]
-    res = [res, options[:suffix]].join("_") if options[:suffix]
-    options[:include_hash] ? "#" + res : res
-  end
+
 end

@@ -38,6 +38,9 @@ en:
         description: blabla
         button_prev: "&#171; Choose Columns"
         button_next: Finish Query
-        columns_table:
-          headers:
-            column_name: Column Name
+        move_right: "&raquo;"
+        move_left: "&#171;"
+        rows:
+          positions: Column Position
+          show: Show
+          custom_name: Output Name
