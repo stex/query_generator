@@ -21,9 +21,10 @@ class GeneratedQueriesController < ApplicationController
     @generated_queries = QueryGenerator::GeneratedQuery.paginate(:page => params[:page], :per_page => 50)
   end
 
-  # TODO: Check if there is an unfinished query int he session and reload it.
+  # TODO: Check if there is an unfinished query in the session and reload it.
   #--------------------------------------------------------------
   def new
+    query_generator_session.reset!
     redirect_to query_generator_generated_query_wizard_path(:wizard_step => "main_model")
   end
 
@@ -53,6 +54,17 @@ class GeneratedQueriesController < ApplicationController
     end
   end
 
+  def destroy
+    generated_query = QueryGenerator::GeneratedQuery.find(params[:id])
+    if generated_query && ccan?(:destroy, generated_query)
+      generated_query.destroy
+    end
+  end
+
+  def show
+
+  end
+
   # The action to display the main wizard steps
   #--------------------------------------------------------------
   def wizard
@@ -78,7 +90,7 @@ class GeneratedQueriesController < ApplicationController
           end
         end
     end
-
+    query_generator_session.update_query_object
     query_generator_session.current_step = @wizard_step
   end
 
@@ -242,6 +254,7 @@ class GeneratedQueriesController < ApplicationController
   #--------------------------------------------------------------
   def load_model_from_params
     @model = params[:model].classify.constantize rescue nil
+    @model ||= params[:model].classify.pluralize.constantize rescue nil #Models in plural... bad naming
 
     if @model.nil? || !ccan?(:read, @model)
       flash.now[:error] = t("query_generator.errors.model_not_found_or_permissions", :model => (human_model_name(@model) || params[:model]))

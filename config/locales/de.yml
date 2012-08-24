@@ -1,4 +1,7 @@
 de:
+  activerecord:
+    models:
+      query_generator/generated_query: Generated Query
   query_generator:
     errors:
       model_not_found_or_permissions: The model %{model} does not exist or you don't have the necessary rights to access it.
