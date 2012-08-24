@@ -24,25 +24,33 @@ class GeneratedQueriesController < ApplicationController
   # TODO: Check if there is an unfinished query int he session and reload it.
   #--------------------------------------------------------------
   def new
-    @generated_query = QueryGenerator::GeneratedQuery.new
-    query_generator_session.current_step = 1
-    query_generator_session.generated_query = @generated_query
     redirect_to query_generator_generated_query_wizard_path(:wizard_step => "main_model")
   end
 
   def edit
-    query_generator_session.generated_query = QueryGenerator::Generated_query.find(params[:id])
+    query_generator_session.reset!
+    query_generator_session.generated_query = QueryGenerator::GeneratedQuery.find(params[:id])
+    redirect_to query_generator_generated_query_wizard_path(:wizard_step => "main_model")
   end
 
   def create
-    generated_query = query_generator_session.generated_query
-    debugger
-    redirect_to :back
-    #.update_attributes(params[:query_generator_generated_query])
+    query_generator_session.update_query_attributes(params[:query_generator_generated_query])
+    if query_generator_session.save_generated_query
+      query_generator_session.reset!
+      redirect_to query_generator_generated_queries_path
+    else
+      redirect_to :back
+    end
   end
 
   def update
-
+    query_generator_session.update_query_attributes(params[:query_generator_generated_query])
+    if query_generator_session.save_generated_query
+      query_generator_session.reset!
+      redirect_to query_generator_generated_queries_path
+    else
+      redirect_to :back
+    end
   end
 
   # The action to display the main wizard steps
