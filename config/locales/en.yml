@@ -1,4 +1,7 @@
 en:
+  activerecord:
+    models:
+      query_generator/generated_query: Generated Query
   query_generator:
     errors:
       model_not_found_or_permissions: The model %{model} does not exist or you don't have the necessary rights to access it.
@@ -15,6 +18,12 @@ en:
       primary_key: Primary Key
       belongs_to_key: Key for belongs_to association to %{model}
       model_table: "%{model} (%{table})"
+      unfinished_query: "It looks like you have an unfinished query."
+      unfinished_query_link: "Would you like to return to it?"
+      new_model: "New %{model}"
+      edit: Edit
+      destroy: Destroy
+      show: Execute
     wizard:
       main_model:
         title: Please choose a main model to start your query.

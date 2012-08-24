@@ -18,6 +18,10 @@ module QueryGenerator
       @session = session
     end
 
+    def unfinished_query?
+      !@session[:query_generator].nil?
+    end
+
     def current_step
       @current_step ||= session_namespace[:current_step] || 1
     end
