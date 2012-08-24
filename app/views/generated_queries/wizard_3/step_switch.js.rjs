@@ -1,5 +1,0 @@
-if step_forward?
-  page["query-generator-header"].replace_html render_wizard_partial("3", "header")
-  page["query-generator-content"].replace_html render_wizard_partial("3", "content")
-  page["query-generator-footer"].replace_html render_wizard_partial("3", "footer")
-end

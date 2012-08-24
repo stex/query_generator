@@ -8,6 +8,7 @@ module QueryGenerator
     # position    -- The position this column will be displayed in
     # name        -- The SQL "as" parameter. If not set, column_name will be used
     # output      -- If set to +true+, the column will be shown in the output table
+    # order       -- ASC, DESC or nil (if not to be used for order_by)
 
     unloadable if Rails.env.development? #Don't cache this class in development environment, even if in gem
 
@@ -65,6 +66,15 @@ module QueryGenerator
     def output=(output)
       @output = output
       @output ||= false
+    end
+
+    def order
+      @order
+    end
+
+    def order=(order)
+      @order = order
+      @order = nil if order.blank?
     end
 
     # Returns the column values as basic ruby classes (hash, string, array)

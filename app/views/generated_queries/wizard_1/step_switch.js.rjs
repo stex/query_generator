@@ -1,5 +1,0 @@
-#No forward/backward switch necessary as this is the first step
-
-page["query-generator-header"].replace_html render_wizard_partial("1", "header")
-page["query-generator-content"].replace_html render_wizard_partial("1", "content")
-page["query-generator-footer"].replace_html render_wizard_partial("1", "footer")

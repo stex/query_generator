@@ -1,5 +1,0 @@
-if @model
-  if params[:reload_content]
-    page["query-generator-content"].replace_html render_wizard_partial("3", "content")
-  end
-end

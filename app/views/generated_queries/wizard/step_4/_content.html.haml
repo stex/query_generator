@@ -8,22 +8,6 @@
           %br
           = qc.column_name
   %tbody
-    %tr
-      %td.row-header= t("query_generator.wizard.conditions.rows.positions")
-      - query_generator_session.used_columns.each do |qc|
-        %td.center
-          - unless qc == query_generator_session.used_columns.first
-            = button_to_remote t("query_generator.wizard.conditions.move_left"), :url => decr_column_position_generated_queries_path(:model => qc.model.to_s, :column => qc.column_name, :reload_content => true)
-          - unless qc == query_generator_session.used_columns.last
-            = button_to_remote t("query_generator.wizard.conditions.move_right"), :url => inc_column_position_generated_queries_path(:model => qc.model.to_s, :column => qc.column_name, :reload_content => true)
-    %tr
-      %td.row-header= t("query_generator.wizard.conditions.rows.show")
-      - query_generator_session.used_columns.each do |qc|
-        %td
-          = check_box_tag "options[output]", "1", qc.output, :onchange => update_column_option(qc, :output, :reload_content => true)
-    %tr
-      %td.row-header= t("query_generator.wizard.conditions.rows.custom_name")
-      - query_generator_session.used_columns.each do |qc|
-        %td
-          - if qc.output
-            = text_field_tag "options[name]", qc.name, :onchange => update_column_option(qc, :name)
+    = render_wizard_partial 4, "rows/positions"
+    = render_wizard_partial 4, "rows/show"
+    = render_wizard_partial 4, "rows/name"

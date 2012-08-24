@@ -7,4 +7,4 @@
       %th.icon
       %th Column
   %tbody
-    = render :partial => "generated_queries/wizard_2b/model_column_row", :collection => model.columns, :as => :column, :locals => {:model => model}
+    = render :partial => wizard_file(3, "model_column_row"), :collection => model.columns, :as => :column, :locals => {:model => model}
