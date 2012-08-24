@@ -77,6 +77,19 @@ module QueryGenerator
       @order = nil if order.blank?
     end
 
+    # Returns "table_name.column_name"
+    #--------------------------------------------------------------
+    def full_column_name
+      "#{model.table_name}.#{column_name}"
+    end
+
+    # Returns the full order_by string for this column
+    #--------------------------------------------------------------
+    def order_by_string
+      return nil unless order
+      "#{full_column_name} #{I18n.t("query_generator.wizard.conditions.order_by_options." + order)}"
+    end
+
     # Returns the column values as basic ruby classes (hash, string, array)
     #--------------------------------------------------------------
     def serialized_options
@@ -85,7 +98,8 @@ module QueryGenerator
           "position" => position,
           "column_name" => column_name,
           "name" => @custom_name,
-          "output" => output
+          "output" => output,
+          "order" => order
       }
     end
 

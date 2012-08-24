@@ -191,9 +191,11 @@ module QueryGenerator
 
       if main_model
         joins = joins_for(main_model)
+        order = order_by
 
         parameters = [":all"]
         parameters << ":joins => #{joins.inspect}" if options[:joins] && joins.any?
+        parameters << %{:order => "#{order}"} if options[:order] && order.any?
 
         result = %{#{main_model}.find(#{parameters.join(", ")})}
       end
@@ -316,6 +318,16 @@ module QueryGenerator
         end
       end
       joins
+    end
+
+    # Generates the ":order => """ part of a query
+    #--------------------------------------------------------------
+    def order_by
+      order = []
+      used_columns.each do |qc|
+        order << qc.order_by_string if qc.order
+      end
+      order.join(", ")
     end
 
     # Tests if this is the end of an association chain
