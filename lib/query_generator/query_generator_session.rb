@@ -2,11 +2,12 @@
 
 # Session Namespaces:
 #
-#   :models        -- ["model1", "model2", ...]
-#   :associations  -- {"source" => {:association1 => "Target1", :association2 => "Target2"}
-#   :main_model    -- "Main Model used for query"
-#   :model_offsets -- {"model" => [top, left]}
-#   :columns       -- [{column_1_options}, {column_2_options}, ...]
+#   :models           -- ["model1", "model2", ...]
+#   :associations     -- {"source" => {:association1 => "Target1", :association2 => "Target2"}
+#   :main_model       -- "Main Model used for query"
+#   :model_offsets    -- {"model" => [top, left]}
+#   :columns          -- [{column_1_options}, {column_2_options}, ...]
+#   :query_attributes -- Some core attributes for the generated_query, e.g. :name
 
 module QueryGenerator
 
@@ -15,11 +16,6 @@ module QueryGenerator
 
     def initialize(session)
       @session = session
-    end
-
-    def init_for_generated_query(generated_query)
-      @session[:query_generator] = nil
-      create_namespaces
     end
 
     def current_step
@@ -31,12 +27,49 @@ module QueryGenerator
     end
 
     def generated_query
-      @generated_query ||= GeneratedQuery.find(session_namespace[:generated_query_id])
+      return @generated_query if @generated_query
+      @generated_query = GeneratedQuery.find(session_namespace[:generated_query_id]) rescue nil
+      @generated_query ||= GeneratedQuery.new
     end
 
+    # Removes everything from the session
+    #--------------------------------------------------------------
+    def reset!
+      @session.delete(:query_generator)
+    end
+
+    # Sets the generated query to be edited through this session
+    # if the query already exists, all data from it will be loaded into
+    # the session.
+    #--------------------------------------------------------------
     def generated_query=(generated_query)
-      session_namespace[:generated_query_id] = generated_query.id
+      if generated_query.new_record?
+        create_namespaces(true)
+        session_namespace[:generated_query_id] = nil
+      else
+        create_namespaces
+        session_namespace[:generated_query_id] = generated_query.id
+        [:main_model, :models, :associations, :model_offsets, :columns].each do |attribute|
+          session_namespace[attribute] = generated_query.send(attribute)
+        end
+
+        session_namespace[:query_attributes] = {:name => generated_query.name}
+      end
+
       @generated_query = generated_query
+    end
+
+    # Updates attributes like name
+    #--------------------------------------------------------------
+    def update_query_attributes(attributes = {})
+      session_namespace[:query_attributes] = attributes
+    end
+
+    # Updates the query record and tries to save it
+    #--------------------------------------------------------------
+    def save_generated_query
+      update_query_object
+      generated_query.save
     end
 
     # Adds the given model to the associations list
@@ -191,9 +224,11 @@ module QueryGenerator
 
       if main_model
         joins = joins_for(main_model)
+        order = order_by
 
         parameters = [":all"]
         parameters << ":joins => #{joins.inspect}" if options[:joins] && joins.any?
+        parameters << %{:order => "#{order}"} if options[:order] && order.any?
 
         result = %{#{main_model}.find(#{parameters.join(", ")})}
       end
@@ -260,11 +295,13 @@ module QueryGenerator
         session_namespace[:associations] = {}
         session_namespace[:model_offsets] = {}
         session_namespace[:columns] = []
+        session_namespace[:query_attributes] = {}
       else
         session_namespace[:models] ||= []
         session_namespace[:associations] ||= {}
         session_namespace[:model_offsets] ||= {}
         session_namespace[:columns] ||= []
+        session_namespace[:query_attributes] ||= {}
       end
     end
 
@@ -318,6 +355,16 @@ module QueryGenerator
       joins
     end
 
+    # Generates the ":order => """ part of a query
+    #--------------------------------------------------------------
+    def order_by
+      order = []
+      used_columns.each do |qc|
+        order << qc.order_by_string if qc.order
+      end
+      order.join(", ")
+    end
+
     # Tests if this is the end of an association chain
     #--------------------------------------------------------------
     def is_end_association?(model, association)
@@ -362,6 +409,22 @@ module QueryGenerator
     def session_namespace
       @session[:query_generator] ||= {}
       @session[:query_generator]
+    end
+
+    # Updates the attributes of the currently managed query
+    #--------------------------------------------------------------
+    def update_query_object
+      gc = generated_query
+
+      session_namespace[:query_attributes].each do |key, value|
+        gc.send("#{key}=", value)
+      end
+
+      [:main_model, :models, :associations, :model_offsets, :columns].each do |attribute|
+        gc.send("#{attribute}=", session_namespace[attribute])
+      end
+
+      gc
     end
 
   end

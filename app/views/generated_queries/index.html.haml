@@ -1,10 +1,11 @@
-%h2 Generated Queries
+#query-generator
+  %h2 Generated Queries
 
-%table
-  %thead
-    %tr
-      %th Name
-  %tbody
-    = render :partial => "generated_query_row", :collection => @generated_queries, :as => :generated_query
-    %tr
-      %td{:colspan => 1}= link_to "New Query", new_generated_query_path
+  %table
+    %thead
+      %tr
+        %th Name
+    %tbody
+      = render :partial => "generated_query_row", :collection => @generated_queries, :as => :generated_query
+      %tr
+        %td{:colspan => 1}= link_to "New Query", new_query_generator_generated_query_path

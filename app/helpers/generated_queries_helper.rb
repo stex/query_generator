@@ -78,6 +78,7 @@ module GeneratedQueriesHelper
   def render_current_progress
     options = {}
     options[:joins] = query_generator_session.current_step > 1
+    options[:order] = query_generator_session.current_step > 3
 
     render :partial => "progress", :locals => {:options => options}
   end
@@ -105,7 +106,13 @@ module GeneratedQueriesHelper
   #--------------------------------------------------------------
   def update_column_option(query_column, option, options = {})
     options.merge!({:model => query_column.model.to_s, :column => query_column.column_name, :option => option})
-    remote_function(:url => update_column_options_generated_queries_path(options), :with => "jQuery(this).serialize()")
+    remote_function(:url => update_column_options_query_generator_generated_queries_path(options), :with => "jQuery(this).serialize()")
+  end
+
+  def order_by_options
+    options = t("query_generator.wizard.conditions.order_by_options").invert
+    options["--"] = ""
+    options
   end
 
 

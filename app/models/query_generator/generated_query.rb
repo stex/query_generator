@@ -8,6 +8,6 @@ module QueryGenerator
     serialize :models, Array
     serialize :associations, Hash
     serialize :model_offsets, Hash
-    serialize :columns, Hash
+    serialize :columns, Array
   end
 end
