@@ -17,6 +17,8 @@ Rails.application.routes.draw do
         post :update_column_options
       end
     end
+
+    match "generated_queries/wizard/:wizard_step" => "generated_queries#wizard", :wizard_step => /main_model|associations|columns|conditions/, :as => :generated_query_wizard
     #map.generated_query_wizard 'generated_queries/wizard/:wizard_step', :controller => "generated_queries", :action => "wizard", :wizard_step => /main_model|associations|columns|conditions/
   end
 end

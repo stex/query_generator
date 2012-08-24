@@ -25,6 +25,7 @@ class GeneratedQueriesController < ApplicationController
   #--------------------------------------------------------------
   def new
     query_generator_session.reset!
+    query_generator_session.generated_query = QueryGenerator::GeneratedQuery.new
     redirect_to query_generator_generated_query_wizard_path(:wizard_step => "main_model")
   end
 
@@ -90,6 +91,7 @@ class GeneratedQueriesController < ApplicationController
           end
         end
     end
+
     query_generator_session.update_query_object
     query_generator_session.current_step = @wizard_step
   end
