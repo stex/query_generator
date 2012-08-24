@@ -31,7 +31,9 @@ module QueryGenerator
     end
 
     def generated_query
-      @generated_query ||= GeneratedQuery.find(session_namespace[:generated_query_id])
+      return @generated_query if @generated_query
+      @generated_query = GeneratedQuery.find(session_namespace[:generated_query_id]) rescue nil
+      @generated_query ||= new_query
     end
 
     def generated_query=(generated_query)
@@ -374,6 +376,19 @@ module QueryGenerator
     def session_namespace
       @session[:query_generator] ||= {}
       @session[:query_generator]
+    end
+
+    # Generates a new GeneratedQuery from what's saved in the session
+    #--------------------------------------------------------------
+    def new_query
+      gc = GeneratedQuery.new
+      gc.main_model = main_model
+      gc.models = session_namespace[:models]
+      gc.associations = session_namespace[:associations]
+      gc.offsets = session_namespace[:offsets]
+      gc.columns = session_namespace[:columns]
+
+      gc
     end
 
   end

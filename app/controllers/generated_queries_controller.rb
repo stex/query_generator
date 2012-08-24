@@ -27,11 +27,22 @@ class GeneratedQueriesController < ApplicationController
     @generated_query = QueryGenerator::GeneratedQuery.new
     query_generator_session.current_step = 1
     query_generator_session.generated_query = @generated_query
-    redirect_to generated_query_wizard_path(:wizard_step => "main_model")
+    redirect_to query_generator_generated_query_wizard_path(:wizard_step => "main_model")
   end
 
   def edit
     query_generator_session.generated_query = QueryGenerator::Generated_query.find(params[:id])
+  end
+
+  def create
+    generated_query = query_generator_session.generated_query
+    debugger
+    redirect_to :back
+    #.update_attributes(params[:query_generator_generated_query])
+  end
+
+  def update
+
   end
 
   # The action to display the main wizard steps
@@ -41,7 +52,7 @@ class GeneratedQueriesController < ApplicationController
 
     #Make sure everything is set up for the current step. If not, redirect the user to the step he deserves.
     if @wizard_step > 1 && query_generator_session.main_model.nil?
-      redirect_to generated_query_wizard_path(:wizard_step => "main_model") and return
+      redirect_to query_generator_generated_query_wizard_path(:wizard_step => "main_model") and return
     end
 
     #Special values we need for some steps
@@ -79,7 +90,7 @@ class GeneratedQueriesController < ApplicationController
       query_generator_session.main_model = @model
       query_generator_session.current_step = 2
       flash.now[:notice] = t("query_generator.wizard.main_model.success")
-      redirect_to generated_query_wizard_path(:wizard_step => "associations") and return
+      redirect_to query_generator_generated_query_wizard_path(:wizard_step => "associations") and return
     end
 
     render :nothing => true
