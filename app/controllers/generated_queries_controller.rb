@@ -90,7 +90,7 @@ class GeneratedQueriesController < ApplicationController
           end
         end
     end
-
+    query_generator_session.update_query_object
     query_generator_session.current_step = @wizard_step
   end
 
@@ -254,6 +254,7 @@ class GeneratedQueriesController < ApplicationController
   #--------------------------------------------------------------
   def load_model_from_params
     @model = params[:model].classify.constantize rescue nil
+    @model ||= params[:model].classify.pluralize.constantize rescue nil #Models in plural... bad naming
 
     if @model.nil? || !ccan?(:read, @model)
       flash.now[:error] = t("query_generator.errors.model_not_found_or_permissions", :model => (human_model_name(@model) || params[:model]))

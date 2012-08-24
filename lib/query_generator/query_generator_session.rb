@@ -34,6 +34,8 @@ module QueryGenerator
       return @generated_query if @generated_query
       @generated_query = GeneratedQuery.find(session_namespace[:generated_query_id]) rescue nil
       @generated_query ||= GeneratedQuery.new
+      update_query_object
+      @generated_query
     end
 
     # Removes everything from the session
@@ -82,6 +84,7 @@ module QueryGenerator
       if model != self.main_model && !session_namespace[:models].include?(model.to_s)
         session_namespace[:models] << model.to_s
       end
+      update_query_object(:models)
       @models = nil
     end
 
@@ -108,8 +111,21 @@ module QueryGenerator
         end
       end
 
+      #Remove all columns from this model
+      removed_model_strings = removed_models.map &:to_s
+      session_namespace[:columns].each do |column_options|
+        if removed_model_strings.include?(column_options["model"])
+          session_namespace[:columns].delete(column_options)
+        end
+      end
+
+      #Update positions as they will have changed if columns were deleted
+      session_namespace[:columns].map {|c| c[:position] = session_namespace[:columns].index(c)}
+
       #remove offsets saved for this model
       session_namespace[:model_offsets].delete(model.to_s)
+
+      update_query_object
 
       @models = nil
 
@@ -152,6 +168,7 @@ module QueryGenerator
       end
 
       session_namespace[:main_model] = model.to_s
+      update_query_object(:main_model)
       @main_model = model
     end
 
@@ -161,20 +178,7 @@ module QueryGenerator
     # {SourceModel => {:association => TargetModel}}
     #--------------------------------------------------------------
     def model_associations
-      return @model_associations if @model_associations
-      @model_associations = {}
-
-      #Test if there is at least one registered association
-      if has_value?(:associations)
-        session_namespace[:associations].each do |source, associations|
-          source_model = source.constantize
-          associations.each do |association, target|
-            @model_associations[source_model] ||= HashWithIndifferentAccess.new
-            @model_associations[source_model][association] = target.constantize
-          end
-        end
-      end
-      @model_associations
+      @model_associations ||= generated_query.model_associations
     end
 
     # Adds an association to the currently managed GeneratedQuery
@@ -205,6 +209,8 @@ module QueryGenerator
       session_namespace[:associations][source.to_s] ||= {}
       session_namespace[:associations][source.to_s][association.to_s] = target.to_s
 
+      update_query_object(:associations)
+
       @model_associations = nil
 
       result
@@ -215,6 +221,7 @@ module QueryGenerator
     #--------------------------------------------------------------
     def remove_association(source, association)
       session_namespace[:associations][source.to_s].delete(association.to_s)
+      update_query_object(:associations)
       @model_associations = nil
     end
 
@@ -250,6 +257,7 @@ module QueryGenerator
     #--------------------------------------------------------------
     def set_model_offset(model, top, left)
       session_namespace[:model_offsets][model.to_s] = [top, left]
+      update_query_object(:model_offsets)
     end
 
     # Toggles if the currently managed query includes the given column
@@ -257,6 +265,7 @@ module QueryGenerator
     def toggle_used_column(model, column)
       column_name = column.is_a?(String) ? column : column.name
       uses_column?(model, column_name) ? remove_column(model, column_name) : add_column(:model => model, :column_name => column_name)
+      update_query_object(:columns)
     end
 
     # Checks if the currently managed query includes the given column
@@ -270,7 +279,7 @@ module QueryGenerator
     # Format: [Column1, Column2, Column3]
     #--------------------------------------------------------------
     def used_columns
-      @used_columns ||= session_namespace[:columns].map {|c| QueryColumn.new(c)}
+      @used_columns ||= generated_query.used_columns
     end
 
     def change_column_position(model, column, amount = 1)
@@ -280,6 +289,7 @@ module QueryGenerator
       next_column["position"] -= amount
       session_namespace[:columns].sort! {|x,y| x["position"] <=> y["position"]}
       @used_columns = nil
+      update_query_object(:columns)
     end
 
     def update_column_options(model, column, options = {})
@@ -287,6 +297,26 @@ module QueryGenerator
       qc = used_columns[col["position"]]
       qc.update_options(options)
       session_namespace[:columns][col["position"]] = qc.serialized_options
+      update_query_object(:columns)
+    end
+
+    # Updates the attributes of the currently managed query
+    #--------------------------------------------------------------
+    def update_query_object(certain_attribute = nil)
+      gc = generated_query
+
+      #If only a certain attribute was changed, we don't have to update them all
+      if certain_attribute
+        gc.send("#{certain_attribute}=", session_namespace[certain_attribute])
+      else
+        session_namespace[:query_attributes].each do |key, value|
+          gc.send("#{key}=", value)
+        end
+
+        [:main_model, :models, :associations, :model_offsets, :columns].each do |attribute|
+          gc.send("#{attribute}=", session_namespace[attribute])
+        end
+      end
     end
 
     private
@@ -336,44 +366,13 @@ module QueryGenerator
     # them will be removed for better readability
     #--------------------------------------------------------------
     def joins_for(model)
-      joins = []
-      #Test if there is at least one association for the given model
-      if model_associations[model].present? && model_associations[model].any?
-        association_amount = model_associations[model].size
-        model_associations[model].each do |association, target|
-          if is_end_association?(model, association)
-            if association_amount == 1
-              return association
-            else
-              joins << association
-            end
-          else
-            if association_amount == 1
-              return {association => joins_for(target)}
-            else
-              joins << {association => joins_for(target)}
-            end
-          end
-        end
-      end
-      joins
+      generated_query.joins_for(model)
     end
 
     # Generates the ":order => """ part of a query
     #--------------------------------------------------------------
     def order_by
-      order = []
-      used_columns.each do |qc|
-        order << qc.order_by_string if qc.order
-      end
-      order.join(", ")
-    end
-
-    # Tests if this is the end of an association chain
-    #--------------------------------------------------------------
-    def is_end_association?(model, association)
-      target = model_associations[model][association]
-      model_associations[target].nil?
+      generated_query.order_by
     end
 
     # Returns all associations which have the given model as source
@@ -413,22 +412,6 @@ module QueryGenerator
     def session_namespace
       @session[:query_generator] ||= {}
       @session[:query_generator]
-    end
-
-    # Updates the attributes of the currently managed query
-    #--------------------------------------------------------------
-    def update_query_object
-      gc = generated_query
-
-      session_namespace[:query_attributes].each do |key, value|
-        gc.send("#{key}=", value)
-      end
-
-      [:main_model, :models, :associations, :model_offsets, :columns].each do |attribute|
-        gc.send("#{attribute}=", session_namespace[attribute])
-      end
-
-      gc
     end
 
   end
