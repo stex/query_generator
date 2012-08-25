@@ -3,6 +3,8 @@
     %tr
       - @generated_query.table_header_columns.each do |header|
         %th= header
-
-
-= @generated_query.execute
+  %tbody
+    - @generated_query.execute.each do |row|
+      %tr
+        - row.each do |column|
+          %td= column
