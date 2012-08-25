@@ -19,18 +19,53 @@ module QueryGenerator
     end
 
     def execute
-      query = {
-          :joins => joins_for(main_model_object),
-          :order => order_by
-      }
+      query = {}
+      joins = joins_for(main_model_object)
+      query[:include] = joins if joins && joins.any?
+      query[:order] = order_by unless order_by.blank?
 
-      records = []
-      records[main_model] = main_model.all(query)
+      main_records = main_model_object.find(:all, query)
+      rows = []
+      main_records.each do |record|
+        rows += build_rows_for(record)
+      end
 
-
+      rows
     end
 
-    def build_rows()
+    # If the given record or one of its associations has a has_many
+    # association, we have to add additional rows to the result set
+    #--------------------------------------------------------------
+    def build_rows_for(record)
+      rows = [Array.new(output_columns.size)]
+      model = record.class
+
+      model_node = QueryGenerator::DataHolder.instance.linkage_graph.get_node(model)
+
+      model_associations[model].each do |association, target|
+        association_options = model_node.get_association_options(association)
+
+        #a :1 association
+        if [:belongs_to, :has_one].include?(association_options[:macro])
+          rows += build_rows_for(record.send(association))
+        else #a :n association
+          record.send(association).each do |association_record|
+            rows += build_rows_for(association_record)
+          end
+        end
+      end
+
+      columns = output_columns
+
+      rows.each do |row|
+        columns.each_index do |index|
+          if columns[index].model == model
+            row[index] = record.send(columns[index].column_name)
+          end
+        end
+      end
+
+      rows
     end
 
 
@@ -57,6 +92,7 @@ module QueryGenerator
           @model_associations[source_model][association] = target.constantize
         end
       end
+
       @model_associations
     end
 

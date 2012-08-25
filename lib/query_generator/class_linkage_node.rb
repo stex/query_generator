@@ -39,6 +39,12 @@ module QueryGenerator
       @edges
     end
 
+    # Returns the association options for the given association name
+    #--------------------------------------------------------------
+    def get_association_options(association_name)
+      @edges[get_model_by_association(association_name).to_s][association_name.to_s]
+    end
+
     # Returns the node edges in the format
     # {"association_name" => Model, ...}
     #--------------------------------------------------------------
