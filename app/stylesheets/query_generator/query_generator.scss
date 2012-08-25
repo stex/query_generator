@@ -82,6 +82,12 @@ body.query-generator-layout {
   #query-generator-content {
     padding: 10px;
 
+    span {
+      &.edit {
+        font-size: 11px;
+      }
+    }
+
     #graph {
       min-height: 650px;
     }

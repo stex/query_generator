@@ -26,23 +26,27 @@ en:
       show: Execute
     wizard:
       main_model:
+        name: Main Model
         title: Please choose a main model to start your query.
         description: "In Ruby on Rails (the framework you are using) SQL queries are usually based on one Model which executes the
                                         query. Joins are made through associations afterwards which will be chosen in the next step."
         success: Successfully set the main model.
         button_next: "Set Associations &raquo;"
       associations:
+        name: Associations
         title: Please choose associations for your main model
         description: blabla
         remove_model_warning: If you remove this model, all models connected to it will be removed as well. Continue?
         button_next: Choose Columns &raquo;
         button_prev: "&#171; Set Main Model"
       columns:
+        name: Columns
         title: Please choose the columns you'd like to use in your query
         description: The columns you active in this screen can be used later for conditions.
         button_next: "Set Conditions &raquo;"
         button_prev: "&#171; Choose Associations"
       conditions:
+        name: Conditions
         title: Conditions
         description: blabla
         button_prev: "&#171; Choose Columns"
@@ -58,6 +62,7 @@ en:
           custom_name: Output Name
           order: Order By
       query:
+        name: Details
         title: Query Options
         description: Some final things
         button_prev: "&#171; Choose Columns"

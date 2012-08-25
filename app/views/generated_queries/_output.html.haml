@@ -1,0 +1,5 @@
+%table
+  %thead
+    %tr
+      - @generated_query.table_header_columns.each do |header|
+        %th= header

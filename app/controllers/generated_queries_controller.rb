@@ -21,19 +21,26 @@ class GeneratedQueriesController < ApplicationController
     @generated_queries = QueryGenerator::GeneratedQuery.paginate(:page => params[:page], :per_page => 50)
   end
 
-  # TODO: Check if there is an unfinished query in the session and reload it.
+  # Loads the wizard for a new generated query
   #--------------------------------------------------------------
   def new
     query_generator_session.reset!
+    query_generator_session.generated_query = QueryGenerator::GeneratedQuery.new
     redirect_to query_generator_generated_query_wizard_path(:wizard_step => "main_model")
   end
 
+  # Loads the wizard to edit a generated query
+  # The wizard step can be specified with params[:step]
+  #--------------------------------------------------------------
   def edit
     query_generator_session.reset!
     query_generator_session.generated_query = QueryGenerator::GeneratedQuery.find(params[:id])
-    redirect_to query_generator_generated_query_wizard_path(:wizard_step => "main_model")
+    step = params[:step] || "main_model"
+    redirect_to query_generator_generated_query_wizard_path(:wizard_step => step)
   end
 
+  # Creates the query which is currently loaded by the wizard
+  #--------------------------------------------------------------
   def create
     query_generator_session.update_query_attributes(params[:query_generator_generated_query])
     if query_generator_session.save_generated_query
@@ -44,6 +51,8 @@ class GeneratedQueriesController < ApplicationController
     end
   end
 
+  # Saves the query which is currently loaded by the wizard
+  #--------------------------------------------------------------
   def update
     query_generator_session.update_query_attributes(params[:query_generator_generated_query])
     if query_generator_session.save_generated_query
@@ -54,6 +63,8 @@ class GeneratedQueriesController < ApplicationController
     end
   end
 
+  # Deletes the given query
+  #--------------------------------------------------------------
   def destroy
     generated_query = QueryGenerator::GeneratedQuery.find(params[:id])
     if generated_query && ccan?(:destroy, generated_query)
@@ -62,10 +73,13 @@ class GeneratedQueriesController < ApplicationController
   end
 
   def show
-
+    @generated_query = QueryGenerator::GeneratedQuery.find(params[:id])
+    redirect_to :index and return unless ccan? :read, @generated_query
   end
 
   # The action to display the main wizard steps
+  # The step to load is specified in params[:wizard_step] which
+  # comes directly from the routes
   #--------------------------------------------------------------
   def wizard
     @wizard_step = QueryGenerator::WIZARD_STEPS.index(params[:wizard_step]) + 1
@@ -90,6 +104,9 @@ class GeneratedQueriesController < ApplicationController
           end
         end
     end
+
+    #As many methods from the GeneratedQuery model are used,
+    #we need to keep it up to date
     query_generator_session.update_query_object
     query_generator_session.current_step = @wizard_step
   end
@@ -113,7 +130,7 @@ class GeneratedQueriesController < ApplicationController
       redirect_to query_generator_generated_query_wizard_path(:wizard_step => "associations") and return
     end
 
-    render :nothing => true
+    redirect_to :back
   end
 
   # Displays the model's records as a preview. Can be used
@@ -212,6 +229,9 @@ class GeneratedQueriesController < ApplicationController
     end
   end
 
+  # Method to update most of the column options by passing it
+  # to the QueryColumn object which takes care of possible conversions
+  #--------------------------------------------------------------
   def update_column_options
     if @model
       column = params[:column]
@@ -242,10 +262,6 @@ class GeneratedQueriesController < ApplicationController
   private
 
   include QueryGenerator::HelperFunctions
-
-  def set_step_direction(direction)
-    @step_direction = direction
-  end
 
   # Tries to get the model from params and checks if the current
   # user has the necessary permissions to read its records
@@ -288,6 +304,8 @@ class GeneratedQueriesController < ApplicationController
     handle_dom_id_options("model_#{model.to_s.underscore}", options)
   end
 
+  # Parses the general options for all xx_dom_id() functions
+  #--------------------------------------------------------------
   def handle_dom_id_options(res, options)
     res = [options[:prefix], res].join("_") if options[:prefix]
     res = [res, options[:suffix]].join("_") if options[:suffix]

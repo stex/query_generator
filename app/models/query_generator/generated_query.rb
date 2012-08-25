@@ -11,6 +11,37 @@ module QueryGenerator
     serialize :model_offsets, Hash
     serialize :columns, Array
 
+    # Returns an array of string which contains all column names
+    # for output
+    #--------------------------------------------------------------
+    def table_header_columns
+      output_columns.map &:name
+    end
+
+    def execute
+      query = {
+          :joins => joins_for(main_model_object),
+          :order => order_by
+      }
+
+      records = []
+      records[main_model] = main_model.all(query)
+
+
+    end
+
+    def build_rows()
+    end
+
+
+
+
+    # Returns the constantized main_model
+    #--------------------------------------------------------------
+    def main_model_object
+      main_model.constantize
+    end
+
     # Returns all associations
     # Format:
     # {SourceModel => {:association => TargetModel}}
