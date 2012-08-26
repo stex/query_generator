@@ -1,8 +1,14 @@
 module QueryGenerator
 
   class ClassLinkageGraph
+    unloadable if Rails.env.development? #Don't cache this class in development environment, even if in gem
+
     def initialize
       @nodes = {}
+    end
+
+    def [](klass)
+      @nodes[klass.to_s]
     end
 
     # Returns the node for the given class

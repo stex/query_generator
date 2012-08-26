@@ -1,0 +1,8 @@
+.progress
+  = render_current_progress
+
+.buttons
+  = link_to t("query_generator.wizard.conditions.button_prev"), query_generator_generated_query_wizard_path(:wizard_step => "columns")
+  = link_to t("query_generator.wizard.conditions.button_next"), query_generator_generated_query_wizard_path(:wizard_step => "query")
+
+.clear

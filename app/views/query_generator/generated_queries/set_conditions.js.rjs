@@ -1,0 +1,4 @@
+page["step3"].replace_html render :partial => "generated_queries/wizard_3/conditions"
+page["step2"].hide
+page["step3"].show
+page["progress"].replace_html update_progress

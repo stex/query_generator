@@ -17,6 +17,13 @@ module QueryGenerator
 
     unloadable if Rails.env.development? #Don't cache this class in development environment, even if in gem
 
+    # Forwards non-found methods to the instance. This saves us
+    # some calls to .instance when accessing DataHolder methods
+    #--------------------------------------------------------------
+    def self.method_missing(m, *args, &block)
+      self.instance.send(m, *args, &block)
+    end
+
     def initialize
       load_app_data
     end
@@ -169,6 +176,8 @@ module QueryGenerator
     # Loads all associations for pre-fetched models
     # Expects the @models variable to be set.
     # Generates a hash with model names as keys and a association-hash as value.
+    # Important: These assocations will still include associations to
+    #            excluded classes. These will be removed when building the linkage graph
     #--------------------------------------------------------------
     def load_associations
       @associations = {}

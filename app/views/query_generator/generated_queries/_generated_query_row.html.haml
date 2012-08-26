@@ -1,0 +1,10 @@
+- if ccan? :update, generated_query
+  %tr[generated_query]
+    %td= generated_query.name
+    %td
+      = link_to t("query_generator.misc.show"), query_generator_generated_query_path(generated_query)
+      = link_to_function t("query_generator.misc.edit"), "jQuery(this).next('.edit').toggle()"
+      %span.edit{:style => "display: none"}
+        - QueryGenerator::WIZARD_STEPS.each do |step|
+          = link_to t("query_generator.wizard.#{step}.name"), edit_query_generator_generated_query_path(generated_query, :step => step)
+      = link_to(t("query_generator.misc.destroy"), query_generator_generated_query_path(generated_query), :method => "delete", :confirm =>  "Really?") if ccan?(:destroy, generated_query)

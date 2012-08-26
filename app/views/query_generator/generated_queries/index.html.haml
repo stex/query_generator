@@ -1,0 +1,19 @@
+#query-generator
+  #query-generator-header
+    %h2= human_model_name(QueryGenerator::GeneratedQuery).pluralize
+
+    - if query_generator_session.unfinished_query?
+      = t("query_generator.misc.unfinished_query")
+      = link_to t("query_generator.misc.unfinished_query_link"), query_generator_generated_query_wizard_path(:wizard_step => QueryGenerator::WIZARD_STEPS[query_generator_session.current_step - 1])
+
+  #query-generator-content
+    %table
+      %thead
+        %tr
+          %th Name
+          %th Actions
+      %tbody
+        = render :partial => "generated_query_row", :collection => @generated_queries, :as => :generated_query
+        %tr
+          %td{:colspan => 2}
+            = link_to t("query_generator.misc.new_model", :model => human_model_name(QueryGenerator::GeneratedQuery)), new_query_generator_generated_query_path if ccan? :create, QueryGenerator::GeneratedQuery

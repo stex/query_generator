@@ -238,7 +238,7 @@ module QueryGenerator
         order = order_by
 
         parameters = [":all"]
-        parameters << ":joins => #{joins.inspect}" if options[:joins] && joins.any?
+        parameters << ":include => #{joins.inspect}" if options[:joins] && joins.any?
         parameters << %{:order => "#{order}"} if options[:order] && order.any?
 
         result = %{#{main_model}.find(#{parameters.join(", ")})}

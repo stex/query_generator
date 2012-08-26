@@ -11,6 +11,10 @@ module QueryGenerator
     serialize :model_offsets, Hash
     serialize :columns, Array
 
+    def join_method
+      :joins
+    end
+
     # Returns an array of string which contains all column names
     # for output
     #--------------------------------------------------------------
@@ -18,10 +22,13 @@ module QueryGenerator
       output_columns.map &:name
     end
 
-    def execute
+    def execute(options = {})
+      per_page = options.delete(:per_page) || 50
+      page = options[:page] || 1
+
       query = {}
-      joins = joins_for(main_model_object)
-      query[:joins] = joins if joins && joins.any?
+      joins = joins_for(main_model_object, false)
+      query[join_method] = joins if joins && joins.any?
       query[:order] = order_by unless order_by.blank?
       query[:group] = "#{main_model_object.table_name}.#{main_model_object.primary_key}"
 
@@ -34,29 +41,31 @@ module QueryGenerator
 
       rows = rows.reject {|r| r.include?(nil)}
 
-      rows
+      rows.paginate(:page => page, :per_page => per_page)
     end
 
     # If the given record or one of its associations has a has_many
     # association, we have to add additional rows to the result set
-    # TODO: find a better solution than arrays_index_merge. this will cost
-    #       too much time for large result sets
+    # TODO:
+    #    1. Find a better solution than looping over all rows again for joins
+    #    2. Joins müssen weitergegeben werden, um unzutreffende sachen rauszufiltern (wenn das set leer ist. :include unterstützen?)
+    #    3. :order muss weitergegeben werden, ansonsten werden order by klauseln in den associations nicht berücksichtigt
+    #    4. :conditions müssen weitergegeben werden
+    #
+    #    bei 3. und 4. muss berücksichtigt werden, dass die bereits genutzten einträge (resp. welche, die nicht mit der aktuellen abfrage
+    ##               übereinstimmen, gelöscht werden.)
+
+    # parameters
+    #   followed_association: die association, die vom vorherigen
+    #                         zum jetzigen record geführt hat. Wird für das filtern der joins benötigt
     #--------------------------------------------------------------
     def build_rows_for(record)
       model = record.class
-      model_node = QueryGenerator::DataHolder.instance.linkage_graph.get_node(model)
       rows = model_associations_for(model).any? ? [] : [Array.new(output_columns.size)]
 
       model_associations_for(model).each do |association, target|
-        association_options = model_node.get_association_options(association)
-
-        #a :1 association
-        if [:belongs_to, :has_one].include?(association_options[:macro])
-          rows += build_rows_for(record.send(association))
-        else #a :n association
-          record.send(association).each do |association_record|
-            rows += build_rows_for(association_record)
-          end
+        follow_association(record, association, target, :joins => joins_for(target)) do |association_record|
+          rows += build_rows_for(association_record)
         end
       end
 
@@ -162,24 +171,25 @@ module QueryGenerator
     # the used associations.
     # If a model only has one association, the array around
     # it will be removed for better readability
+    # The pretty_mode switch will remove some (for reading) unnecessary brackets
     #--------------------------------------------------------------
-    def joins_for(model)
+    def joins_for(model, pretty_mode = false)
       joins = []
       #Test if there is at least one association for the given model
       if model_associations[model].present? && model_associations[model].any?
         association_amount = model_associations[model].size
         model_associations[model].each do |association, target|
           if is_end_association?(model, association)
-            if association_amount == 1
+            if association_amount == 1 && pretty_mode
               return association.to_sym
             else
               joins << association.to_sym
             end
           else
-            if association_amount == 1
+            if association_amount == 1 && pretty_mode
               return {association => joins_for(target)}
             else
-              joins << {association => joins_for(target)}
+              joins << {association.to_sym => joins_for(target)}
             end
           end
         end
@@ -196,5 +206,28 @@ module QueryGenerator
       model_associations[target].nil?
     end
 
+    # Follows the given association with options and yields all found
+    # records.
+    # Options are e.g. additional conditions and joins. These are only
+    # used for x..n-associations as x..1 are already handled by the main model find()
+    #--------------------------------------------------------------
+    def follow_association(record, association, target, options = {})
+      model = record.class
+      model_node = QueryGenerator::DataHolder.instance.linkage_graph[model]
+      association_options = model_node.get_association_options(association)
+
+      query = {}
+      query[join_method] = options[:joins] if options[:joins]
+      query[:group] = "#{target.table_name}.#{target.primary_key}"# if options[:joins]
+
+      #a :1 association
+      if [:belongs_to, :has_one].include?(association_options[:macro])
+        yield record.send(association)
+      else
+        record.send(association).find(:all, query).each do |association_record|
+          yield association_record
+        end
+      end
+    end
   end
 end
