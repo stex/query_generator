@@ -213,8 +213,7 @@ module QueryGenerator
     #--------------------------------------------------------------
     def follow_association(record, association, target, options = {})
       model = record.class
-      model_node = QueryGenerator::DataHolder.instance.linkage_graph[model]
-      association_options = model_node.get_association_options(association)
+      association_options = DataHolder.graph.association_options(model, association)
 
       query = {}
       query[join_method] = options[:joins] if options[:joins]

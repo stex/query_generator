@@ -5,7 +5,7 @@
 
 
 %table
-  - dh.linkage_graph.get_node(model).connected_model_associations.each do |association, target|
+  - dh.graph.associations_for(model).each do |association, target|
     - next unless ccan? :read, target
     - next if query_generator_session.uses_model?(target)
     = render :partial => wizard_file(2, "association_row"), :locals => {:model => model, :association => association, :end_point => target}

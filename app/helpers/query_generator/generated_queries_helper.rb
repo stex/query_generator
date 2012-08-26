@@ -1,10 +1,4 @@
 module QueryGenerator::GeneratedQueriesHelper
-  # Forwards the query to CanCan's can? function if the usage of
-  # CanCan is enabled in the configuration. Otherwise it will just return true
-  #--------------------------------------------------------------
-  def ccan?(action, subject, *extra_args)
-    QueryGenerator::Configuration.get(:access_control)[:use_cancan] ? can?(action, subject, *extra_args) : true
-  end
 
   def model_node(model, partial = wizard_file(2, "model_node"))
     render :partial => partial, :locals => {:model => model}
@@ -67,7 +61,7 @@ module QueryGenerator::GeneratedQueriesHelper
     association = dh.column_is_belongs_to_key?(model, column.name)
     if association
       image_path = "query_generator/foreign-key.png"
-      options[:title] = t("query_generator.misc.belongs_to_key", :model => dh.linkage_graph.get_node(model).get_model_by_association(association[:name]))
+      options[:title] = t("query_generator.misc.belongs_to_key", :model => dh.graph.associations_for(model)[association[:name].to_s])
     end
 
     image_path ? image_tag(image_path, options) : ""

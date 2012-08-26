@@ -62,6 +62,10 @@ module QueryGenerator
       @linkages
     end
 
+    def graph
+      @linkages
+    end
+
     #Checks if the given column is the primary key for a belongs_to
     #association in the given model
     #--------------------------------------------------------------
@@ -202,7 +206,7 @@ module QueryGenerator
       @linkages = QueryGenerator::ClassLinkageGraph.new
 
       @associations.each do |model_name, associations|
-        node = @linkages.add_node(model_name)
+        @linkages << model_name
 
         associations.each do |name, options|
           #Find the end point class name for the current association
@@ -218,7 +222,7 @@ module QueryGenerator
           #If the (correct) class name was found and it's not in the exclude-list, add
           #an edge to the current node
           if class_name.present? && !excluded_class?(class_name)
-            node.is_connected_to! class_name, options
+            @linkages.add_edge(model_name, class_name, options)
           end
         end
       end

@@ -196,10 +196,8 @@ module QueryGenerator
     # cases it makes sense to have easy access to the target without
     # having to re-search it.
     #--------------------------------------------------------------
-    def add_association(source, association)
+    def add_association(source, association, target)
       result = false
-
-      target = DataHolder.instance.linkage_graph.get_node(source).get_model_by_association(association)
 
       unless models.include?(target)
         add_model(target)
