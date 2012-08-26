@@ -1,6 +1,0 @@
-%tr
-  %td.row-header= t("query_generator.wizard.conditions.rows.order")
-  - query_generator_session.used_columns.each do |qc|
-    %td
-      - current_order = qc.order.to_sym rescue nil
-      = select_tag "options[order]", options_for_select(order_by_options, :selected => current_order, :include_blank => true), :onchange => update_column_option(qc, :order, :reload_content => true)

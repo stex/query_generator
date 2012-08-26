@@ -1,8 +1,0 @@
-.progress
-  = render_current_progress
-
-.buttons
-  = link_to t("query_generator.wizard.query.button_prev"), query_generator_generated_query_wizard_path(:wizard_step => "conditions")
-  = link_to_function t("query_generator.wizard.query.button_next"), %{jQuery("#query-generator").find("form").submit()}
-
-.clear

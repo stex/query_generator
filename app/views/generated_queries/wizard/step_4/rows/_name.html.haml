@@ -1,6 +1,0 @@
-%tr
-  %td.row-header= t("query_generator.wizard.conditions.rows.custom_name")
-  - query_generator_session.used_columns.each do |qc|
-    %td
-      - if qc.output
-        = text_field_tag "options[name]", qc.name, :onchange => update_column_option(qc, :name)
