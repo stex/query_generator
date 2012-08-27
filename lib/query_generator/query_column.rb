@@ -79,8 +79,8 @@ module QueryGenerator
 
     # Returns "table_name.column_name"
     #--------------------------------------------------------------
-    def full_column_name
-      "#{model.table_name}.#{column_name}"
+    def full_column_name(delimiter = ".")
+      "#{model.table_name}#{delimiter}#{column_name}"
     end
 
     # Returns the full order_by string for this column

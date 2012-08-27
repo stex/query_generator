@@ -109,6 +109,16 @@ module QueryGenerator::GeneratedQueriesHelper
     options
   end
 
+  # Gives the current request_forgery_token to the javascript functions
+  # This is necessary as some ajax requests are made without rails helpers
+  #--------------------------------------------------------------
+  def set_security_token
+    if respond_to?('protect_against_forgery?') && protect_against_forgery?
+      %{queryGenerator.data.token.key = "#{request_forgery_protection_token}";
+        queryGenerator.data.token.value = "#{escape_javascript form_authenticity_token}";}
+    end
+  end
+
   private
 
 

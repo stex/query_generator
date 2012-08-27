@@ -3,6 +3,11 @@
     %h2
       = human_model_name(QueryGenerator::GeneratedQuery)
       = @generated_query.name
+      %br
+      = @generated_query
   #query-generator-content
     = render :partial => "output"
   #query-generator-footer
+
+:javascript
+  queryGenerator.createOutputTable("#generated_query_output", #{@generated_query.table_js.to_json})

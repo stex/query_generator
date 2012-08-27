@@ -2,11 +2,13 @@
 
   window.queryGenerator = {
     data: {
-      nodes: {},
-      edges: {}
+      token: {
+        key: null,
+        value: null
+      }
     },
-    callbacks: {
-      dragStop: null
+    urls: {
+      updateOffset: null
     },
     pageElements: {
       recordPreview: "#model-records-preview"
@@ -26,6 +28,17 @@
         title: dialogTitle
       });
       return jQuery(this.pageElements.recordPreview).dialog("open");
+    },
+    createOutputTable: function(element, options) {
+      var defaults, settings;
+      defaults = {
+        "bJQueryUI": true,
+        "sPaginationType": "full_numbers",
+        "iDisplayLength": 50
+      };
+      settings = jQuery.extend({}, defaults, options);
+      alert(JSON.stringify(settings));
+      return jQuery(element).dataTable(settings);
     },
     graph: {
       canvasSelector: "#graph",
@@ -87,22 +100,34 @@
           containment: queryGenerator.graph.canvasSelector,
           scroll: false,
           handle: ".handle",
-          stop: queryGenerator.callbacks.dragStop
+          stop: this.updateModelBoxOffsets
         });
       },
       createDraggables: function(selectorCommand) {
         return this.createDraggable(jQuery(selectorCommand));
       },
       getModelBoxOffset: function(ui) {
-        return jQuery.param({
+        return {
           offset: [ui.offset.top, ui.offset.left],
           model: ui.helper.attr("id").replace("model_", "")
-        });
+        };
       },
       setModelBoxOffset: function(id, _top, _left) {
         return jQuery("#" + id).offset({
           top: _top,
           left: _left
+        });
+      },
+      updateModelBoxOffsets: function(event, ui) {
+        var ajaxData;
+        ajaxData = queryGenerator.graph.getModelBoxOffset(ui);
+        if (queryGenerator.data.token.key !== null) {
+          ajaxData[queryGenerator.data.token.key] = queryGenerator.data.token.value;
+        }
+        return jQuery.ajax({
+          url: queryGenerator.urls.updateOffset,
+          data: ajaxData,
+          type: "post"
         });
       },
       setModelBoxOffsets: function(offsets) {

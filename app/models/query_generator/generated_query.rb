@@ -19,29 +19,25 @@ module QueryGenerator
     # for output
     #--------------------------------------------------------------
     def table_header_columns
-      output_columns.map &:name
+      output_columns.map {|oc| [oc.full_column_name.sub(".", "_"), oc.name]}
     end
 
     def execute(options = {})
-      per_page = options.delete(:per_page) || 50
-      page = options[:page] || 1
-
       query = {}
       joins = joins_for(main_model_object, false)
       query[join_method] = joins if joins && joins.any?
-      query[:order] = order_by unless order_by.blank?
+      #query[:order] = order_by unless order_by.blank?
       query[:group] = "#{main_model_object.table_name}.#{main_model_object.primary_key}"
 
       main_records = main_model_object.find(:all, query)
 
       rows = []
       main_records.each do |record|
-        rows += build_rows_for(record)
+        record_rows = build_rows_for(record)
+        record_rows = record_rows.reject {|r| r.include?(nil)}
+        rows += record_rows
       end
-
-      rows = rows.reject {|r| r.include?(nil)}
-
-      rows.paginate(:page => page, :per_page => per_page)
+      rows
     end
 
     # If the given record or one of its associations has a has_many
@@ -195,6 +191,50 @@ module QueryGenerator
         end
       end
       joins
+    end
+
+    def to_s(options = {})
+      options.reverse_merge!({:joins => true, :order => true})
+
+      result = ""
+
+      if main_model
+        joins = joins_for(main_model_object)
+        order = order_by
+
+        parameters = [":all"]
+        parameters << ":include => #{joins.inspect}" if options[:joins] && joins.any?
+        parameters << %{:order => "#{order}"} if options[:order] && order.any?
+
+        result = %{#{main_model}.find(#{parameters.join(", ")})}
+      end
+
+      result
+    end
+
+    def table_js
+      result = {}
+      result["aaSorting"] = []
+      used_columns.each_index do |index|
+        uc = used_columns[index]
+        next unless uc.order
+        result["aaSorting"] << [index, uc.order]
+      end
+
+      result
+    end
+
+    def column_defs_js
+
+      used_columns.each_index do |index|
+        uc = used_columns[index]
+        next unless uc.order
+        column = {
+            "aaSorting" => []
+        }
+        result << column
+      end
+      result
     end
 
     private
