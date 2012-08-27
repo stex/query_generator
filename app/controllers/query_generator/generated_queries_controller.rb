@@ -2,8 +2,8 @@ module QueryGenerator
   class GeneratedQueriesController < ApplicationController
     unloadable if Rails.env.development? #Don't cache this class in development environment, even if in gem
 
-    #Set the layout based on the current configuration
-    layout Configuration.get(:controller)[:layout]
+    #Set the layout based on the current QueryGenerator::Configuration
+    layout QueryGenerator::Configuration.get(:controller)[:layout]
 
     #Make the query_generator_session available in views
     helper_method :query_generator_session, :conf, :dh, :human_model_name, :wizard_file, :model_dom_id, :handle_dom_id_options, :ccan?
@@ -284,14 +284,14 @@ module QueryGenerator
     #--------------------------------------------------------------
     def dh
       return @dh if @dh
-      Configuration.set(:exclusions, :classes => [Audit, Page, Sheet, SheetLayout, Attachment], :modules => [Tolk])
+      QueryGenerator::Configuration.set(:exclusions, :classes => [Audit, Page, Sheet, SheetLayout, Attachment], :modules => [Tolk])
       @dh = DataHolder
     end
 
-    # A shortcut to get a configuration
+    # A shortcut to get a QueryGenerator::Configuration
     #--------------------------------------------------------------
     def conf(config_name)
-      Configuration.get(config_name)
+      QueryGenerator::Configuration.get(config_name)
     end
 
     # Just a shortcut to get the correct file name
