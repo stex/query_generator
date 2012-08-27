@@ -86,6 +86,11 @@ module QueryGenerator::GeneratedQueriesHelper
     elements.compact.join
   end
 
+  def pretty_print_generated_query(generated_query, options = {})
+    options[:html] = true
+    "#{generated_query.main_model}.find(:all, " + ap(generated_query.default_query, options) + ")"
+  end
+
   # Renders the given wizard step and partial
   #--------------------------------------------------------------
   def render_wizard_partial(step, partial, locals = {})

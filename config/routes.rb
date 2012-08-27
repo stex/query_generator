@@ -13,7 +13,8 @@ ActionController::Routing::Routes.draw do |map|
                                                       :choose_main_model         => :get,
                                                       :inc_column_position       => :post,
                                                       :decr_column_position      => :post,
-                                                      :update_column_options     => :post}
+                                                      :update_column_options     => :post,
+                                                      :fetch_query_records       => :get}
 
     qg.generated_query_wizard 'generated_queries/wizard/:wizard_step', :controller => "generated_queries", :action => "wizard", :wizard_step => /main_model|associations|columns|conditions|query/
   end

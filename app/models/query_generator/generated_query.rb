@@ -22,9 +22,14 @@ module QueryGenerator
       output_columns.map {|oc| [oc.full_column_name.sub(".", "_"), oc.name]}
     end
 
-    def sql(what = build_columns)
-      sql = main_model_object.view_sql(:all, build_query(main_model_object, :order_by => true))
+    def sql(options = {})
+      what = options.delete(:what) || build_columns
+      sql = main_model_object.view_sql(:all, build_query(main_model_object, options))
       sql = sql.gsub(/SELECT (.*) FROM/, "SELECT #{what} FROM")
+    end
+
+    def sql_lines
+      sql.split(/(FROM)|(INNER JOIN)|(JOIN)|(ORDER BY)|(WHERE)/)
     end
 
     def build_columns
@@ -37,11 +42,16 @@ module QueryGenerator
 
     def build_query(record, options = {})
       query = {}
-      joins = joins_for(record, options[:pretty_inspect])
+      joins = joins_for(record)
       query[join_method] = joins if joins && joins.any?
-      query[:order] = order_by if options[:order_by] && order_by.present?
+      query[:order] = order_by if order_by.present?
       query[:limit] = options[:limit] if options[:limit]
+      query[:offset] = options[:offset] if options[:offset]
       query
+    end
+
+    def default_query
+      build_query(main_model_object)
     end
     
     # Calculates the row amount this query will produce
@@ -49,11 +59,21 @@ module QueryGenerator
     # amount of rows is returned by .execute
     #--------------------------------------------------------------
     def count
-      main_model_object.connection.select_all(sql("COUNT(*)")).first.values.first.to_i
+      main_model_object.connection.select_all(sql(:what => "COUNT(*)")).first.values.first.to_i
     end
 
     def execute(options = {})
-      joined_records = main_model_object.connection.select_all(sql)
+      #will_paginate cannot be used here, so we
+      #have to create our own pagination
+      per_page = (options.delete(:per_page) || 50).to_i
+      offset = options.delete(:offset).to_i
+
+      expected_rows = count
+
+      #Pagination can go back in once the methods for generating custom SQL are in place
+      query = sql(:order_by => true, :limit => per_page, :offset => offset)
+
+      joined_records = main_model_object.connection.select_all(query)
       rows = []
       joined_records.each do |jr|
         row = Array.new(output_columns.size)
@@ -207,22 +227,21 @@ module QueryGenerator
     # the used associations.
     # If a model only has one association, the array around
     # it will be removed for better readability
-    # The pretty_mode switch will remove some (for reading) unnecessary brackets
     #--------------------------------------------------------------
-    def joins_for(model, pretty_mode = false)
+    def joins_for(model)
       joins = []
       #Test if there is at least one association for the given model
       if model_associations[model].present? && model_associations[model].any?
         association_amount = model_associations[model].size
         model_associations[model].each do |association, target|
           if is_end_association?(model, association)
-            if association_amount == 1 && pretty_mode
+            if association_amount == 1
               return association.to_sym
             else
               joins << association.to_sym
             end
           else
-            if association_amount == 1 && pretty_mode
+            if association_amount == 1
               return {association => joins_for(target)}
             else
               joins << {association.to_sym => joins_for(target)}
@@ -246,6 +265,8 @@ module QueryGenerator
       result
     end
 
+    # Generates the necessary javascript options for the DataTables plugin
+    #--------------------------------------------------------------
     def table_js
       result = {}
       result["aaSorting"] = []
@@ -255,19 +276,6 @@ module QueryGenerator
         result["aaSorting"] << [index, uc.order]
       end
 
-      result
-    end
-
-    def column_defs_js
-
-      used_columns.each_index do |index|
-        uc = used_columns[index]
-        next unless uc.order
-        column = {
-            "aaSorting" => []
-        }
-        result << column
-      end
       result
     end
 

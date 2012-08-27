@@ -4,14 +4,16 @@
       = human_model_name(QueryGenerator::GeneratedQuery)
       = @generated_query.name
       %br
-      = @generated_query
+      = @generated_query.build_query(Student)
       %br
       = @generated_query.count
       %br
-      = @generated_query.sql
+      = @generated_query.sql_lines.join("<br />")
   #query-generator-content
+    = pretty_print_generated_query(@generated_query, {})
     = render :partial => "output"
   #query-generator-footer
 
 :javascript
+  queryGenerator.urls.fetchQueryRecords = "#{fetch_query_records_query_generator_generated_queries_path(:id => @generated_query.id)}";
   queryGenerator.createOutputTable("#generated_query_output", #{@generated_query.table_js.to_json})

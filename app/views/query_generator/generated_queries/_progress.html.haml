@@ -1,4 +1,5 @@
 - options ||= {}
 
 %b Progress:
-= query_generator_session.preview_string options
+%pre
+  = pretty_print_generated_query(query_generator_session.generated_query, :multiline => false)

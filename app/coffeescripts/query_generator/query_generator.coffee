@@ -6,6 +6,7 @@ window.queryGenerator =
 
   urls:
     updateOffset: null
+    fetchQueryRecords: null
 
   pageElements:
     recordPreview: "#model-records-preview"
@@ -25,7 +26,11 @@ window.queryGenerator =
     defaults = {
       "bJQueryUI": true,
       "sPaginationType": "full_numbers",
-      "iDisplayLength": 50
+      "iDisplayLength": 50,
+      "bProcessing": true,
+      "bServerSide": true,
+      "bFilter": false,
+      "sAjaxSource": queryGenerator.urls.fetchQueryRecords
     }
 
     settings = jQuery.extend({}, defaults, options)

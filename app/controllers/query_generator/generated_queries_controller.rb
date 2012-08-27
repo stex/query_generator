@@ -76,7 +76,16 @@ module QueryGenerator
     def show
       @generated_query = GeneratedQuery.find(params[:id])
       redirect_to :index and return unless ccan? :read, @generated_query
-      @executed_query_rows = @generated_query.execute(:page => params[:page])
+      #@executed_query_rows = @generated_query.execute(:page => params[:page])
+    end
+
+    def fetch_query_records
+      @generated_query = GeneratedQuery.find(params[:id])
+      render :json => {
+          :iTotalRecords => @generated_query.count,
+          :iTotalDisplayRecords => @generated_query.count,
+          :aaData => @generated_query.execute(:offset => params[:iDisplayStart], :per_page => params[:iDisplayLength])
+      }
     end
 
     # The action to display the main wizard steps

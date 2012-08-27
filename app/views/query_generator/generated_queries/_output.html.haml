@@ -2,9 +2,5 @@
   %thead
     %tr
       - @generated_query.table_header_columns.each do |column_name, name|
-        %th{:class => column_name}= name
+        %th{:class => column_name, :style => "width: auto"}= name
   %tbody
-    - @executed_query_rows.each do |row|
-      %tr
-        - row.each do |column|
-          %td= column
