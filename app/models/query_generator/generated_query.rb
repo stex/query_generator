@@ -24,7 +24,15 @@ module QueryGenerator
 
     def sql
       sql = main_model_object.view_sql(:all, build_query(main_model_object, :order_by => true))
-      sql = sql.gsub(/SELECT (.*) FROM/, "SELECT * FROM")
+      sql = sql.gsub(/SELECT (.*) FROM/, "SELECT #{build_columns} FROM")
+    end
+
+    def build_columns
+      cols = []
+      output_columns.each do |qc|
+        cols << "#{qc.full_column_name} AS `#{qc.full_column_name}`"
+      end
+      cols.join(", ")
     end
 
     def build_query(record, options = {})
@@ -50,16 +58,18 @@ module QueryGenerator
     end
 
     def execute(options = {})
-      query = build_query(main_model_object, options)
-      main_records = main_model_object.find(:all, query)
+      main_model_object.conneciton
 
-      rows = []
-      main_records.each do |record|
-        record_rows = build_rows_for(record)
-        record_rows = record_rows.reject {|r| r.include?(nil)}
-        rows += record_rows
-      end
-      rows
+      #query = build_query(main_model_object, options)
+      #main_records = main_model_object.find(:all, query)
+      #
+      #rows = []
+      #main_records.each do |record|
+      #  record_rows = build_rows_for(record)
+      #  record_rows = record_rows.reject {|r| r.include?(nil)}
+      #  rows += record_rows
+      #end
+      #rows
     end
 
     # If the given record or one of its associations has a has_many
