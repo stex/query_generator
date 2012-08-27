@@ -81,12 +81,13 @@ module QueryGenerator::GeneratedQueriesHelper
   #--------------------------------------------------------------
   def flash_messages
     elements = [:notice, :warning, :error].map do |flash_type|
-      elements << render(:partial => "query_generator/generated_queries/flash/#{flash_type}", :locals => {:message => flash[flash_type]}) if flash[flash_type].present?
+      render(:partial => "query_generator/generated_queries/flash/#{flash_type}", :locals => {:message => flash[flash_type]}) if flash[flash_type].present?
     end
     elements.compact.join
   end
 
   def pretty_print_generated_query(generated_query, options = {})
+    return "" unless generated_query.main_model
     options[:html] = true
     "#{generated_query.main_model}.find(:all, " + ap(generated_query.default_query, options) + ")"
   end

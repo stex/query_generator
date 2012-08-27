@@ -43,6 +43,7 @@ module QueryGenerator
     def build_query(record, options = {})
       query = {}
       joins = joins_for(record)
+      joins = [joins] if joins && !joins.is_a?(Array)
       query[join_method] = joins if joins && joins.any?
       query[:order] = order_by if order_by.present?
       query[:limit] = options[:limit] if options[:limit]
@@ -51,7 +52,11 @@ module QueryGenerator
     end
 
     def default_query
-      build_query(main_model_object)
+      if main_model
+        build_query(main_model_object)
+      else
+        {}
+      end
     end
     
     # Calculates the row amount this query will produce
@@ -242,7 +247,7 @@ module QueryGenerator
             end
           else
             if association_amount == 1
-              return {association => joins_for(target)}
+              return {association.to_sym => joins_for(target)}
             else
               joins << {association.to_sym => joins_for(target)}
             end
