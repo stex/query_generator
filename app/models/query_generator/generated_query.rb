@@ -22,9 +22,9 @@ module QueryGenerator
       output_columns.map {|oc| [oc.full_column_name.sub(".", "_"), oc.name]}
     end
 
-    def sql
+    def sql(what = build_columns)
       sql = main_model_object.view_sql(:all, build_query(main_model_object, :order_by => true))
-      sql = sql.gsub(/SELECT (.*) FROM/, "SELECT #{build_columns} FROM")
+      sql = sql.gsub(/SELECT (.*) FROM/, "SELECT #{what} FROM")
     end
 
     def build_columns
@@ -39,7 +39,6 @@ module QueryGenerator
       query = {}
       joins = joins_for(record, options[:pretty_inspect])
       query[join_method] = joins if joins && joins.any?
-      query[:group] = "#{record.table_name}.#{record.primary_key}"
       query[:order] = order_by if options[:order_by] && order_by.present?
       query[:limit] = options[:limit] if options[:limit]
       query
@@ -50,15 +49,22 @@ module QueryGenerator
     # amount of rows is returned by .execute
     #--------------------------------------------------------------
     def count
-      query = {}
-      joins = joins_for(main_model_object, false)
-      query[join_method] = joins if joins && joins.any?
-      query[:group] = "#{main_model_object.table_name}.#{main_model_object.primary_key}"
-      main_model_object.count(query).values.sum
+      main_model_object.connection.select_all(sql("COUNT(*)")).first.values.first.to_i
     end
 
     def execute(options = {})
-      main_model_object.conneciton
+      joined_records = main_model_object.connection.select_all(sql)
+      rows = []
+      joined_records.each do |jr|
+        row = Array.new(output_columns.size)
+        output_columns.each_index do |index|
+          row[index] = jr[output_columns[index].full_column_name]
+        end
+        rows << row
+      end
+
+      rows
+
 
       #query = build_query(main_model_object, options)
       #main_records = main_model_object.find(:all, query)
