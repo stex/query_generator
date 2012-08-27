@@ -12,6 +12,7 @@ en:
       model_record_preview: Preview of %{model} records
     misc:
       column_header_title: "Type: %{type}, Default: %{default_value}"
+      column: Column
       model: Model
       associations: Associations
       actions: Actions
@@ -20,7 +21,7 @@ en:
       model_table: "%{model} (%{table})"
       unfinished_query: "It looks like you have an unfinished query."
       unfinished_query_link: "Would you like to return to it?"
-      new_model: "New %{model}"
+      new_generated_query: Open new query in wizard
       edit: Edit
       destroy: Destroy
       show: Execute
@@ -37,6 +38,7 @@ en:
         title: Please choose associations for your main model
         description: blabla
         remove_model_warning: If you remove this model, all models connected to it will be removed as well. Continue?
+        remove_model_title: Remove this model from your current query
         button_next: Choose Columns &raquo;
         button_prev: "&#171; Set Main Model"
       columns:

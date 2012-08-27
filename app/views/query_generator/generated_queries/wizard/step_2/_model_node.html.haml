@@ -1,11 +1,15 @@
-.handle.ui-corner-all.ui-widget-header
-  = human_model_name(model)
-  - if model != query_generator_session.main_model
-    = link_to_remote("X", :url => remove_model_query_generator_generated_queries_path(:model => model.to_s), :confirm => t("query_generator.wizard.associations.remove_model_warning"))
-
-
 %table
-  - dh.graph.associations_for(model).each do |association, target|
-    - next unless ccan? :read, target
-    - next if query_generator_session.uses_model?(target)
-    = render :partial => wizard_file(2, "association_row"), :locals => {:model => model, :association => association, :end_point => target}
+  %thead
+    %tr
+      %th.handle{:colspan => 2}
+        = human_model_name(model)
+        - if model != query_generator_session.main_model
+          = link_to_remote(image_tag("query_generator/red-x.png"), :url => remove_model_query_generator_generated_queries_path(:model => model.to_s),
+                                                                   :confirm => t("query_generator.wizard.associations.remove_model_warning"),
+                                                                   :html => {:title => t("query_generator.wizard.associations.remove_model_title")})
+
+  %tbody
+    - dh.graph.associations_for(model).each do |association, target|
+      - next unless ccan? :read, target
+      - next if query_generator_session.uses_model?(target)
+      = render :partial => wizard_file(2, "association_row"), :locals => {:model => model, :association => association, :end_point => target}

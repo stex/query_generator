@@ -1,10 +1,12 @@
-.handle.ui-corner-all.ui-widget-header
-  = model.human_name
-
 %table
   %thead
     %tr
+      %th.handle{:colspan => 2}
+        = human_model_name(model)
+    %tr
       %th.icon
-      %th Column
+      %th= t("query_generator.misc.column")
+
   %tbody
-    = render :partial => wizard_file(3, "model_column_row"), :collection => model.columns, :as => :column, :locals => {:model => model}
+    - dh.graph.associations_for(model).each do |association, target|
+      = render :partial => wizard_file(3, "model_column_row"), :collection => model.columns, :as => :column, :locals => {:model => model}

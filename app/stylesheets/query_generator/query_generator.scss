@@ -5,6 +5,8 @@ body.query-generator-layout {
   margin: 0;
 }
 
+@import "smart_grey";
+
 /* The query-generator namespace which can be used in cases the ID is not usable */
 .query-generator, #query-generator {
   font-size: 11pt;
@@ -18,19 +20,11 @@ body.query-generator-layout {
         background-color: #d3d3d3;
       }
 
-      &:hover {
-        color: #262b33;
-      }
-
       &.active {
-        background-color: green;
+        background-color: #90ee90;
       }
-
 
       td {
-        border-bottom: 1px solid #CCCCCC;
-        padding: 4px 6px;
-
         &.icon {
           width: 20px;
 
@@ -51,15 +45,6 @@ body.query-generator-layout {
           width: 150px;
         }
 
-      }
-    }
-
-    thead {
-      tr {
-        th {
-          padding: 10px 8px;
-          border-bottom: 2px solid black;
-        }
       }
     }
 
@@ -139,14 +124,22 @@ body.query-generator-layout {
     height: 100%;
 
     .block {
-      border: 1px solid black;
-      padding: 2px;
-      position: relative;
       min-width: 200px;
-      min-height: 150px;
+      max-height: 250px;
       background-color: white;
-      max-height: 400px;
-      overflow-y: scroll;
+      overflow-y: auto;
+      display: block;
+      position: relative;
+
+      table {
+        width: 100%;
+
+        th {
+          img {
+            float: right;
+          }
+        }
+      }
 
       &.main-model {
         border: 1px solid red;
@@ -166,8 +159,6 @@ body.query-generator-layout {
       float: left;
 
       .handle {
-        text-align: center;
-        font-weight: normal;
         cursor: move;
       }
     }

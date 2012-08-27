@@ -1,5 +1,5 @@
 - if ccan? :update, generated_query
-  %tr[generated_query]
+  %tr[generated_query]{:class => cycle(:odd, :even)}
     %td= generated_query.name
     %td
       = link_to t("query_generator.misc.show"), query_generator_generated_query_path(generated_query)

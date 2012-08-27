@@ -28,6 +28,7 @@ module QueryGenerator
       query[join_method] = joins if joins && joins.any?
       #query[:order] = order_by unless order_by.blank?
       query[:group] = "#{main_model_object.table_name}.#{main_model_object.primary_key}"
+      query[:limit] = options[:limit] if options[:limit]
 
       main_records = main_model_object.find(:all, query)
 
@@ -45,7 +46,6 @@ module QueryGenerator
     # TODO:
     #    1. Find a better solution than looping over all rows again for joins
     #    2. Joins müssen weitergegeben werden, um unzutreffende sachen rauszufiltern (wenn das set leer ist. :include unterstützen?)
-    #    3. :order muss weitergegeben werden, ansonsten werden order by klauseln in den associations nicht berücksichtigt
     #    4. :conditions müssen weitergegeben werden
     #
     #    bei 3. und 4. muss berücksichtigt werden, dass die bereits genutzten einträge (resp. welche, die nicht mit der aktuellen abfrage
@@ -55,23 +55,26 @@ module QueryGenerator
     #   followed_association: die association, die vom vorherigen
     #                         zum jetzigen record geführt hat. Wird für das filtern der joins benötigt
     #--------------------------------------------------------------
-    def build_rows_for(record)
+    def build_rows_for(record, options = {})
       model = record.class
       rows = model_associations_for(model).any? ? [] : [Array.new(output_columns.size)]
 
       model_associations_for(model).each do |association, target|
         follow_association(record, association, target, :joins => joins_for(target)) do |association_record|
-          rows += build_rows_for(association_record)
+          rows += build_rows_for(association_record, options)
         end
       end
 
       columns = output_columns
-
       rows.each do |row|
         columns.each_index do |index|
           if columns[index].model == model
-            value = record.send(columns[index].column_name)
-            row[index] = value || ""
+            if options[:return_records]
+              row[index] = record
+            else
+              value = record.send(columns[index].column_name)
+              row[index] = value || ""
+            end
           end
         end
       end
@@ -255,6 +258,7 @@ module QueryGenerator
       model = record.class
       association_options = DataHolder.graph.association_options(model, association)
 
+      #Build joins and group_by statement
       query = {}
       query[join_method] = options[:joins] if options[:joins]
       query[:group] = "#{target.table_name}.#{target.primary_key}"# if options[:joins]

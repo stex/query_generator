@@ -6,7 +6,7 @@
 -# end_point   -- The association's end point
 
 %tr{:id => association_dom_id(model, association)}
-  %td= end_point.human_name
+  %td= human_model_name(end_point)
   %td
     = link_to_remote(association, :url => add_association_query_generator_generated_queries_path(:model => model.to_s, :association => association))
     =# association_quantity_icon(model, association)

@@ -37,7 +37,6 @@
         "iDisplayLength": 50
       };
       settings = jQuery.extend({}, defaults, options);
-      alert(JSON.stringify(settings));
       return jQuery(element).dataTable(settings);
     },
     graph: {

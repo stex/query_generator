@@ -29,9 +29,6 @@ window.queryGenerator =
     }
 
     settings = jQuery.extend({}, defaults, options)
-
-    alert(JSON.stringify(settings))
-
     jQuery(element).dataTable(settings)
 
 
