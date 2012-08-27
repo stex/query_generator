@@ -22,14 +22,35 @@ module QueryGenerator
       output_columns.map {|oc| [oc.full_column_name.sub(".", "_"), oc.name]}
     end
 
-    def execute(options = {})
+    def sql
+      sql = main_model_object.view_sql(:all, build_query(main_model_object, :order_by => true))
+      sql = sql.gsub(/SELECT (.*) FROM/, "SELECT * FROM")
+    end
+
+    def build_query(record, options = {})
+      query = {}
+      joins = joins_for(record, options[:pretty_inspect])
+      query[join_method] = joins if joins && joins.any?
+      query[:group] = "#{record.table_name}.#{record.primary_key}"
+      query[:order] = order_by if options[:order_by] && order_by.present?
+      query[:limit] = options[:limit] if options[:limit]
+      query
+    end
+    
+    # Calculates the row amount this query will produce
+    # This is pure SQL and can be used to confirm that the correct
+    # amount of rows is returned by .execute
+    #--------------------------------------------------------------
+    def count
       query = {}
       joins = joins_for(main_model_object, false)
       query[join_method] = joins if joins && joins.any?
-      #query[:order] = order_by unless order_by.blank?
       query[:group] = "#{main_model_object.table_name}.#{main_model_object.primary_key}"
-      query[:limit] = options[:limit] if options[:limit]
+      main_model_object.count(query).values.sum
+    end
 
+    def execute(options = {})
+      query = build_query(main_model_object, options)
       main_records = main_model_object.find(:all, query)
 
       rows = []
@@ -202,14 +223,8 @@ module QueryGenerator
       result = ""
 
       if main_model
-        joins = joins_for(main_model_object)
-        order = order_by
-
-        parameters = [":all"]
-        parameters << ":include => #{joins.inspect}" if options[:joins] && joins.any?
-        parameters << %{:order => "#{order}"} if options[:order] && order.any?
-
-        result = %{#{main_model}.find(#{parameters.join(", ")})}
+        query = build_query(main_model_object, :pretty_inspect => true, :order_by => true)
+        result = %{#{main_model}.find(:all, #{query.pretty_inspect})}
       end
 
       result

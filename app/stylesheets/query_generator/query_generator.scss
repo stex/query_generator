@@ -5,8 +5,6 @@ body.query-generator-layout {
   margin: 0;
 }
 
-@import "smart_grey";
-
 /* The query-generator namespace which can be used in cases the ID is not usable */
 .query-generator, #query-generator {
   font-size: 11pt;
@@ -17,7 +15,7 @@ body.query-generator-layout {
     background-color: white;
     tr {
       &.even {
-        background-color: #d3d3d3;
+        background-color: #f0ffff;
       }
 
       &.active {
@@ -26,7 +24,7 @@ body.query-generator-layout {
 
       td {
         &.icon {
-          width: 20px;
+          width: 17px;
 
           img {
             width: 16px;
@@ -66,6 +64,16 @@ body.query-generator-layout {
   #query-generator-header {
     padding: 20px;
     border-bottom: 1px solid black;
+
+    .flash {
+      padding: 5px;
+      padding-left: 15px;
+
+      span {
+        margin-right: 20px;
+        float: left;
+      }
+    }
   }
 
   #query-generator-content {
@@ -86,6 +94,10 @@ body.query-generator-layout {
     padding: 10px;
     border-top: 1px solid black;
 
+    /*
+      These styles will generate the buttons area in each wizard
+      step. The "buttons" itself are css-enhanced links.
+    */
     .buttons {
       padding: 10px;
       float: right;
@@ -135,6 +147,7 @@ body.query-generator-layout {
         width: 100%;
 
         th {
+          //The "X"-Icon to remove a model from the query
           img {
             float: right;
           }
@@ -146,6 +159,7 @@ body.query-generator-layout {
       }
     }
 
+    //The association name displayed on the association arrow between two models
     .label {
       padding: 5px;
       border: 1px solid #346789;
@@ -175,4 +189,5 @@ body.query-generator-layout {
   }
 }
 
+@import "smart_grey";
 @import "datatable_themeroller";

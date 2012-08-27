@@ -8,5 +8,4 @@
       %th= t("query_generator.misc.column")
 
   %tbody
-    - dh.graph.associations_for(model).each do |association, target|
-      = render :partial => wizard_file(3, "model_column_row"), :collection => model.columns, :as => :column, :locals => {:model => model}
+    = render :partial => wizard_file(3, "model_column_row"), :collection => model.columns, :as => :column, :locals => {:model => model}

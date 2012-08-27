@@ -5,6 +5,10 @@
       = @generated_query.name
       %br
       = @generated_query
+      %br
+      = @generated_query.count
+      %br
+      = @generated_query.sql
   #query-generator-content
     = render :partial => "output"
   #query-generator-footer

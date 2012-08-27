@@ -10,6 +10,10 @@ en:
       model_added: Successfully added the model %{model} to your current query
     dialog_titles:
       model_record_preview: Preview of %{model} records
+    flash:
+      notice: Notice
+      warning: Warning
+      error: Error
     misc:
       column_header_title: "Type: %{type}, Default: %{default_value}"
       column: Column

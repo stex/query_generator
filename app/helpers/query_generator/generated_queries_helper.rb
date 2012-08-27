@@ -80,13 +80,10 @@ module QueryGenerator::GeneratedQueriesHelper
   # Creates divs for each flash message type
   #--------------------------------------------------------------
   def flash_messages
-    elements = []
-    [:notice, :warning, :error].each do |flash_type|
-      if flash[flash_type].present?
-        elements << content_tag(:div, flash[flash_type], :class => "flash-#{flash_type}")
-      end
+    elements = [:notice, :warning, :error].map do |flash_type|
+      elements << render(:partial => "query_generator/generated_queries/flash/#{flash_type}", :locals => {:message => flash[flash_type]}) if flash[flash_type].present?
     end
-    elements.join()
+    elements.compact.join
   end
 
   # Renders the given wizard step and partial
