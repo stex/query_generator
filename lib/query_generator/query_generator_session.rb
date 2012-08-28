@@ -315,6 +315,8 @@ module QueryGenerator
           gc.send("#{attribute}=", session_namespace[attribute])
         end
       end
+
+      gc.reset_instance_variables
     end
 
     private

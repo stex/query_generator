@@ -8,5 +8,7 @@ if @model
     page[model_dom_id(model)].replace_html model_node(model)
   end
 
+  page.call "queryGenerator.graph.setModelBoxOffsets", @model_offsets.to_json
+
   page["query-generator-footer"].replace_html render_wizard_partial(2, "footer")
 end

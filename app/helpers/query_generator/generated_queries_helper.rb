@@ -81,7 +81,7 @@ module QueryGenerator::GeneratedQueriesHelper
   #--------------------------------------------------------------
   def flash_messages
     elements = [:notice, :warning, :error].map do |flash_type|
-      render(:partial => "query_generator/generated_queries/flash/#{flash_type}", :locals => {:message => flash[flash_type]}) if flash[flash_type].present?
+      render(:partial => "query_generator/generated_queries/flash/#{flash_type}.html.haml", :locals => {:message => flash[flash_type]}) if flash[flash_type].present?
     end
     elements.compact.join
   end

@@ -39,7 +39,13 @@
         "bProcessing": true,
         "bServerSide": true,
         "bFilter": false,
-        "sAjaxSource": queryGenerator.urls.fetchQueryRecords
+        "sAjaxSource": queryGenerator.urls.fetchQueryRecords,
+        "fnServerData": function(sSource, aoData, fnCallback) {
+          return jQuery.getJSON(sSource, aoData, function(json) {
+            jQuery('#flash').html(json.flashMessages);
+            return fnCallback(json);
+          });
+        }
       };
       settings = jQuery.extend({}, defaults, options);
       return jQuery(element).dataTable(settings);
@@ -80,19 +86,7 @@
       },
       removeNode: function(node) {
         jsPlumb.detachAllConnections(node);
-        jQuery("#" + node).remove();
-        return jQuery("" + this.canvasSelector + " > .draggable").each(function(index) {
-          var offset, parentOffset;
-          offset = jQuery(this).offset();
-          parentOffset = jQuery(queryGenerator.graph.canvasSelector).offset();
-          if (offset.top < parentOffset.top) {
-            jQuery(this).offset({
-              top: parentOffset.top,
-              left: offset.left
-            });
-          }
-          return jsPlumb.repaint(this);
-        });
+        return jQuery("#" + node).remove();
       },
       repaintConnections: function() {
         return jQuery("" + this.canvasSelector + " > .draggable").each(function(index) {

@@ -1,0 +1,7 @@
+{
+  "iTotalRecords": <%= @generated_query.count %>,
+  "iTotalDisplayRecords": <%= @generated_query.count %>,
+  "sEcho": <%= params["sEcho"].to_i %>,
+  "flashMessages": <%= flash_messages.to_json %>,
+  "aaData": <%= @records.to_json %>
+}

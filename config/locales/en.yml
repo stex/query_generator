@@ -29,6 +29,7 @@ en:
       edit: Edit
       destroy: Destroy
       show: Execute
+      export: Export
     wizard:
       main_model:
         name: Main Model
@@ -67,6 +68,7 @@ en:
           show: Show
           custom_name: Output Name
           order: Order By
+          preview: Preview
       query:
         name: Details
         title: Query Options

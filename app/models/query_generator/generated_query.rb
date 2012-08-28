@@ -68,15 +68,17 @@ module QueryGenerator
     end
 
     def execute(options = {})
-      #will_paginate cannot be used here, so we
-      #have to create our own pagination
-      per_page = (options.delete(:per_page) || 50).to_i
-      offset = options.delete(:offset).to_i
+      sql_options = {}
 
-      expected_rows = count
+      unless options[:no_pagination]
+        #will_paginate cannot be used here, so we
+        #have to create our own pagination
+        sql_options[:limit] = (options.delete(:per_page) || 50).to_i
+        sql_options[:offset] = options.delete(:offset).to_i
+      end
 
       #Pagination can go back in once the methods for generating custom SQL are in place
-      query = sql(:order_by => true, :limit => per_page, :offset => offset)
+      query = sql(sql_options)
 
       joined_records = main_model_object.connection.select_all(query)
       rows = []
@@ -187,7 +189,7 @@ module QueryGenerator
     # {SourceModel => {:association => TargetModel}}
     #--------------------------------------------------------------
     def model_associations
-      #return @model_associations if @model_associations
+      return @model_associations if @model_associations
       @model_associations = {}
 
       associations.each do |source, associations|
@@ -205,17 +207,42 @@ module QueryGenerator
       model_associations[model] || {}
     end
 
+    def reset_instance_variables
+      @model_associations = nil
+      @used_columns = nil
+      @output_columns = nil
+    end
+
     # Returns all selected columns for the currently managed generated query
     # Format: [Column1, Column2, Column3]
     #--------------------------------------------------------------
     def used_columns
-      @used_columns = columns.map {|c| QueryColumn.new(c)}
+      @used_columns ||= columns.map {|c| QueryColumn.new(c)}
     end
 
     # Returns all columns to be included into the output table
     #--------------------------------------------------------------
     def output_columns
-      @output_columns = used_columns.select {|uc| uc.output }
+      @output_columns ||= used_columns.select {|uc| uc.output }
+    end
+
+    # Sets a custom order temporarily (for the request)
+    # It accepts an array of custom columns in the format
+    # [[column_1_index, "sort_direction"], [...], ...]
+    # returns +true+ if the order is indeed custom
+    #--------------------------------------------------------------
+    def set_custom_order(custom_columns = [])
+      current_order = used_columns.map {|uc| [uc.position, uc.order] if uc.order}.compact
+
+      used_columns.each do |uc|
+        uc.order = nil
+      end
+
+      custom_columns.each do |column_sorting|
+        used_columns[column_sorting.first].order = column_sorting.last
+      end
+
+      current_order != custom_columns
     end
 
     # Generates the ":order => """ part of a query
@@ -268,6 +295,12 @@ module QueryGenerator
       end
 
       result
+    end
+
+    # Returns all columns marked for output
+    #--------------------------------------------------------------
+    def output_columns
+      used_columns.select {|qc| qc.output }
     end
 
     # Generates the necessary javascript options for the DataTables plugin

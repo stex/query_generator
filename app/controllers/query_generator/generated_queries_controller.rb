@@ -71,21 +71,42 @@ module QueryGenerator
       if generated_query && ccan?(:destroy, generated_query)
         generated_query.destroy
       end
+      redirect_to query_generator_generated_queries_path
     end
 
+    # Executes the generated query
+    # Pagination is automatically turned off when using the csv format
+    # When fetching JSON without the DataTable plugin, you can use
+    # params[:offset] and params[:per_page] to get the records you want.
+    #--------------------------------------------------------------
     def show
       @generated_query = GeneratedQuery.find(params[:id])
-      redirect_to :index and return unless ccan? :read, @generated_query
-      #@executed_query_rows = @generated_query.execute(:page => params[:page])
-    end
+      redirect_to :index unless ccan? :read, @generated_query
 
-    def fetch_query_records
-      @generated_query = GeneratedQuery.find(params[:id])
-      render :json => {
-          :iTotalRecords => @generated_query.count,
-          :iTotalDisplayRecords => @generated_query.count,
-          :aaData => @generated_query.execute(:offset => params[:iDisplayStart], :per_page => params[:iDisplayLength])
-      }
+      respond_to do |format|
+        format.html
+        format.json {
+          table_adapter = DataTableAdapter.new
+          table_adapter.parse_params!(params)
+
+          offset = table_adapter.offset || params[:offset] || 0
+          per_page = table_adapter.per_page || params[:per_page] || 50
+
+          #Test if the json was requested by the DataTable
+          if table_adapter.has_data
+            if @generated_query.set_custom_order(table_adapter.order_by_columns)
+              flash.now[:notice] = "You have chosen a custom order."
+            end
+          end
+
+          @records = @generated_query.execute(:offset => offset, :per_page => per_page)
+        }
+        format.csv {
+          @records = @generated_query.execute(:no_pagination => true)
+          render_csv(@generated_query.name + "_exported_" + Time.now.to_s)
+        }
+      end
+      #@executed_query_rows = @generated_query.execute(:page => params[:page])
     end
 
     # The action to display the main wizard steps
@@ -193,6 +214,12 @@ module QueryGenerator
     def remove_model
       if @model
         @removed_models = query_generator_session.remove_model(@model)
+      end
+
+      @model_offsets = {}
+      query_generator_session.used_models.each do |model|
+        offsets = query_generator_session.model_offsets(model)
+        @model_offsets[model_dom_id(model)] = offsets if offsets
       end
 
       respond_to do |format|
@@ -322,5 +349,27 @@ module QueryGenerator
       res = [res, options[:suffix]].join("_") if options[:suffix]
       options[:include_hash] ? "#" + res : res
     end
+
+    # Helper method to set the necessary headers for CSV exports
+    #--------------------------------------------------------------
+    def render_csv(filename = nil)
+      filename ||= params[:action]
+      filename.gsub!(/[ \&\:\+]/, "_")
+      filename += '.csv'
+
+      if request.env['HTTP_USER_AGENT'] =~ /msie/i
+        headers['Pragma'] = 'public'
+        headers["Content-type"] = "text/plain"
+        headers['Cache-Control'] = 'no-cache, must-revalidate, post-check=0, pre-check=0'
+        headers['Content-Disposition'] = "attachment; filename=\"#{filename}\""
+        headers['Expires'] = "0"
+      else
+        headers["Content-Type"] ||= 'text/csv'
+        headers["Content-Disposition"] = "attachment; filename=\"#{filename}\""
+      end
+
+      render :layout => false
+    end
+
   end
 end

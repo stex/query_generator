@@ -30,7 +30,12 @@ window.queryGenerator =
       "bProcessing": true,
       "bServerSide": true,
       "bFilter": false,
-      "sAjaxSource": queryGenerator.urls.fetchQueryRecords
+      "sAjaxSource": queryGenerator.urls.fetchQueryRecords,
+      "fnServerData": (sSource, aoData, fnCallback) ->
+        jQuery.getJSON sSource, aoData, (json) ->
+          jQuery('#flash').html(json.flashMessages)
+          #pass the data to the standard callback and draw the table
+          fnCallback(json)
     }
 
     settings = jQuery.extend({}, defaults, options)
@@ -66,14 +71,6 @@ window.queryGenerator =
       jsPlumb.detachAllConnections(node)
       #Remove the DOM element
       jQuery("##{node}").remove()
-
-      #Sometimes elements get moved around, so we have to make sure, everything's still inside of the container
-      jQuery("#{@canvasSelector} > .draggable").each (index) ->
-        offset = jQuery(@).offset()
-        parentOffset = jQuery(queryGenerator.graph.canvasSelector).offset()
-        if offset.top < parentOffset.top
-          jQuery(@).offset({top: parentOffset.top, left: offset.left})
-        jsPlumb.repaint(@)
 
 
     # Repaints all connections in the graph.

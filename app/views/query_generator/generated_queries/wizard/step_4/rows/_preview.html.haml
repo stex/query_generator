@@ -1,0 +1,13 @@
+- records = query_generator_session.generated_query.execute(:per_page => 5)
+- records.each do |record|
+  %tr
+    - if record == records.first
+      %td.row-header{:rowspan => records.size}
+        = t("query_generator.wizard.conditions.rows.preview")
+
+    - i = 0
+    - query_generator_session.used_columns.each do |qc|
+      %td
+        - if qc.output
+          = record[i]
+          - i += 1

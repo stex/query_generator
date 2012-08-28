@@ -3,6 +3,7 @@
     %td= generated_query.name
     %td
       = link_to t("query_generator.misc.show"), query_generator_generated_query_path(generated_query)
+      = link_to t("query_generator.misc.export"), query_generator_generated_query_path(generated_query, :format => :csv)
       = link_to_function t("query_generator.misc.edit"), "jQuery(this).next('.edit').toggle()"
       %span.edit{:style => "display: none"}
         - QueryGenerator::WIZARD_STEPS.each do |step|

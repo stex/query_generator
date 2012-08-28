@@ -1,0 +1,9 @@
+<%= FasterCSV.generate do |csv|
+  #Create csv header line
+  csv << @generated_query.table_header_columns.map(&:last)
+
+  #Create line for each record
+  @records.each do |record|
+    csv << record
+  end
+end %>

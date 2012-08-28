@@ -87,7 +87,7 @@ module QueryGenerator
     #--------------------------------------------------------------
     def order_by_string
       return nil unless order
-      "#{full_column_name} #{I18n.t("query_generator.wizard.conditions.order_by_options." + order)}"
+      "#{full_column_name} #{order.upcase}"
     end
 
     # Returns the column values as basic ruby classes (hash, string, array)
