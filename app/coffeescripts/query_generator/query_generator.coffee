@@ -15,7 +15,11 @@ window.queryGenerator =
 
   init: () ->
     jQuery(this.pageElements.recordPreview).dialog(autoOpen: false, modal: true, width: "90%", height: "700")
-    jQuery(this.pageElements.conditionDialog).dialog(autoOpen: false, modal: true, width: "auto", height: "400")
+    jQuery(this.pageElements.conditionDialog).dialog(autoOpen: false, modal: true, width: "auto", height: "400",
+      buttons:
+        Ok: () ->
+          jQuery( this ).dialog( "close" )
+    )
     @helpers.createAjaxIndicator()
 
   # Used to display a model's records in a jQuery UI dialog

@@ -2,7 +2,7 @@ module QueryGenerator
   class QueryColumnCondition
     unloadable if Rails.env.development? #Don't cache this class in development environment, even if in gem
 
-    COMPARATORS = ["=", "<>", "<", "<=", ">", ">="].freeze
+    COMPARATORS = ["=", "<>", "<", "<=", ">", ">=", "LIKE"].freeze
 
     def initialize(query_column, serialized_options = {})
       @query_column = query_column
@@ -71,6 +71,7 @@ module QueryGenerator
     #   "<="
     #   ">"
     #   ">="
+    #   "LIKE"
     #--------------------------------------------------------------
     def comparator
       @comparator || COMPARATORS.first

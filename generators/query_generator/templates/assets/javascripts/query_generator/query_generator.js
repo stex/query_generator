@@ -28,6 +28,12 @@
         modal: true,
         width: "auto",
         height: "400"
+      }, {
+        buttons: {
+          Ok: function() {
+            return jQuery(this).dialog("close");
+          }
+        }
       });
       return this.helpers.createAjaxIndicator();
     },
