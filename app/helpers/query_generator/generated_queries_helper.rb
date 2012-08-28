@@ -37,18 +37,15 @@ module QueryGenerator::GeneratedQueriesHelper
     handle_dom_id_options("model_#{model.to_s.underscore}_association_#{association}", options)
   end
 
-
-
   # builds a dom ID based on the model object and the column object
   #--------------------------------------------------------------
   def column_dom_id(model, column, options = {})
-    handle_dom_id_options("model_#{model.to_s.underscore}_column_#{column.name}", options)
+    column_name = column.is_a?(String) ? column : column.name
+    handle_dom_id_options("model_#{model.to_s.underscore}_column_#{column_name}", options)
   end
 
-  def step_forward?
-    @step_direction == :forward
-  end
-
+  # Generates a symbol for certain table columns, e.g. primary keys
+  #--------------------------------------------------------------
   def column_symbol(model, column)
     image_path = nil
     options = {}
@@ -86,6 +83,8 @@ module QueryGenerator::GeneratedQueriesHelper
     elements.compact.join
   end
 
+  # Uses AwesomePrint to show the GeneratedQuery
+  #--------------------------------------------------------------
   def pretty_print_generated_query(generated_query, options = {})
     return "" unless generated_query.main_model
     options[:html] = true
@@ -106,6 +105,16 @@ module QueryGenerator::GeneratedQueriesHelper
     remote_function(:url => update_column_options_query_generator_generated_queries_path(options), :with => "jQuery(this).serialize()")
   end
 
+  def update_column_condition(query_column, condition, option, options = {})
+    options.merge!({:model => query_column.model.to_s,
+                    :column => query_column.column_name,
+                    :condition => query_column.conditions.index(condition),
+                    :option => option})
+    remote_function(:url => update_column_condition_query_generator_generated_queries_path(options), :with => "jQuery(this).serialize()")
+  end
+
+  # Builds the options to select ASC/DESC for each column
+  #--------------------------------------------------------------
   def order_by_options
     options = t("query_generator.wizard.conditions.order_by_options").invert
     options["--"] = ""

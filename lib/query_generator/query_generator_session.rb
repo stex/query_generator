@@ -293,7 +293,12 @@ module QueryGenerator
     # Format: [Column1, Column2, Column3]
     #--------------------------------------------------------------
     def used_columns
-      @used_columns ||= generated_query.used_columns
+      @used_columns = generated_query.used_columns
+    end
+
+    def get_column(model, column)
+      column_name = column.is_a?(String) ? column : column.name
+      used_columns.detect {|qc| qc.model_name == model.to_s && qc.column_name == column_name.to_s}
     end
 
     def change_column_position(model, column, amount = 1)
@@ -311,6 +316,18 @@ module QueryGenerator
       qc = used_columns[col["position"]]
       qc.update_options(options)
       session_namespace[:columns][col["position"]] = qc.serialized_options
+      update_query_object(:columns)
+    end
+
+    def update_column(model, column)
+      col = get_column_from_namespace(model, column)
+      qc = used_columns[col["position"]]
+
+      #Give the QueryColumn to the block
+      yield qc
+
+      #Save the changed settings in the session
+      session_namespace[:columns][col["position"]] = qc.to_hash
       update_query_object(:columns)
     end
 

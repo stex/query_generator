@@ -1,5 +1,6 @@
 module QueryGenerator
   class QueryColumn
+    unloadable if Rails.env.development? #Don't cache this class in development environment, even if in gem
 
     #Column options:
     #
@@ -9,20 +10,28 @@ module QueryGenerator
     # name        -- The SQL "as" parameter. If not set, column_name will be used
     # output      -- If set to +true+, the column will be shown in the output table
     # order       -- ASC, DESC or nil (if not to be used for order_by)
+    # conditions  -- an array including all set conditions for this column
 
-    unloadable if Rails.env.development? #Don't cache this class in development environment, even if in gem
-
-    def initialize(serialized_values = {})
-      #using self.send instead of instance_variable_set
-      #is necessary here, as the setters contain additional
-      #code
-      serialized_values.each do |key, value|
-        self.send("#{key}=", value)
-      end
+    def initialize(*args)
+      @generated_query = args.first unless args.first.is_a?(Hash)
+      serialized_values = args.last if args.last.is_a?(Hash)
+      update_options(serialized_values)
     end
 
     def update_options(options = {})
+      #Delete conditions from the hash as they
+      #have to be created differently
+      if options["conditions"]
+        options["conditions"].each do |condition|
+          add_condition(condition)
+        end
+      end
+
+      #using self.send instead of instance_variable_set
+      #is necessary here, as the setters contain additional
+      #code
       options.each do |key, value|
+        next if key == "conditions"
         self.send("#{key}=", value)
       end
     end
@@ -33,6 +42,10 @@ module QueryGenerator
 
     def model=(model)
       @model = model.is_a?(String) ? model.constantize : model
+    end
+
+    def model_name
+      model.to_s
     end
 
     def column_name
@@ -77,10 +90,23 @@ module QueryGenerator
       @order = nil if order.blank?
     end
 
+    def conditions
+      @conditions ||= []
+    end
+
+    def add_condition(options = {})
+      @conditions ||= []
+      @conditions << QueryColumnCondition.new(self, options)
+    end
+
     # Returns "table_name.column_name"
     #--------------------------------------------------------------
-    def full_column_name(delimiter = ".")
-      "#{model.table_name}#{delimiter}#{column_name}"
+    def full_column_name(delimiter = ".", accents = false)
+      if accents
+        "`#{model.table_name}`#{delimiter}`#{column_name}`"
+      else
+        "#{model.table_name}#{delimiter}#{column_name}"
+      end
     end
 
     # Returns the full order_by string for this column
@@ -90,16 +116,25 @@ module QueryGenerator
       "#{full_column_name} #{order.upcase}"
     end
 
-    # Returns the column values as basic ruby classes (hash, string, array)
+    def to_hash
+      serialized_options
+    end
+
+    def generated_query
+      @generated_query
+    end
+
+    # Returns the column values as basic ruby classes (hash, string, array, numeric)
     #--------------------------------------------------------------
     def serialized_options
       {
-          "model" => model.to_s,
-          "position" => position,
+          "model"       => model.to_s,
+          "position"    => position,
           "column_name" => column_name,
-          "name" => @custom_name,
-          "output" => output,
-          "order" => order
+          "name"        => @custom_name,
+          "output"      => output,
+          "order"       => order,
+          "conditions"  => conditions.map(&:to_hash)
       }
     end
 

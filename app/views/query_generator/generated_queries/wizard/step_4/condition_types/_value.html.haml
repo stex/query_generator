@@ -1,0 +1,5 @@
+%td
+  = select_tag "options[comparator]", options_for_select(QueryGenerator::QueryColumnCondition::COMPARATORS, condition.comparator),
+                      :onchange => update_column_condition(qc, condition, :comparator)
+%td
+  = text_field_tag "options[value]", condition.value, :onchange => update_column_condition(qc, condition, :value)

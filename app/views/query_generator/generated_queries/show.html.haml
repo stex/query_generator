@@ -8,6 +8,8 @@
 
     #flash= flash_messages
   #query-generator-content
+    - if @generated_query.conditions_with_variables?
+      This Query contains variables which have to be set. If this isn't done, the conditions won't be included.
     = render :partial => "output"
   #query-generator-footer
 

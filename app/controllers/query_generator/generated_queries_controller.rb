@@ -9,10 +9,7 @@ module QueryGenerator
     helper_method :query_generator_session, :conf, :dh, :human_model_name, :wizard_file, :model_dom_id, :handle_dom_id_options, :ccan?
 
     #Load the requested model from params
-    before_filter :load_model_from_params, :only => [:add_association, :preview_model_records,
-                                                     :set_main_model, :remove_model, :toggle_table_column,
-                                                     :set_model_offset, :inc_column_position, :decr_column_position,
-                                                     :update_column_options]
+    before_filter :load_model_from_params, :except => [:index, :new, :edit, :wizard, :show, :destroy, :create, :update]
 
     def query_generator_session
       @query_generator_session ||= QueryGeneratorSession.new(session)
@@ -264,6 +261,65 @@ module QueryGenerator
 
       respond_to do |format|
         format.js {render wizard_file(4, "update_columns_table")}
+      end
+    end
+
+    # Adds an empty condition to the given column
+    #--------------------------------------------------------------
+    def add_column_condition
+      if @model
+        @column = params[:column]
+        query_generator_session.update_column(@model, @column) do |qc|
+          @query_column = qc
+          qc.add_condition
+        end
+      end
+
+      respond_to do |format|
+        format.js {render wizard_file(4, "update_column_conditions")}
+      end
+    end
+
+    def update_column_condition
+      if @model
+        @column, option, condition_index = params[:column], params[:option], params[:condition].to_i
+        value = params[:options][option] rescue nil
+
+        query_generator_session.update_column(@model, @column) do |qc|
+          @query_column = qc
+          qc.conditions[condition_index].update_options(option => value)
+        end
+      end
+
+      respond_to do |format|
+        format.js {render wizard_file(4, "update_column_conditions")}
+      end
+    end
+
+    def delete_column_condition
+      if @model
+        @column, condition_index = params[:column], params[:condition].to_i
+
+        query_generator_session.update_column(@model, @column) do |qc|
+          @query_column = qc
+          qc.conditions.delete_at(condition_index)
+        end
+      end
+
+      respond_to do |format|
+        format.js {render wizard_file(4, "update_column_conditions")}
+      end
+    end
+
+    # Shows the dialog to edit column conditions
+    #--------------------------------------------------------------
+    def edit_column_conditions
+      if @model
+        @query_column = query_generator_session.get_column(@model, params[:column])
+      end
+
+      respond_to do |format|
+        format.js
       end
     end
 

@@ -1,0 +1,5 @@
+%tr
+  %th.row-header= t("query_generator.wizard.conditions.rows.conditions")
+  - query_generator_session.used_columns.each do |qc|
+    %td{:id => column_dom_id(qc.model, qc.column_name, :suffix => "conditions")}
+      = render_wizard_partial(4, "rows/conditions_cell", :qc => qc)

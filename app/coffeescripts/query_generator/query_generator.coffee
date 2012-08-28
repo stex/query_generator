@@ -11,9 +11,11 @@ window.queryGenerator =
 
   pageElements:
     recordPreview: "#model-records-preview"
+    conditionDialog: "#model-column-conditions"
 
   init: () ->
     jQuery(this.pageElements.recordPreview).dialog(autoOpen: false, modal: true, width: "90%", height: "700")
+    jQuery(this.pageElements.conditionDialog).dialog(autoOpen: false, modal: true, width: "auto", height: "400")
     @helpers.createAjaxIndicator()
 
   # Used to display a model's records in a jQuery UI dialog
@@ -22,6 +24,13 @@ window.queryGenerator =
     jQuery(this.pageElements.recordPreview).html(content)
     jQuery(this.pageElements.recordPreview).dialog("option", {title: dialogTitle})
     jQuery(this.pageElements.recordPreview).dialog("open")
+
+  # Displays the dialog to edit column conditions
+  #--------------------------------------------------------------
+  editColumnConditions: (dialogTitle, content) ->
+    jQuery(this.pageElements.conditionDialog).html(content)
+    jQuery(this.pageElements.conditionDialog).dialog("option", {title: dialogTitle})
+    jQuery(this.pageElements.conditionDialog).dialog("open")
 
   createOutputTable: (element, options) ->
     defaults = {
@@ -44,21 +53,24 @@ window.queryGenerator =
 
   # Updates the way the wizard progress should be shown
   #--------------------------------------------------------------
-  setProgressView: (progressView) ->
+  setProgressView: (progressView, remote) ->
     jQuery(".progress > .progress-view").hide()
     jQuery(".progress > .#{progressView}").show()
 
-    ajaxData = {
-      progress_view: progressView
-    }
+    remote = true unless remote?
 
-    if (queryGenerator.data.token.key != null)
-      ajaxData[queryGenerator.data.token.key] = queryGenerator.data.token.value;
+    if remote == true
+      ajaxData = {
+        progress_view: progressView
+      }
 
-    jQuery.ajax
-      url: queryGenerator.urls.updateProgressView,
-      data: ajaxData,
-      type: "post"
+      if (queryGenerator.data.token.key != null)
+        ajaxData[queryGenerator.data.token.key] = queryGenerator.data.token.value;
+
+      jQuery.ajax
+        url: queryGenerator.urls.updateProgressView,
+        data: ajaxData,
+        type: "post"
 
 
   graph:

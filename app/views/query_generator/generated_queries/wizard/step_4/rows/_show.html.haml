@@ -1,5 +1,5 @@
 %tr
-  %td.row-header= t("query_generator.wizard.conditions.rows.show")
+  %th.row-header= t("query_generator.wizard.conditions.rows.show")
   - query_generator_session.used_columns.each do |qc|
     %td
       = check_box_tag "options[output]", "1", qc.output, :onchange => update_column_option(qc, :output, :reload_content => true)

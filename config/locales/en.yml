@@ -10,6 +10,7 @@ en:
       model_added: Successfully added the model %{model} to your current query
     dialog_titles:
       model_record_preview: Preview of %{model} records
+      conditions: "Set conditions for column %{name}"
     flash:
       notice: Notice
       warning: Warning
@@ -31,6 +32,7 @@ en:
       show: Execute
       export: Export
       no_records_returned: Sorry, no records were returned by your query.
+      total_row_count: "%{count} rows in total"
     wizard:
       main_model:
         name: Main Model
@@ -61,14 +63,28 @@ en:
         button_next: "Finish Query &raquo;"
         move_right: "&raquo;"
         move_left: "&#171;"
+        variable_information: Will be asked on execution
+        types:
+          value: Value
+          column: Table Column
+          variable: Variable
+          is_null: IS NULL
+          is_not_null: IS NOT NULL
         order_by_options:
           asc: ASC
           desc: DESC
+        conditions_table:
+          level: Level
+          connector: Connector
+          type: Type
+          comparator: Comparator
+          value: Value
         rows:
           positions: Column Position
           show: Show
           custom_name: Output Name
           order: Order By
+          conditions: Conditions
           preview: Preview
       query:
         name: Details

@@ -13,7 +13,8 @@
       updateProgressView: null
     },
     pageElements: {
-      recordPreview: "#model-records-preview"
+      recordPreview: "#model-records-preview",
+      conditionDialog: "#model-column-conditions"
     },
     init: function() {
       jQuery(this.pageElements.recordPreview).dialog({
@@ -21,6 +22,12 @@
         modal: true,
         width: "90%",
         height: "700"
+      });
+      jQuery(this.pageElements.conditionDialog).dialog({
+        autoOpen: false,
+        modal: true,
+        width: "auto",
+        height: "400"
       });
       return this.helpers.createAjaxIndicator();
     },
@@ -30,6 +37,13 @@
         title: dialogTitle
       });
       return jQuery(this.pageElements.recordPreview).dialog("open");
+    },
+    editColumnConditions: function(dialogTitle, content) {
+      jQuery(this.pageElements.conditionDialog).html(content);
+      jQuery(this.pageElements.conditionDialog).dialog("option", {
+        title: dialogTitle
+      });
+      return jQuery(this.pageElements.conditionDialog).dialog("open");
     },
     createOutputTable: function(element, options) {
       var defaults, settings;
@@ -51,21 +65,26 @@
       settings = jQuery.extend({}, defaults, options);
       return jQuery(element).dataTable(settings);
     },
-    setProgressView: function(progressView) {
+    setProgressView: function(progressView, remote) {
       var ajaxData;
       jQuery(".progress > .progress-view").hide();
       jQuery(".progress > ." + progressView).show();
-      ajaxData = {
-        progress_view: progressView
-      };
-      if (queryGenerator.data.token.key !== null) {
-        ajaxData[queryGenerator.data.token.key] = queryGenerator.data.token.value;
+      if (remote == null) {
+        remote = true;
       }
-      return jQuery.ajax({
-        url: queryGenerator.urls.updateProgressView,
-        data: ajaxData,
-        type: "post"
-      });
+      if (remote === true) {
+        ajaxData = {
+          progress_view: progressView
+        };
+        if (queryGenerator.data.token.key !== null) {
+          ajaxData[queryGenerator.data.token.key] = queryGenerator.data.token.value;
+        }
+        return jQuery.ajax({
+          url: queryGenerator.urls.updateProgressView,
+          data: ajaxData,
+          type: "post"
+        });
+      }
     },
     graph: {
       canvasSelector: "#graph",

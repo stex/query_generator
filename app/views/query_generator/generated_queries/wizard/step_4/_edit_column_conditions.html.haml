@@ -1,0 +1,38 @@
+.query-generator
+  %table
+    %thead
+      %tr
+        %th{:colspan => 3}= t("query_generator.wizard.conditions.conditions_table.level")
+        %th= t("query_generator.wizard.conditions.conditions_table.connector")
+        %th= t("query_generator.wizard.conditions.conditions_table.type")
+        %th= t("query_generator.wizard.conditions.conditions_table.comparator")
+        %th= t("query_generator.wizard.conditions.conditions_table.value")
+        %th
+
+    %tbody
+      - @query_column.conditions.each do |condition|
+        %tr{:class => (condition.valid? ? "valid" : "invalid")}
+          %td.icon
+            - if condition.level > 1
+              = link_to_function(image_tag("query_generator/previous.png"), update_column_condition(@query_column, condition, :level, :options => {:level => condition.level - 1}))
+          %td
+            = condition.level
+          %td.icon
+            = link_to_function(image_tag("query_generator/next.png"), update_column_condition(@query_column, condition, :level, :options => {:level => condition.level + 1}))
+          %td
+            - unless condition == @query_column.conditions.first
+              = select_tag "options[connector]", options_for_select(["AND", "OR"], condition.connector),
+                           :onchange => update_column_condition(@query_column, condition, :connector)
+          %td
+            = select_tag "options[type]", options_for_select(t("query_generator.wizard.conditions.types").invert, condition.type.to_sym),
+                          :onchange => update_column_condition(@query_column, condition, :type)
+
+          -# Render type specific columns
+          = render_wizard_partial(4, "condition_types/#{condition.type}", :condition => condition, :qc => @query_column)
+          %td
+            - delete_options = {:model => @query_column.model, :column => @query_column.column_name, :condition => @query_column.conditions.index(condition)}
+            = link_to_remote(image_tag("query_generator/red-x.png"), :url => delete_column_condition_query_generator_generated_queries_path(delete_options))
+      %tr
+        %td{:colspan => 8}
+          = link_to_remote "Add", :url => add_column_condition_query_generator_generated_queries_path(:model => @query_column.model, :column => @query_column.column_name), :method => :post
+

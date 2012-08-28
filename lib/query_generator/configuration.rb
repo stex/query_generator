@@ -79,6 +79,25 @@ module QueryGenerator
       DataHolder.instance.reload! if config_name.to_s == "exclusions"
     end
 
+    # Searches for a proc which can be used for the given object
+    # Will bubble up the superclasses until it reaches an existing proc
+    # It will usually stop at "object" as this proc is created by default
+    #--------------------------------------------------------------
+    def self.run_type_proc_for(object)
+      klass = object.class
+      until @@type_procs[klass.to_s]
+        klass = klass.superclass
+      end
+      @@type_procs[klass.to_s].call(object)
+    end
+
+    # Sets the procecure to be used for the given type
+    # Usage: Configuration.set_type_proc("String", Proc.new {|value| do_something })
+    #--------------------------------------------------------------.
+    def self.set_type_proc(klass, _proc)
+      @@type_procs[klass.to_s] = _proc
+    end
+
     private
 
     # Loads the initial configuration
@@ -95,5 +114,11 @@ module QueryGenerator
       @@configuration[:localization] = HashWithIndifferentAccess.new(:date => :short, :datetime => :short, :time => :short)
     end
 
+    # Builds the default type procedures.
+    #--------------------------------------------------------------
+    def self.build_default_procs
+      @@type_procs = {}
+      @@type_procs["Object"] = Proc.new {|value| value }
+    end
   end
 end
