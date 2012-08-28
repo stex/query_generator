@@ -30,6 +30,7 @@ en:
       destroy: Destroy
       show: Execute
       export: Export
+      no_records_returned: Sorry, no records were returned by your query.
     wizard:
       main_model:
         name: Main Model

@@ -22,6 +22,26 @@ body.query-generator-layout {
         background-color: #90ee90;
       }
 
+      th {
+        &.center {
+          text-align: center
+        }
+
+        span {
+          &.move-left {
+            width: 20px;
+            position: relative;
+            left: 0;
+          }
+
+          &.move-right {
+            width: 20px;
+            position: relative;
+            right: 0;
+          }
+        }
+      }
+
       td {
         &.icon {
           width: 17px;

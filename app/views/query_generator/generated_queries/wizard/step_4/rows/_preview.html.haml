@@ -11,3 +11,12 @@
         - if qc.output
           = record[i]
           - i += 1
+
+- if records.empty?
+  %tr
+    - if record == records.first
+      %td.row-header{:rowspan => records.size}
+        = t("query_generator.wizard.conditions.rows.preview")
+
+      %td{:colspan => query_generator_session.generated_query.output_columns.size}
+        = t("query_generator.misc.no_records_returned")

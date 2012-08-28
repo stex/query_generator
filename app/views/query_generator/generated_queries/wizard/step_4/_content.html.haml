@@ -3,10 +3,11 @@
     %tr
       %th
       - query_generator_session.used_columns.each do |qc|
-        %th
-          = human_model_name(qc.model)
-          %br
-          = qc.column_name
+        %th.center
+          %span.column-header
+            = human_model_name(qc.model)
+            %br
+            = qc.column_name
   %tbody
     = render_wizard_partial 4, "rows/positions"
     = render_wizard_partial 4, "rows/show"
