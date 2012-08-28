@@ -58,6 +58,9 @@
         "fnServerData": function(sSource, aoData, fnCallback) {
           return jQuery.getJSON(sSource, aoData, function(json) {
             jQuery('#flash').html(json.flashMessages);
+            jQuery('html, body').animate({
+              scrollTop: 0
+            }, 'slow');
             return fnCallback(json);
           });
         }
