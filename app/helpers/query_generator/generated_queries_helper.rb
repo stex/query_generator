@@ -89,7 +89,7 @@ module QueryGenerator::GeneratedQueriesHelper
   def pretty_print_generated_query(generated_query, options = {})
     return "" unless generated_query.main_model
     options[:html] = true
-    "#{generated_query.main_model}.find(:all, " + ap(generated_query.default_query, options) + ")"
+    "#{generated_query.main_model}.find(:all, " + ap(generated_query.build_query, options) + ")"
   end
 
   # Renders the given wizard step and partial

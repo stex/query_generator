@@ -7,6 +7,7 @@ window.queryGenerator =
   urls:
     updateOffset: null
     fetchQueryRecords: null
+    updateProgressView: null
 
   pageElements:
     recordPreview: "#model-records-preview"
@@ -40,6 +41,24 @@ window.queryGenerator =
 
     settings = jQuery.extend({}, defaults, options)
     jQuery(element).dataTable(settings)
+
+  # Updates the way the wizard progress should be shown
+  #--------------------------------------------------------------
+  setProgressView: (progressView) ->
+    jQuery(".progress > .progress-view").hide()
+    jQuery(".progress > .#{progressView}").show()
+
+    ajaxData = {
+      progress_view: progressView
+    }
+
+    if (queryGenerator.data.token.key != null)
+      ajaxData[queryGenerator.data.token.key] = queryGenerator.data.token.value;
+
+    jQuery.ajax
+      url: queryGenerator.urls.updateProgressView,
+      data: ajaxData,
+      type: "post"
 
 
   graph:
@@ -114,6 +133,7 @@ window.queryGenerator =
         url: queryGenerator.urls.updateOffset,
         data: ajaxData,
         type: "post"
+
       
     # Expects a hash {id => [offsetTop, offsetLeft}
     #--------------------------------------------------------------

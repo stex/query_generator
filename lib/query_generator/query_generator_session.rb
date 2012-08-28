@@ -38,6 +38,22 @@ module QueryGenerator
       @generated_query
     end
 
+    # Determines how the progress should be displayed
+    # Possible values are:
+    #  "single_line"
+    #  "multi_line"
+    #  "sql"
+    #--------------------------------------------------------------
+    def progress_view
+      @progress_view ||= session_namespace[:progress_view] || "single_line"
+    end
+
+    def progress_view=(progress_view)
+      session_namespace[:progress_view] = progress_view.to_s
+      @progress_view = progress_view.to_s
+    end
+
+
     # Removes everything from the session
     #--------------------------------------------------------------
     def reset!

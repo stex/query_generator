@@ -297,6 +297,13 @@ module QueryGenerator
       render :nothing => true
     end
 
+    # Sets how the wizard progress should be displayed
+    #--------------------------------------------------------------
+    def set_progress_view
+      query_generator_session.progress_view = params[:progress_view] if params[:progress_view]
+      render :nothing => true
+    end
+
     private
 
     include QueryGenerator::HelperFunctions

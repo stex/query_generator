@@ -10,6 +10,7 @@ ActionController::Routing::Routes.draw do |map|
                                                       :choose_model_associations => :get,
                                                       :toggle_table_column       => :get,
                                                       :set_model_offset          => :post,
+                                                      :set_progress_view         => :post,
                                                       :choose_main_model         => :get,
                                                       :inc_column_position       => :post,
                                                       :decr_column_position      => :post,

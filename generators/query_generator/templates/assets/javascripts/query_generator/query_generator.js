@@ -9,7 +9,8 @@
     },
     urls: {
       updateOffset: null,
-      fetchQueryRecords: null
+      fetchQueryRecords: null,
+      updateProgressView: null
     },
     pageElements: {
       recordPreview: "#model-records-preview"
@@ -49,6 +50,22 @@
       };
       settings = jQuery.extend({}, defaults, options);
       return jQuery(element).dataTable(settings);
+    },
+    setProgressView: function(progressView) {
+      var ajaxData;
+      jQuery(".progress > .progress-view").hide();
+      jQuery(".progress > ." + progressView).show();
+      ajaxData = {
+        progress_view: progressView
+      };
+      if (queryGenerator.data.token.key !== null) {
+        ajaxData[queryGenerator.data.token.key] = queryGenerator.data.token.value;
+      }
+      return jQuery.ajax({
+        url: queryGenerator.urls.updateProgressView,
+        data: ajaxData,
+        type: "post"
+      });
     },
     graph: {
       canvasSelector: "#graph",

@@ -146,6 +146,8 @@ body.query-generator-layout {
     .progress {
       float: left;
       width: 70%;
+      max-height: 250px;
+      overflow: auto;
     }
 
   }
