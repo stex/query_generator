@@ -60,7 +60,7 @@
             jQuery('#flash').html(json.flashMessages);
             jQuery('html, body').animate({
               scrollTop: 0
-            }, 'slow');
+            }, 'fast');
             return fnCallback(json);
           });
         }

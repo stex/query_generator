@@ -44,7 +44,7 @@ window.queryGenerator =
       "fnServerData": (sSource, aoData, fnCallback) ->
         jQuery.getJSON sSource, aoData, (json) ->
           jQuery('#flash').html(json.flashMessages)
-          jQuery('html, body').animate({scrollTop:0}, 'slow');
+          jQuery('html, body').animate({scrollTop:0}, 'fast');
           #pass the data to the standard callback and draw the table
           fnCallback(json)
     }
