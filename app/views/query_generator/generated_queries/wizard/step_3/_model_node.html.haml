@@ -3,9 +3,6 @@
     %tr
       %th.handle{:colspan => 2}
         = human_model_name(model)
-    %tr
-      %th.icon
-      %th= t("query_generator.misc.column")
 
   %tbody
     = render :partial => wizard_file(3, "model_column_row"), :collection => model.columns, :as => :column, :locals => {:model => model}
