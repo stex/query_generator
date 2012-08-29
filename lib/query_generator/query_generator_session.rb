@@ -73,18 +73,9 @@ module QueryGenerator
       query_to_session
     end
 
-    # Updates attributes like name
-    #--------------------------------------------------------------
-    def update_query_attributes(attributes = {})
-      session_namespace[:query_attributes] = attributes
-    end
-
-
-
     # Updates the query record and tries to save it
     #--------------------------------------------------------------
     def save_generated_query
-      update_query_object
       generated_query.save
     end
 

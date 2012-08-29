@@ -40,7 +40,10 @@ module QueryGenerator
     # Creates the query which is currently loaded by the wizard
     #--------------------------------------------------------------
     def create
-      query_generator_session.update_query_attributes(params[:query_generator_generated_query])
+      query_generator_session.edit_generated_query do |query|
+        query.name = params[:query_generator_generated_query][:name]
+      end
+
       if query_generator_session.save_generated_query
         query_generator_session.reset!
         redirect_to query_generator_generated_queries_path
@@ -52,7 +55,10 @@ module QueryGenerator
     # Saves the query which is currently loaded by the wizard
     #--------------------------------------------------------------
     def update
-      query_generator_session.update_query_attributes(params[:query_generator_generated_query])
+      query_generator_session.edit_generated_query do |query|
+        query.name = params[:query_generator_generated_query][:name]
+      end
+
       if query_generator_session.save_generated_query
         query_generator_session.reset!
         redirect_to query_generator_generated_queries_path
