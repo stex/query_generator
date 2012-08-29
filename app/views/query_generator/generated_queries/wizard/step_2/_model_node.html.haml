@@ -9,9 +9,14 @@
                                                                    :html => {:title => t("query_generator.wizard.associations.remove_model_title")})
 
   %tbody
-    - dh.graph.associations_for(model).each do |association, target|
-      - next unless ccan? :read, target
-      - next if target.to_s == query_generator_session.generated_query.main_model
-      - next if query_generator_session.query.association_targets.include?(target.to_s)
-      - next if query_generator_session.query.associations_for(target).values.include?(model.to_s)
-      = render :partial => wizard_file(2, "association_row"), :locals => {:model => model, :association => association, :end_point => target}
+    -# To use the ActiveRecord joins, we can only allow joins which start with the main model
+    - if model.to_s == query_generator_session.generated_query.main_model.to_s || query_generator_session.query.association_targets.include?(model.to_s)
+      - dh.graph.associations_for(model).each do |association, target|
+        - next unless ccan? :read, target
+        -# ignore association if the target is our main model
+        - next if target.to_s == query_generator_session.generated_query.main_model
+        -# ignore association if the association target is already hit by another association
+        - next if query_generator_session.query.association_targets.include?(target.to_s)
+        -# ignore association if there is already an association between the two models (different direction)
+        - next if query_generator_session.query.associations_for(target).values.include?(model.to_s)
+        = render :partial => wizard_file(2, "association_row"), :locals => {:model => model, :association => association, :end_point => target}

@@ -383,10 +383,24 @@ module QueryGenerator
       result
     end
 
+    # Removes all associations from the given model
+    #--------------------------------------------------------------
+    def remove_association_chain(model)
+      associations_for(model).each do |association_name, target|
+        remove_association_chain(target)
+      end
+      self.associations[model.to_s] = {}
+    end
+
     # Removes the given association from the currently managed
     # GeneratedQuery
+    # If an association is deleted, all associations with it as
+    # root have to be deleted as well as we are using the ActiveRecord
+    # join generator.
     #--------------------------------------------------------------
     def remove_association(source, association)
+      target = associations[source.to_s][association.to_s]
+      remove_association_chain(target)
       self.associations[source.to_s].delete(association.to_s)
     end
 

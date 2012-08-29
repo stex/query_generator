@@ -6,7 +6,6 @@ if @target
 
   #Update all existing models, remove associations
   query_generator_session.query.constantized_models.each do |model|
-    next if model == @target
     page[model_dom_id(model)].replace_html model_node(model)
   end
 
