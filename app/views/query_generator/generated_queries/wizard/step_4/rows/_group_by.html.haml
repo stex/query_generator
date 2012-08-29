@@ -1,0 +1,5 @@
+%tr
+  %th.row-header= t("query_generator.wizard.conditions.rows.group_by")
+  - query_generator_session.used_columns.each do |qc|
+    %td
+      = check_box_tag "options[group_by]", "1", qc.group_by, :onchange => update_column_option(qc, :group_by, :reload_content => true)

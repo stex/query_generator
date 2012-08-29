@@ -90,6 +90,15 @@ module QueryGenerator
       @order = nil if order.blank?
     end
 
+    def group_by
+      @group_by
+    end
+
+    def group_by=(group_by)
+      @group_by = group_by
+      @group_by ||= false
+    end
+
     def conditions
       @conditions ||= []
     end
@@ -140,7 +149,8 @@ module QueryGenerator
           "name"        => @custom_name,
           "output"      => output,
           "order"       => order,
-          "conditions"  => conditions.map(&:to_hash)
+          "conditions"  => conditions.map(&:to_hash),
+          "group_by"    => group_by
       }
     end
 

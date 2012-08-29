@@ -143,6 +143,7 @@ module QueryGenerator
       query[:limit] = options[:limit] if options[:limit]
       query[:offset] = options[:offset] if options[:offset]
       query[:conditions] = conditions if conditions.any?
+      query[:group] = group_by if group_by.present?
       query
     end
 
@@ -151,7 +152,8 @@ module QueryGenerator
     # amount of rows is returned by .execute
     #--------------------------------------------------------------
     def count
-      main_model_object.connection.select_all(sql(:what => "COUNT(*)")).first.values.first.to_i
+      res = main_model_object.connection.select_all(sql(:what => "COUNT(1)"))
+      res.size > 1 ? res.size : res.first.values.first.to_i
     end
 
     # Executes the current query and returns all columns which
@@ -427,6 +429,16 @@ module QueryGenerator
         order << qc.order_by_string if qc.order
       end
       order.join(", ")
+    end
+    
+    # Generates the ":group => ..." part
+    #--------------------------------------------------------------
+    def group_by
+      result = []
+      used_columns.each do |qc|
+        result << qc.full_column_name if qc.group_by
+      end
+      result
     end
 
     # Generates the ":conditions => " part of the query
