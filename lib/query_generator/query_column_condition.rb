@@ -79,6 +79,9 @@ module QueryGenerator
 
     def comparator=(comparator)
       @comparator = comparator
+
+      #Make sure, only comparators from the list are used
+      @comparator = COMPARATORS unless COMPARATORS.include?(@comparator)
     end
 
     # The level this condition is in the conditions array

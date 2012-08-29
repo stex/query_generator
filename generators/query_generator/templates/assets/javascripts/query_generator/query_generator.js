@@ -25,6 +25,7 @@
       });
       jQuery(this.pageElements.conditionDialog).dialog({
         autoOpen: false,
+        resizable: false,
         modal: true,
         width: "auto",
         height: "400"
