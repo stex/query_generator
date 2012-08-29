@@ -10,14 +10,3 @@
       - unless condition == qc.conditions.first
         = condition.connector
       = render_wizard_partial(4, "condition_types/#{condition.type}_string", :qc => qc, :condition => condition)
-
-
-
-      -#
-      -#- unless condition == qc.conditions.first
-      -#  = select_tag "options[connector]", options_for_select(["AND", "OR"], condition.connector),
-      -#               :onchange => update_column_condition(qc, condition, :connector)
-      -#= select_tag "options[type]", options_for_select(t("query_generator.wizard.conditions.types").invert, condition.type.to_sym),
-      -#               :onchange => update_column_condition(qc, condition, :connector)
-      -#
-      -#= render_wizard_partial(4, "condition_types/#{condition.type}", :qc => qc, :condition => condition)

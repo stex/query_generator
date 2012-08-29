@@ -1,5 +1,5 @@
 -# Create form to submit the main model. Prevent submitting if no model was chosen yet
-- form_tag set_main_model_query_generator_generated_queries_path, :onsubmit => %{if (jQuery("input[name=model]:checked").size() < 1) return false;},
+- form_tag set_models_query_generator_generated_queries_path, :onsubmit => %{if (jQuery("input[name=main_model]:checked").size() < 1) return false;},
                                                   :id => "generated_query_main_model_form" do
   %table
     %thead
@@ -11,7 +11,9 @@
 
     - dh.models.each do |model|
       %tr{:class => cycle("odd", "even")}
-        %td= radio_button_tag "model", model.to_s, query_generator_session.main_model == model, :id => model_dom_id(model, :prefix => "main")
+        %td
+          = check_box_tag "models[]", model.to_s, query_generator_session.query.constantized_models.include?(model)
+          = radio_button_tag "main_model", model.to_s, query_generator_session.query.constantized_main_model == model, :id => model_dom_id(model, :prefix => "main")
         %td= label_tag model_dom_id(model, :prefix => "main"), human_model_name(model)
         %td= dh.graph.models_connected_to(model).map {|m| human_model_name(m) if ccan?(:read, m)}.compact.to_sentence
         %td= link_to_remote("Preview", :url => preview_model_records_query_generator_generated_queries_path(:model => model.to_s), :method => :get)

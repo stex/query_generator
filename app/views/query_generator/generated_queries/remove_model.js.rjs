@@ -4,7 +4,7 @@ if @model
   end
 
   #Update all existing models, add new associations
-  query_generator_session.used_models.each do |model|
+  query_generator_session.query.constantized_models.each do |model|
     page[model_dom_id(model)].replace_html model_node(model)
   end
 

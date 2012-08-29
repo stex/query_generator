@@ -97,6 +97,9 @@ window.queryGenerator =
 
       jsPlumb.connect(options)
 
+    removeAllConnections: () ->
+      jsPlumb.detachEveryConnection()
+
 #      queryGenerator.data.edges[elem1] = [] unless queryGenerator.data.edges[elem1]?
 #      queryGenerator.data.edges[elem1].push jQuery(elem2)
 

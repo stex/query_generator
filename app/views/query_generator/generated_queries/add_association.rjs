@@ -5,14 +5,14 @@ if @target
   end
 
   #Update all existing models, remove associations
-  query_generator_session.used_models.each do |model|
+  query_generator_session.query.constantized_models.each do |model|
     next if model == @target
     page[model_dom_id(model)].replace_html model_node(model)
   end
 
   #Add the visual connection between the models
   page.call "queryGenerator.graph.addConnection", model_dom_id(@model, :include_hash => true),
-            model_dom_id(@target, :include_hash => true), @association
+            model_dom_id(@target, :include_hash => true), render_wizard_partial(2, "label", :model => @model, :name => @association)
 
   page["query-generator-footer"].replace_html render_wizard_partial(2, "footer")
 end

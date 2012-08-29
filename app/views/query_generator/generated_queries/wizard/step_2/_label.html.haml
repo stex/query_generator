@@ -1,0 +1,3 @@
+= name
+- if query_generator_session.current_step == 2
+  = link_to_remote(image_tag("query_generator/red-x.png"), :url => remove_association_query_generator_generated_queries_path(:model => model.to_s, :association => name.to_s))

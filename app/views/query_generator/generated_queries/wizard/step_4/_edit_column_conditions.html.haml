@@ -14,11 +14,11 @@
         %tr{:class => (condition.valid? ? "valid" : "invalid")}
           %td.icon
             - if condition.level > 1
-              = link_to_function(image_tag("query_generator/previous.png"), update_column_condition(@query_column, condition, :level, :options => {:level => condition.level - 1}))
+              = link_to_function(image_tag("query_generator/previous.png"), update_column_condition(@query_column, condition, :level, :level => (condition.level - 1)))
           %td
             = condition.level
           %td.icon
-            = link_to_function(image_tag("query_generator/next.png"), update_column_condition(@query_column, condition, :level, :options => {:level => condition.level + 1}))
+            = link_to_function(image_tag("query_generator/next.png"), update_column_condition(@query_column, condition, :level, :level => (condition.level + 1)))
           %td
             - unless condition == @query_column.conditions.first
               = select_tag "options[connector]", options_for_select(["AND", "OR"], condition.connector),

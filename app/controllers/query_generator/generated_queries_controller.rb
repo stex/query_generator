@@ -114,30 +114,22 @@ module QueryGenerator
       @wizard_step = WIZARD_STEPS.index(params[:wizard_step]) + 1
 
       #Make sure everything is set up for the current step. If not, redirect the user to the step he deserves.
-      if @wizard_step > 1 && query_generator_session.main_model.nil?
+      if @wizard_step > 1 && query_generator_session.query.main_model.nil?
         redirect_to query_generator_generated_query_wizard_path(:wizard_step => "main_model") and return
       end
+
+      query_generator_session.current_step = @wizard_step
 
       #Special values we need for some steps
       case @wizard_step
         when 2, 3
           @model_offsets = {}
-          query_generator_session.used_models.each do |model|
-            offsets = query_generator_session.model_offsets(model)
+          query_generator_session.query.models.each do |model|
+            offsets = query_generator_session.query.model_offsets[model.to_s]
             @model_offsets[model_dom_id(model)] = offsets if offsets
           end
-          @model_connections = []
-          query_generator_session.model_associations.each do |model, associations|
-            associations.each do |association_name, target|
-              @model_connections << [model_dom_id(model, :include_hash => true), model_dom_id(target, :include_hash => true), association_name]
-            end
-          end
+          load_model_connections
       end
-
-      #As many methods from the GeneratedQuery model are used,
-      #we need to keep it up to date
-      query_generator_session.update_query_object
-      query_generator_session.current_step = @wizard_step
     end
 
     #--------------------------------------------------------------
@@ -147,6 +139,32 @@ module QueryGenerator
     #####################
     #### STEP 1
     #####################
+
+    # Sets all query models including the main model
+    #--------------------------------------------------------------
+    def set_models
+      models = params[:models]
+      main_model = params[:main_model]
+
+      if models.any? && main_model.present?
+        #If the models or the main model was changed, we have to update the query
+        if models != query_generator_session.generated_query.models || main_model != query_generator_session.generated_query.main_model
+          query_generator_session.edit_generated_query do |query|
+            models_to_be_deleted = query.models - models
+            models_to_be_added   = models - query.models
+
+            models_to_be_deleted.each {|model| query.remove_model(model)}
+            models_to_be_added.each   {|model| query.add_model(model)}
+
+            query.main_model = main_model
+          end
+        end
+
+        redirect_to query_generator_generated_query_wizard_path(:wizard_step => "associations")
+      else
+        redirect_to :back
+      end
+    end
 
     # Sets the main model for the generated query
     # Leads to the second wizard step
@@ -193,7 +211,9 @@ module QueryGenerator
         @target = dh.graph.associations_for(@model)[@association]
 
         if ccan? :read, @target
-          @model_added = query_generator_session.add_association(@model, params[:association], @target)
+          query_generator_session.edit_generated_query do |query|
+            @model_added = query.add_association(@model, params[:association], @target)
+          end
           flash.now[:notice] = t("query_generator.success.model_added", :model => human_model_name(@model))
         else
           flash.now[:error] = t("query_generator.errors.model_not_found_or_permissions", :model => (human_model_name(@target) || ""))
@@ -206,18 +226,36 @@ module QueryGenerator
       end
     end
 
+    def remove_association
+      if @model
+        @association = params[:association]
+        query_generator_session.edit_generated_query do |query|
+          query.remove_association(@model, params[:association])
+        end
+
+        load_model_connections
+      end
+
+      respond_to do |format|
+        format.js
+      end
+    end
+
     # Removes a model from the generated query
     #--------------------------------------------------------------
     def remove_model
       if @model
-        @removed_models = query_generator_session.remove_model(@model)
+        query_generator_session.edit_generated_query do |query|
+          @removed_models = query.remove_model(@model)
+        end
       end
 
       @model_offsets = {}
-      query_generator_session.used_models.each do |model|
-        offsets = query_generator_session.model_offsets(model)
+      query_generator_session.query.get_models.each do |model|
+        offsets = query_generator_session.query.get_model_offsets[model.to_s]
         @model_offsets[model_dom_id(model)] = offsets if offsets
       end
+
 
       respond_to do |format|
         format.js
@@ -231,8 +269,9 @@ module QueryGenerator
     #--------------------------------------------------------------
     def toggle_table_column
       if @model
-        column = params[:column]
-        query_generator_session.toggle_used_column(@model, column)
+        query_generator_session.edit_generated_query do |query|
+          query.toggle_column(@model, params[:column])
+        end
       end
 
       respond_to do |format|
@@ -269,7 +308,7 @@ module QueryGenerator
     def add_column_condition
       if @model
         @column = params[:column]
-        query_generator_session.update_column(@model, @column) do |qc|
+        query_generator_session.edit_column(@model, @column) do |qc|
           @query_column = qc
           qc.add_condition
         end
@@ -285,7 +324,7 @@ module QueryGenerator
         @column, option, condition_index = params[:column], params[:option], params[:condition].to_i
         value = params[:options][option] rescue nil
 
-        query_generator_session.update_column(@model, @column) do |qc|
+        query_generator_session.edit_column(@model, @column) do |qc|
           @query_column = qc
           qc.conditions[condition_index].update_options(option => value)
         end
@@ -300,7 +339,7 @@ module QueryGenerator
       if @model
         @column, condition_index = params[:column], params[:condition].to_i
 
-        query_generator_session.update_column(@model, @column) do |qc|
+        query_generator_session.edit_column(@model, @column) do |qc|
           @query_column = qc
           qc.conditions.delete_at(condition_index)
         end
@@ -332,7 +371,9 @@ module QueryGenerator
         option = params[:option]
         value = params[:options][option] rescue nil
 
-        query_generator_session.update_column_options(@model, column, option => value)
+        query_generator_session.edit_column(@model, column) do |qc|
+          qc.update_options({option => value})
+        end
       end
 
       respond_to do |format|
@@ -347,7 +388,10 @@ module QueryGenerator
       if @model
         offset_top = params[:offset].first.to_i
         offset_left = params[:offset].last.to_i
-        query_generator_session.set_model_offset(@model, offset_top, offset_left)
+
+        query_generator_session.edit_generated_query do |query|
+          query.get_model_offsets[@model.to_s] = [offset_top, offset_left]
+        end
       end
 
       render :nothing => true
@@ -399,6 +443,12 @@ module QueryGenerator
       "query_generator/generated_queries/wizard/step_#{step}/#{file_name}"
     end
 
+
+    def render_wizard_partial_to_string(step, partial, locals)
+      render_to_string(:partial => wizard_file(step, partial), :locals => locals)
+    end
+
+
     # Creates a dom_id for a model. Reason: see association_dom_id()
     #--------------------------------------------------------------
     def model_dom_id(model, options = {})
@@ -411,6 +461,16 @@ module QueryGenerator
       res = [options[:prefix], res].join("_") if options[:prefix]
       res = [res, options[:suffix]].join("_") if options[:suffix]
       options[:include_hash] ? "#" + res : res
+    end
+
+    def load_model_connections
+      @model_connections = []
+      query_generator_session.query.get_associations.each do |model, associations|
+        associations.each do |association_name, target_name|
+          label = render_wizard_partial_to_string(2, "label", :model => model, :name => association_name)
+          @model_connections << [model_dom_id(model, :include_hash => true), model_dom_id(target_name, :include_hash => true), label]
+        end
+      end
     end
 
     # Helper method to set the necessary headers for CSV exports

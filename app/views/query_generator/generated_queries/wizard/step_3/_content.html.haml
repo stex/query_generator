@@ -1,5 +1,5 @@
 #graph
-  - query_generator_session.used_models.each do |model|
+  - query_generator_session.query.constantized_models.each do |model|
     = render_wizard_partial 3, "model_node_wrapper", :model => model
 
   .clear

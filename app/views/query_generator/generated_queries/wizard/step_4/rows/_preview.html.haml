@@ -1,23 +1,25 @@
-- if query_generator_session.generated_query.output_columns.size > 0
-  - records = query_generator_session.generated_query.execute(:per_page => 5)
-  - if records.empty?
-    %tr
-      %th.row-header= t("query_generator.wizard.conditions.rows.preview")
-      %td{:colspan => query_generator_session.generated_query.output_columns.size}
-        = t("query_generator.misc.no_records_returned")
-  - else
-    - records.each do |record|
-      %tr
-        - if record == records.first
-          %th.row-header{:rowspan => records.size + 1}
-            = t("query_generator.wizard.conditions.rows.preview")
+- records = query_generator_session.generated_query.execute(:per_page => 5)
 
-        - i = 0
-        - query_generator_session.used_columns.each do |qc|
-          %td
-            - if qc.output
-              = attribute_string(record[i])
-              - i += 1
+- if records.empty?
+  %tr
+    %th.row-header= t("query_generator.wizard.conditions.rows.preview")
+    %td{:colspan => query_generator_session.query.output_columns.size}
+      = t("query_generator.misc.no_records_returned")
+- else
+  - first_record = true
+  - records.each do |record|
     %tr
-      %td{:colspan => query_generator_session.used_columns.size}
-        = t("query_generator.misc.total_row_count", :count => query_generator_session.generated_query.count)
+      - if first_record
+        - first_record = false
+        %th.row-header{:rowspan => records.size + 1}
+          = t("query_generator.wizard.conditions.rows.preview")
+
+      - i = 0
+      - query_generator_session.query.used_columns.each do |qc|
+        %td
+          - if qc.output
+            = attribute_string(record[i])
+            - i += 1
+  %tr
+    %td{:colspan => query_generator_session.query.used_columns.size}
+      = t("query_generator.misc.total_row_count", :count => query_generator_session.generated_query.count)

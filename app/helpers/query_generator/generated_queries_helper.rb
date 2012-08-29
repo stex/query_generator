@@ -110,6 +110,7 @@ module QueryGenerator::GeneratedQueriesHelper
                     :column => query_column.column_name,
                     :condition => query_column.conditions.index(condition),
                     :option => option})
+
     remote_function(:url => update_column_condition_query_generator_generated_queries_path(options), :with => "jQuery(this).serialize()")
   end
 

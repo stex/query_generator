@@ -2,7 +2,7 @@
   %thead
     %tr
       %th
-      - query_generator_session.used_columns.each do |qc|
+      - query_generator_session.query.used_columns.each do |qc|
         %th.center
           %span.column-header
             = human_model_name(qc.model)

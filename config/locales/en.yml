@@ -37,8 +37,7 @@ en:
       main_model:
         name: Main Model
         title: Please choose a main model to start your query.
-        description: "In Ruby on Rails (the framework you are using) SQL queries are usually based on one Model which executes the
-                                        query. Joins are made through associations afterwards which will be chosen in the next step."
+        description: "Please choose all models you'd like to use in your query. The main model should be the one you use when you formulate the query in words, e.g. 'Give me all MAIN_MODEL with ...'"
         success: Successfully set the main model.
         button_next: "Set Associations &raquo;"
       associations:

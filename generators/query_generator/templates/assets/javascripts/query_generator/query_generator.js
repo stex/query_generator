@@ -130,6 +130,9 @@
         };
         return jsPlumb.connect(options);
       },
+      removeAllConnections: function() {
+        return jsPlumb.detachEveryConnection();
+      },
       removeNode: function(node) {
         jsPlumb.detachAllConnections(node);
         return jQuery("#" + node).remove();

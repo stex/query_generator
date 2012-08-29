@@ -1,7 +1,8 @@
 %td
   = select_tag "options[comparator]", options_for_select(QueryGenerator::QueryColumnCondition::COMPARATORS, condition.comparator),
                 :onchange => update_column_condition(qc, condition, :comparator)
+
 %td
-  - options = [["--", ""]] + query_generator_session.generated_query.table_header_columns(".").map(&:reverse)
+  - options = [["--", ""]] + query_generator_session.used_columns.map {|c| [c.name, c.full_column_name]}
   = select_tag "options[value]", options_for_select(options, condition.value),
          :onchange => update_column_condition(qc, condition, :value)

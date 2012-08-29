@@ -30,12 +30,8 @@ module QueryGenerator
       session_namespace[:current_step] = @current_step = step.to_i
     end
 
-    def generated_query
-      return @generated_query if @generated_query
-      @generated_query = GeneratedQuery.find(session_namespace[:generated_query_id]) rescue nil
-      @generated_query ||= GeneratedQuery.new
-      update_query_object
-      @generated_query
+    def query
+      generated_query
     end
 
     # Determines how the progress should be displayed
@@ -45,7 +41,7 @@ module QueryGenerator
     #  "sql"
     #--------------------------------------------------------------
     def progress_view
-      @progress_view ||= session_namespace[:progress_view] || "single_line"
+      @progress_view ||= session_namespace[:progress_view] || "multi_line"
     end
 
     def progress_view=(progress_view)
@@ -60,25 +56,21 @@ module QueryGenerator
       @session.delete(:query_generator)
     end
 
+    def generated_query
+      return @generated_query if @generated_query
+      @generated_query = GeneratedQuery.find(session_namespace[:generated_query_id]) rescue nil
+      @generated_query ||= GeneratedQuery.new
+      update_query_object
+      @generated_query
+    end
+
     # Sets the generated query to be edited through this session
     # if the query already exists, all data from it will be loaded into
     # the session.
     #--------------------------------------------------------------
     def generated_query=(generated_query)
-      if generated_query.new_record?
-        create_namespaces(true)
-        session_namespace[:generated_query_id] = nil
-      else
-        create_namespaces
-        session_namespace[:generated_query_id] = generated_query.id
-        [:main_model, :models, :associations, :model_offsets, :columns].each do |attribute|
-          session_namespace[attribute] = generated_query.send(attribute)
-        end
-
-        session_namespace[:query_attributes] = {:name => generated_query.name}
-      end
-
       @generated_query = generated_query
+      query_to_session
     end
 
     # Updates attributes like name
@@ -87,6 +79,8 @@ module QueryGenerator
       session_namespace[:query_attributes] = attributes
     end
 
+
+
     # Updates the query record and tries to save it
     #--------------------------------------------------------------
     def save_generated_query
@@ -94,59 +88,6 @@ module QueryGenerator
       generated_query.save
     end
 
-    # Adds the given model to the associations list
-    #--------------------------------------------------------------
-    def add_model(model)
-      if model != self.main_model && !session_namespace[:models].include?(model.to_s)
-        session_namespace[:models] << model.to_s
-      end
-      update_query_object(:models)
-      @models = nil
-    end
-
-    # Removes the given model from the currently managed GeneratedQuery
-    # Also removes all associations from and to it
-    # If other models are connected with this model as source, they
-    # are removed as well as they have no more connection to the graph
-    #--------------------------------------------------------------
-    def remove_model(model)
-      session_namespace[:models].delete(model.to_s)
-
-      removed_models = [model]
-
-      #Remove all associations with this model as source
-      associations_with_source(model).each do |association, target|
-        remove_association(model, association)
-        removed_models += remove_model(target)
-      end
-
-      #Remove all associations with this model as target
-      associations_with_target(model).each do |source, associations|
-        associations.each do |association|
-          remove_association(source, association)
-        end
-      end
-
-      #Remove all columns from this model
-      removed_model_strings = removed_models.map &:to_s
-      session_namespace[:columns].each do |column_options|
-        if removed_model_strings.include?(column_options["model"])
-          session_namespace[:columns].delete(column_options)
-        end
-      end
-
-      #Update positions as they will have changed if columns were deleted
-      session_namespace[:columns].map {|c| c[:position] = session_namespace[:columns].index(c)}
-
-      #remove offsets saved for this model
-      session_namespace[:model_offsets].delete(model.to_s)
-
-      update_query_object
-
-      @models = nil
-
-      removed_models
-    end
 
     # Checks if the currently managed GeneratedQuery somehow uses
     # the given model, either in the models or as main_model
@@ -261,12 +202,6 @@ module QueryGenerator
       result
     end
 
-    # Returns the saved model offsets for the given model
-    #--------------------------------------------------------------
-    def model_offsets(model)
-      session_namespace[:model_offsets][model.to_s]
-    end
-
     # Sets the offset for the given model
     #--------------------------------------------------------------
     def set_model_offset(model, top, left)
@@ -285,15 +220,14 @@ module QueryGenerator
     # Checks if the currently managed query includes the given column
     #--------------------------------------------------------------
     def uses_column?(model, column)
-      column_name = column.is_a?(String) ? column : column.name
-      !(session_namespace[:columns].detect {|c| c["model"] == model.to_s && c["column_name"] == column_name.to_s}).nil?
+      !generated_query.get_used_column(model, column).nil?
     end
 
     # Returns all selected columns for the currently managed generated query
     # Format: [Column1, Column2, Column3]
     #--------------------------------------------------------------
     def used_columns
-      @used_columns = generated_query.used_columns
+      generated_query.used_columns
     end
 
     def get_column(model, column)
@@ -302,33 +236,28 @@ module QueryGenerator
     end
 
     def change_column_position(model, column, amount = 1)
-      column_options = get_column_from_namespace(model, column)
-      next_column = get_column_by_position(column_options["position"] + amount)
-      column_options["position"] += amount
-      next_column["position"] -= amount
-      session_namespace[:columns].sort! {|x,y| x["position"] <=> y["position"]}
-      @used_columns = nil
-      update_query_object(:columns)
+      edit_generated_query do |query|
+        qc = query.get_used_column(model, column)
+        query.used_columns[qc.position + amount].position -= amount
+        qc.position += amount
+      end
     end
 
-    def update_column_options(model, column, options = {})
-      col = get_column_from_namespace(model, column)
-      qc = used_columns[col["position"]]
-      qc.update_options(options)
-      session_namespace[:columns][col["position"]] = qc.serialized_options
-      update_query_object(:columns)
+    # Block function to edit one of the used columns in the query
+    #--------------------------------------------------------------
+    def edit_column(model, column)
+      edit_generated_query do |query|
+        yield query.get_used_column(model, column)
+      end
     end
 
-    def update_column(model, column)
-      col = get_column_from_namespace(model, column)
-      qc = used_columns[col["position"]]
-
-      #Give the QueryColumn to the block
-      yield qc
-
-      #Save the changed settings in the session
-      session_namespace[:columns][col["position"]] = qc.to_hash
-      update_query_object(:columns)
+    # Block function to allow edits on the generated_query object
+    # Changes will automatically be saved to the session afterwards
+    #--------------------------------------------------------------
+    def edit_generated_query
+      yield generated_query
+      query_to_session
+      query.reset_instance_variables
     end
 
     # Updates the attributes of the currently managed query
@@ -340,12 +269,8 @@ module QueryGenerator
       if certain_attribute
         gc.send("#{certain_attribute}=", session_namespace[certain_attribute])
       else
-        session_namespace[:query_attributes].each do |key, value|
+        session_namespace[:generated_query].each do |key, value|
           gc.send("#{key}=", value)
-        end
-
-        [:main_model, :models, :associations, :model_offsets, :columns].each do |attribute|
-          gc.send("#{attribute}=", session_namespace[attribute])
         end
       end
 
@@ -354,22 +279,11 @@ module QueryGenerator
 
     private
 
-    # Makes sure the necessary namespaces are set in the session
+    # Saves the currently managed Generated Query in the session
     #--------------------------------------------------------------
-    def create_namespaces(force = false)
-      if force
-        session_namespace[:models] = []
-        session_namespace[:associations] = {}
-        session_namespace[:model_offsets] = {}
-        session_namespace[:columns] = []
-        session_namespace[:query_attributes] = {}
-      else
-        session_namespace[:models] ||= []
-        session_namespace[:associations] ||= {}
-        session_namespace[:model_offsets] ||= {}
-        session_namespace[:columns] ||= []
-        session_namespace[:query_attributes] ||= {}
-      end
+    def query_to_session
+      session_namespace[:generated_query] = generated_query.to_hash
+      session_namespace[:generated_query_id] = generated_query.id rescue nil
     end
 
     def get_column_from_namespace(model, column)
@@ -444,7 +358,6 @@ module QueryGenerator
 
     def session_namespace
       @session[:query_generator] ||= {}
-      @session[:query_generator]
     end
 
   end

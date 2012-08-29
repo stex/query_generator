@@ -1,14 +1,10 @@
 - if query_generator_session.generated_query.output_columns.size > 0
   - options ||= {}
 
-  = link_to_function "Single Line", "queryGenerator.setProgressView('single_line')"
   = link_to_function "Multi Line", "queryGenerator.setProgressView('multi_line')"
   = link_to_function "SQL", "queryGenerator.setProgressView('sql')"
 
-  .progress-view.single_line
-    %pre
-      = pretty_print_generated_query(query_generator_session.generated_query, :multiline => false)
-  .progress-view.multi_line{:style => "display: none"}
+  .progress-view.multi_line
     %pre
       = pretty_print_generated_query(query_generator_session.generated_query)
   .progress-view.sql{:style => "display: none"}

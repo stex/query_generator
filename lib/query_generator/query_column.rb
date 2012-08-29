@@ -94,6 +94,12 @@ module QueryGenerator
       @conditions ||= []
     end
 
+    # All valid conditions
+    #--------------------------------------------------------------
+    def valid_conditions
+      conditions.select {|condition| condition.valid?}
+    end
+
     def add_condition(options = {})
       @conditions ||= []
       @conditions << QueryColumnCondition.new(self, options)

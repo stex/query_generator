@@ -7,7 +7,8 @@ ActionController::Routing::Routes.draw do |map|
             :edit_column_conditions  => :get,
 
             :add_association         => :post,
-            :set_main_model          => :post,
+            :remove_association      => :post,
+            :set_models              => :post,
             :remove_model            => :post,
             :toggle_table_column     => :post,
             :set_model_offset        => :post,
