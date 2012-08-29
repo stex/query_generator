@@ -68,6 +68,7 @@ module QueryGenerator
     include HelperFunctions
 
     def self.get(config_name)
+      puts "CONFIGURATION RE-INITIALIZED!" unless defined?(@@configuration)
       initialize_configuration unless defined?(@@configuration)
       @@configuration[config_name] ||= HashWithIndifferentAccess.new
     end

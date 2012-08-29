@@ -38,7 +38,7 @@ module QueryGenerator
     end
 
     def constantized_models
-      get_models.map(&:constantize)
+      @constantized_models ||= get_models.map(&:constantize)
     end
 
     def get_associations
@@ -227,6 +227,7 @@ module QueryGenerator
       @model_associations = nil
       @used_columns = nil
       @output_columns = nil
+      @constantized_models = nil
     end
 
     # Returns all selected columns for the currently managed generated query

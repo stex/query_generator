@@ -431,7 +431,7 @@ module QueryGenerator
     #--------------------------------------------------------------
     def dh
       return @dh if @dh
-      QueryGenerator::Configuration.set(:exclusions, :classes => [Audit, Page, Sheet, SheetLayout, Attachment], :modules => [Tolk])
+      QueryGenerator::Configuration.set(:exclusions, :classes => [Audit, Page, Sheet, SheetLayout, Attachment], :modules => [Tolk]) if Rails.env.development?
       @dh = DataHolder
     end
 
