@@ -5,15 +5,15 @@
     %thead
       %tr
         %th
+        %th M
         %th= t("query_generator.misc.model")
         %th= t("query_generator.misc.associations")
         %th= t("query_generator.misc.actions")
 
     - dh.models.each do |model|
       %tr{:class => cycle("odd", "even")}
-        %td
-          = check_box_tag "models[]", model.to_s, query_generator_session.query.constantized_models.include?(model)
-          = radio_button_tag "main_model", model.to_s, query_generator_session.query.constantized_main_model == model, :id => model_dom_id(model, :prefix => "main")
+        %td.center= check_box_tag "models[]", model.to_s, query_generator_session.query.constantized_models.include?(model)
+        %td.center= radio_button_tag "main_model", model.to_s, query_generator_session.query.constantized_main_model == model, :id => model_dom_id(model, :prefix => "main")
         %td= label_tag model_dom_id(model, :prefix => "main"), human_model_name(model)
         %td= dh.graph.models_connected_to(model).map {|m| human_model_name(m) if ccan?(:read, m)}.compact.to_sentence
         %td= link_to_remote("Preview", :url => preview_model_records_query_generator_generated_queries_path(:model => model.to_s), :method => :get)

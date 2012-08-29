@@ -8,7 +8,7 @@
     %pre
       = pretty_print_generated_query(query_generator_session.generated_query)
   .progress-view.sql{:style => "display: none"}
-    = query_generator_session.generated_query.sql_lines.join("<br />")
+    = query_generator_session.generated_query.sql_lines(:what => query_generator_session.generated_query.build_columns(:custom_names => true)).join("<br />")
 
   :javascript
     queryGenerator.setProgressView("#{query_generator_session.progress_view}", false);

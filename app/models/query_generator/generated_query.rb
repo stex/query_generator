@@ -45,10 +45,12 @@ module QueryGenerator
       self.associations ||= {}
     end
 
-    def associatons_for(model)
-      get_associations[model.to_s] || []
+    def associations_for(model)
+      get_associations[model.to_s] || {}
     end
 
+    # Returns all models which are the target of at least one association
+    #--------------------------------------------------------------
     def association_targets
       result = []
       get_associations.each do |source_name, association_targets|
@@ -119,10 +121,12 @@ module QueryGenerator
 
     # Builds the output columns with complete names (table_name.column_name)
     #--------------------------------------------------------------
-    def build_columns
+    def build_columns(options = {})
+      custom_names = options.delete(:custom_names)
       cols = []
       output_columns.each do |qc|
-        cols << "#{qc.full_column_name(".", true)} AS `#{qc.full_column_name}`"
+        as = custom_names ? qc.name : qc.full_column_name
+        cols << "#{qc.full_column_name(".", true)} AS `#{as}`"
       end
       cols.join(", ")
     end

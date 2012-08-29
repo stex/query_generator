@@ -274,9 +274,7 @@ module QueryGenerator
         end
       end
 
-      respond_to do |format|
-        format.js
-      end
+      render :nothing => true
     end
 
     # Moves the given column to the right

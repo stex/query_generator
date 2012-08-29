@@ -88,48 +88,6 @@ module QueryGenerator
       generated_query.save
     end
 
-
-    # Checks if the currently managed GeneratedQuery somehow uses
-    # the given model, either in the models or as main_model
-    #--------------------------------------------------------------
-    def uses_model?(model)
-      model = model.constantize unless model.is_a?(Class)
-      main_model == model || models.include?(model)
-    end
-
-    def models
-      @models ||= session_namespace[:models].map {|m| m.constantize }
-    end
-
-    # Returns all models incl. the main model
-    #--------------------------------------------------------------
-    def used_models
-      [main_model] + models
-    end
-
-    # The main model for the generated query
-    #--------------------------------------------------------------
-    def main_model
-      @main_model ||= session_namespace[:main_model].try(:constantize)
-    end
-
-    # Sets the main model for the generated query
-    # If the main model is different from the previous one,
-    # most namespaces will be reset.
-    #--------------------------------------------------------------
-    def main_model=(model)
-      #Check if there was an old main_model set. If yes and the new one is different,
-      #delete the chosen associations and values
-      if session_namespace[:main_model] != model.to_s
-        create_namespaces(true)
-      end
-
-      session_namespace[:main_model] = model.to_s
-      update_query_object(:main_model)
-      @main_model = model
-    end
-
-
     # Returns all associations for the currently managed GeneratedQuery
     # Format:
     # {SourceModel => {:association => TargetModel}}
@@ -138,47 +96,6 @@ module QueryGenerator
       @model_associations ||= generated_query.model_associations
     end
 
-    # Adds an association to the currently managed GeneratedQuery
-    # Parameter:
-    #   source      -- The model which is the association's start point
-    #   association -- The association name which is set up in source
-    # If the end point of the association is not yet in the models,
-    # it will be added automatically.
-    # Returns true if the model was automatically added
-    #
-    # Associations are saved in the following format in the session:
-    # {"source" => {:association1 => "Target1", :association2 => "Target2"}
-    #
-    # The associations could be saved as simple array, but in some
-    # cases it makes sense to have easy access to the target without
-    # having to re-search it.
-    #--------------------------------------------------------------
-    def add_association(source, association, target)
-      result = false
-
-      unless models.include?(target)
-        add_model(target)
-        result = true
-      end
-
-      session_namespace[:associations][source.to_s] ||= {}
-      session_namespace[:associations][source.to_s][association.to_s] = target.to_s
-
-      update_query_object(:associations)
-
-      @model_associations = nil
-
-      result
-    end
-
-    # Removes the given association from the currently managed
-    # GeneratedQuery
-    #--------------------------------------------------------------
-    def remove_association(source, association)
-      session_namespace[:associations][source.to_s].delete(association.to_s)
-      update_query_object(:associations)
-      @model_associations = nil
-    end
 
     # Generates a preview string for the currently managed
     # GeneratedQuery
@@ -202,21 +119,6 @@ module QueryGenerator
       result
     end
 
-    # Sets the offset for the given model
-    #--------------------------------------------------------------
-    def set_model_offset(model, top, left)
-      session_namespace[:model_offsets][model.to_s] = [top, left]
-      update_query_object(:model_offsets)
-    end
-
-    # Toggles if the currently managed query includes the given column
-    #--------------------------------------------------------------
-    def toggle_used_column(model, column)
-      column_name = column.is_a?(String) ? column : column.name
-      uses_column?(model, column_name) ? remove_column(model, column_name) : add_column(:model => model, :column_name => column_name)
-      update_query_object(:columns)
-    end
-
     # Checks if the currently managed query includes the given column
     #--------------------------------------------------------------
     def uses_column?(model, column)
@@ -228,11 +130,6 @@ module QueryGenerator
     #--------------------------------------------------------------
     def used_columns
       generated_query.used_columns
-    end
-
-    def get_column(model, column)
-      column_name = column.is_a?(String) ? column : column.name
-      used_columns.detect {|qc| qc.model_name == model.to_s && qc.column_name == column_name.to_s}
     end
 
     def change_column_position(model, column, amount = 1)

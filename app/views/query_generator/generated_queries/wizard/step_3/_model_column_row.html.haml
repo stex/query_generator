@@ -1,4 +1,8 @@
-%tr{:id => column_dom_id(model, column, :prefix => "step2"), :class => (query_generator_session.uses_column?(model, column) ? "active" : "")}
+- is_active = query_generator_session.query.uses_column?(model, column)
+%tr{:class => (is_active ? "active" : "")}
+  %td.center= check_box_tag "column", column_dom_id(model, column), is_active,
+                :onchange => remote_function(:url => toggle_table_column_query_generator_generated_queries_path(:model => model.to_s, :column => column.name),
+                                             :method => :post,
+                                             :after => %{jQuery(this).parents("tr").toggleClass("active")})
   %td.icon= column_symbol(model, column)
-  %td
-    = link_to_remote column.name, :url => toggle_table_column_query_generator_generated_queries_path(:model => model.to_s, :column => column.name), :method => :post
+  %td= column.name
