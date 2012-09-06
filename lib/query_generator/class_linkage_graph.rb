@@ -3,7 +3,7 @@ module QueryGenerator
   class ClassLinkageGraph
     unloadable if Rails.env.development? #Don't cache this class in development environment, even if in gem
 
-    #Holds information about the links between all models in the application (except the exluded ones)
+    #Holds information about the links between all models in the application (except the excluded ones)
     #
     #
     # Information storage format:
