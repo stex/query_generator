@@ -1,49 +1,95 @@
-de:
+en:
   activerecord:
     models:
-      query_generator/generated_query: Generated Query
+      query_generator/generated_query: Abfrage
   query_generator:
     errors:
-      model_not_found_or_permissions: The model %{model} does not exist or you don't have the necessary rights to access it.
-      record_insufficient_permissions: You don't have the necessary permissions to view this record.
+      model_not_found_or_permissions: "Das model %{model} konnte nicht gefunden werden oder Sie verf&uuml;gen nicht &uuml;ber die ben&ouml;tigten Rechte."
+      record_insufficient_permissions: "Sie verf&uuml;gen nicht über die ben&ouml;tigten Rechte, um diesen Datensatz anzuzeigen."
     success:
-      model_added: Successfully added the model %{model} to your current query
+      model_added: "Das model %{model} wurde erfolgreich zur aktuellen Abfrage hinzugef&uuml;gt"
     dialog_titles:
-      model_record_preview: Preview of %{model} records
+      model_record_preview: Vorschau der Datens&auml;tze in %{model}
+      conditions: "Bedingungen f&uuml;r die Spalte %{name}"
+    flash:
+      notice: Information
+      warning: Warnung
+      error: Fehler
     misc:
       column_header_title: "Type: %{type}, Default: %{default_value}"
+      column: Column
       model: Model
       associations: Associations
       actions: Actions
       primary_key: Primary Key
       belongs_to_key: Key for belongs_to association to %{model}
-      model_table: %{model} (%{table})
+      model_table: "%{model} (%{table})"
+      unfinished_query: "It looks like you have an unfinished query."
+      unfinished_query_link: "Would you like to return to it?"
+      new_generated_query: Open new query in wizard
+      edit: Edit
+      destroy: Destroy
+      show: Execute
+      export: Export
+      no_records_returned: Sorry, no records were returned by your query.
+      total_row_count: "%{count} rows in total"
+      main_model: Main Model
     wizard:
       main_model:
-        title: Please choose a main model to start your query.
-        description: "In Ruby on Rails (the framework you are using) SQL queries are usually based on one Model which executes the
-                                        query. Joins are made through associations afterwards which will be chosen in the next step."
+        name: Models
+        title: Please choose the models (tables) you'd like to use in your query.
+        description: "The main model should be the one you use when you formulate the query in words, e.g. 'Give me all MAIN_MODEL with ...'"
         success: Successfully set the main model.
-        button_next: Set Associations &raquo;
+        button_next: "Set Associations &raquo;"
       associations:
+        name: Associations
         title: Please choose associations for your main model
         description: blabla
         remove_model_warning: If you remove this model, all models connected to it will be removed as well. Continue?
+        remove_model_title: Remove this model from your current query
         button_next: Choose Columns &raquo;
-        button_prev: &#171; Set Main Model
+        button_prev: "&#171; Set Main Model"
       columns:
+        name: Columns
         title: Please choose the columns you'd like to use in your query
         description: The columns you active in this screen can be used later for conditions.
-        button_next: Set Conditions &raquo;
-        button_prev: &#171; Choose Associations
+        button_next: "Set Conditions &raquo;"
+        button_prev: "&#171; Choose Associations"
       conditions:
+        name: Conditions
         title: Conditions
         description: blabla
-        button_prev: &#171; Choose Columns
-        button_next: Finish Query
+        button_prev: "&#171; Choose Columns"
+        button_next: "Finish Query &raquo;"
         move_right: "&raquo;"
         move_left: "&#171;"
+        variable_information: Will be asked on execution
+        types:
+          value: Value
+          column: Table Column
+          variable: Variable
+          is_null: IS NULL
+          is_not_null: IS NOT NULL
+        order_by_options:
+          asc: ASC
+          desc: DESC
+        conditions_table:
+          level: Level
+          connector: Connector
+          type: Type
+          comparator: Comparator
+          value: Value
         rows:
           positions: Column Position
           show: Show
           custom_name: Output Name
+          order: Order By
+          conditions: Conditions
+          preview: Preview
+          group_by: Group By
+      query:
+        name: Details
+        title: Query Options
+        description: Some final things
+        button_prev: "&#171; Choose Columns"
+        button_next: Save Query

@@ -23,17 +23,6 @@ module QueryGenerator
   #   QueryGenerator::Configuration.set(:exclusions, :classes => [Model1, Model2], :modules => [MyModule])
   #   The :modules-part in this example will exclude Model3 and Model4 without having to specify them.
   #
-  # :javascript
-  #   Options used by the core extensions for some classes, e.g. String, Hash, Array
-  #   They are used to convert ruby objects to javascript object strings.
-  #   Yes, you could use .to_json, but sometimes this does not produce exactly
-  #   what you need.
-  #   Available options here:
-  #     :indicators        -- Array of javascript indicators. If a string starts with one of them,
-  #                           it won't be converted to a javascript string
-  #     :end_classes       -- Classes which do not contain any more classes to be converted
-  #     :container_classes -- Classes which do contain other objects to be converted
-  #
   # :controller
   #   Options around the plugin controller, e.g. the layout used by the application.
   #   Available options here:
@@ -68,7 +57,7 @@ module QueryGenerator
     include HelperFunctions
 
     def self.get(config_name)
-      puts "CONFIGURATION RE-INITIALIZED!" unless defined?(@@configuration)
+      Rails.logger.info("CONFIGURATION RE-INITIALIZED!") unless defined?(@@configuration)
       initialize_configuration unless defined?(@@configuration)
       @@configuration[config_name] ||= HashWithIndifferentAccess.new
     end
@@ -76,8 +65,7 @@ module QueryGenerator
     def self.set(config_name, value)
       initialize_configuration unless defined?(@@configuration)
       @@configuration.deep_merge!(HashWithIndifferentAccess.new(config_name => value))
-
-      DataHolder.instance.reload! if config_name.to_s == "exclusions"
+      DataHolder.reload! if config_name.to_s == "exclusions"
     end
 
     # Searches for a proc which can be used for the given object
@@ -106,9 +94,6 @@ module QueryGenerator
     def self.initialize_configuration
       @@configuration = HashWithIndifferentAccess.new
       @@configuration[:exclusions] = HashWithIndifferentAccess.new(:classes => [], :modules => [QueryGenerator])
-      @@configuration[:javascript] = HashWithIndifferentAccess.new(:indicators => ["javascript:", "js:", "jQuery(", "$(", "$F(", "function("],
-                                                                  :end_classes => [String, Symbol, Date, DateTime],
-                                                                  :container_classes => [Array, Hash])
       @@configuration[:controller] = HashWithIndifferentAccess.new(:layout => "query_generator")
       @@configuration[:access_control] = HashWithIndifferentAccess.new(:use_cancan => false)
       @@configuration[:pagination] = HashWithIndifferentAccess.new(:remote_renderer => "QueryGeneratorRemoteLinkRenderer", :per_page => 20)

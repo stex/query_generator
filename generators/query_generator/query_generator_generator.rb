@@ -43,8 +43,7 @@ class QueryGeneratorGenerator < Rails::Generator::NamedBase
   #--------------------------------------------------------------
   def generate_assets(m)
     files = {}
-    files[File.join("javascripts", "query_generator")] = ["jquery.jsPlumb-1.3.9-all-min.js",
-                                                          "liteaccordion.jquery.js"]
+    files[File.join("javascripts", "query_generator")] = ["jquery.jsPlumb-1.3.9-all-min.js"]
 
     m.directory "public/javascripts/query_generator"
     m.directory "public/images/query_generator"
