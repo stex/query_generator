@@ -4,23 +4,41 @@ window.queryGenerator =
       key: null,
       value: null
 
+    currentStep: 1
+
   urls:
     updateOffset: null
     fetchQueryRecords: null
     updateProgressView: null
 
+  callbacks:
+    init: null
+
   pageElements:
     recordPreview: "#model-records-preview"
     conditionDialog: "#model-column-conditions"
 
+  # Inits some general stuff in the page (e.g. the ajax indicator)
+  # and runs step-specific callbacks
+  #--------------------------------------------------------------
   init: () ->
-    jQuery(this.pageElements.recordPreview).dialog(autoOpen: false, modal: true, width: "90%", height: "700")
-    jQuery(this.pageElements.conditionDialog).dialog(autoOpen: false, resizable: false, modal: true, width: "auto", height: "400",
-      buttons:
-        Ok: () ->
-          jQuery( this ).dialog( "close" )
-    )
     @helpers.createAjaxIndicator()
+    jQuery("#query-generator-footer > .buttons > a").button()
+    #run step-specific callback
+    if @callbacks.init?
+      @callbacks.init();
+
+  # Creates the dialog to show record previews
+  #--------------------------------------------------------------
+  setupPreviewDialog: () ->
+    jQuery(this.pageElements.recordPreview).dialog(autoOpen: false, modal: true, width: "90%", height: "700")
+
+  setupConditionsDialog: () ->
+    jQuery(this.pageElements.conditionDialog).dialog(autoOpen: false, resizable: false, modal: true, width: "auto", height: "400",
+    buttons:
+      Ok: () ->
+        jQuery( this ).dialog( "close" )
+    )
 
   # Used to display a model's records in a jQuery UI dialog
   #--------------------------------------------------------------
@@ -146,6 +164,7 @@ window.queryGenerator =
 
     updateModelBoxOffsets: (event, ui) ->
       ajaxData = queryGenerator.graph.getModelBoxOffset(ui)
+      ajaxData["step"] = queryGenerator.data.currentStep;
       if (queryGenerator.data.token.key != null)
         ajaxData[queryGenerator.data.token.key] = queryGenerator.data.token.value;
 

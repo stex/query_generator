@@ -1,20 +1,20 @@
 en:
   activerecord:
     models:
-      query_generator/generated_query: Abfrage
+      query_generator/generated_query: Generated Query
   query_generator:
     errors:
-      model_not_found_or_permissions: "Das model %{model} konnte nicht gefunden werden oder Sie verf&uuml;gen nicht &uuml;ber die ben&ouml;tigten Rechte."
-      record_insufficient_permissions: "Sie verf&uuml;gen nicht über die ben&ouml;tigten Rechte, um diesen Datensatz anzuzeigen."
+      model_not_found_or_permissions: The model %{model} does not exist or you don't have the necessary rights to access it.
+      record_insufficient_permissions: You don't have the necessary permissions to view this record.
     success:
-      model_added: "Das model %{model} wurde erfolgreich zur aktuellen Abfrage hinzugef&uuml;gt"
+      model_added: Successfully added the model %{model} to your current query
     dialog_titles:
-      model_record_preview: Vorschau der Datens&auml;tze in %{model}
-      conditions: "Bedingungen f&uuml;r die Spalte %{name}"
+      model_record_preview: Preview of %{model} records
+      conditions: "Set conditions for column %{name}"
     flash:
-      notice: Information
-      warning: Warnung
-      error: Fehler
+      notice: Notice
+      warning: Warning
+      error: Error
     misc:
       column_header_title: "Type: %{type}, Default: %{default_value}"
       column: Column
@@ -33,17 +33,17 @@ en:
       export: Export
       no_records_returned: Sorry, no records were returned by your query.
       total_row_count: "%{count} rows in total"
-      main_model: Main Model
+      main_model: Base Model
     wizard:
       main_model:
         name: Models
         title: Please choose the models (tables) you'd like to use in your query.
-        description: "The main model should be the one you use when you formulate the query in words, e.g. 'Give me all MAIN_MODEL with ...'"
+        description: "The base model should be the one you use when you formulate the query in words, e.g. 'Give me all BASEMODEL with ...'"
         success: Successfully set the main model.
         button_next: "Set Associations &raquo;"
       associations:
-        name: Associations
-        title: Please choose associations for your main model
+        name: Joins
+        title: Please choose joins to be used in your query.
         description: blabla
         remove_model_warning: If you remove this model, all models connected to it will be removed as well. Continue?
         remove_model_title: Remove this model from your current query

@@ -66,6 +66,7 @@ module QueryGenerator
       initialize_configuration unless defined?(@@configuration)
       @@configuration.deep_merge!(HashWithIndifferentAccess.new(config_name => value))
       DataHolder.reload! if config_name.to_s == "exclusions"
+      self.get(config_name)
     end
 
     # Searches for a proc which can be used for the given object
@@ -80,7 +81,7 @@ module QueryGenerator
       @@type_procs[klass.to_s].call(object)
     end
 
-    # Sets the procecure to be used for the given type
+    # Sets the procedure to be run for the given type
     # Usage: Configuration.set_type_proc("String", Proc.new {|value| do_something })
     #--------------------------------------------------------------.
     def self.set_type_proc(klass, _proc)
@@ -96,7 +97,7 @@ module QueryGenerator
       @@configuration[:exclusions] = HashWithIndifferentAccess.new(:classes => [], :modules => [QueryGenerator])
       @@configuration[:controller] = HashWithIndifferentAccess.new(:layout => "query_generator")
       @@configuration[:access_control] = HashWithIndifferentAccess.new(:use_cancan => false)
-      @@configuration[:pagination] = HashWithIndifferentAccess.new(:remote_renderer => "QueryGeneratorRemoteLinkRenderer", :per_page => 20)
+      @@configuration[:pagination] = HashWithIndifferentAccess.new(:remote_renderer => "QueryGeneratorRemoteLinkRenderer", :per_page => 50)
       @@configuration[:localization] = HashWithIndifferentAccess.new(:date => :short, :datetime => :short, :time => :short)
     end
 

@@ -5,38 +5,49 @@
       token: {
         key: null,
         value: null
-      }
+      },
+      currentStep: 1
     },
     urls: {
       updateOffset: null,
       fetchQueryRecords: null,
       updateProgressView: null
     },
+    callbacks: {
+      init: null
+    },
     pageElements: {
       recordPreview: "#model-records-preview",
       conditionDialog: "#model-column-conditions"
     },
     init: function() {
-      jQuery(this.pageElements.recordPreview).dialog({
+      this.helpers.createAjaxIndicator();
+      jQuery("#query-generator-footer > .buttons > a").button();
+      if (this.callbacks.init != null) {
+        return this.callbacks.init();
+      }
+    },
+    setupPreviewDialog: function() {
+      return jQuery(this.pageElements.recordPreview).dialog({
         autoOpen: false,
         modal: true,
         width: "90%",
         height: "700"
       });
-      jQuery(this.pageElements.conditionDialog).dialog({
+    },
+    setupConditionsDialog: function() {
+      return jQuery(this.pageElements.conditionDialog).dialog({
         autoOpen: false,
         resizable: false,
         modal: true,
         width: "auto",
-        height: "400"
-      }, {
+        height: "400",
         buttons: {
           Ok: function() {
             return jQuery(this).dialog("close");
           }
         }
       });
-      return this.helpers.createAjaxIndicator();
     },
     displayModelRecords: function(dialogTitle, content) {
       jQuery(this.pageElements.recordPreview).html(content);
@@ -168,6 +179,7 @@
       updateModelBoxOffsets: function(event, ui) {
         var ajaxData;
         ajaxData = queryGenerator.graph.getModelBoxOffset(ui);
+        ajaxData["step"] = queryGenerator.data.currentStep;
         if (queryGenerator.data.token.key !== null) {
           ajaxData[queryGenerator.data.token.key] = queryGenerator.data.token.value;
         }

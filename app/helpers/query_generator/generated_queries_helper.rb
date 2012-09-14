@@ -11,6 +11,17 @@ module QueryGenerator::GeneratedQueriesHelper
     content_tag(:th, column.name, :title => title, :class => column.type)
   end
 
+  # Generates a string in the format
+  # "this, that, ... and X more"
+  #--------------------------------------------------------------
+  def array_preview(array, element_count)
+    if array.size <= element_count
+      array.to_sentence
+    else
+      array.take(element_count).join(", ") + " and #{array.size - element_count} more"
+    end
+  end
+
   # Displays the attribute localized / in a nice readable form
   #--------------------------------------------------------------
   def attribute_string(attribute, options = {})

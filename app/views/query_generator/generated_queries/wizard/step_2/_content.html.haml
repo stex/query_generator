@@ -5,8 +5,8 @@
   .clear
 
 :javascript
-  jQuery(document).ready(function() {
+  queryGenerator.callbacks.init = function () {
     queryGenerator.graph.createDraggables(".draggable");
     queryGenerator.graph.setModelBoxOffsets(#{@model_offsets.to_json});
     queryGenerator.graph.addConnections(#{@model_connections.to_json});
-  })
+  }

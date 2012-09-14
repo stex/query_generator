@@ -98,7 +98,7 @@ module QueryGenerator
           #Test if the json was requested by the DataTable
           if table_adapter.has_data
             if @generated_query.set_custom_order(table_adapter.order_by_columns)
-              flash.now[:notice] = "You have chosen a custom order."
+              flash.now[:notice] = "You have chosen a custom order: #{@generated_query.order_by_sql}"
             end
           end
 
@@ -131,7 +131,7 @@ module QueryGenerator
         when 2, 3
           @model_offsets = {}
           query_generator_session.query.models.each do |model|
-            offsets = query_generator_session.query.model_offsets[model.to_s]
+            offsets = query_generator_session.query.get_model_offsets_for_step(@wizard_step)[model.to_s]
             @model_offsets[model_dom_id(model)] = offsets if offsets
           end
           load_model_connections
@@ -358,7 +358,7 @@ module QueryGenerator
     #--------------------------------------------------------------
     def edit_column_conditions
       if @model
-        @query_column = query_generator_session.get_column(@model, params[:column])
+        @query_column = query_generator_session.query.get_used_column(@model, params[:column])
       end
 
       respond_to do |format|
@@ -393,8 +393,12 @@ module QueryGenerator
         offset_top = params[:offset].first.to_i
         offset_left = params[:offset].last.to_i
 
+        #As there might be different offsets for wizard steps 2 and 3,
+        #we have to determine the step this request is coming from
+        step = params[:step].to_i
+
         query_generator_session.edit_generated_query do |query|
-          query.get_model_offsets[@model.to_s] = [offset_top, offset_left]
+          query.get_model_offsets_for_step(step)[@model.to_s] = [offset_top, offset_left]
         end
       end
 

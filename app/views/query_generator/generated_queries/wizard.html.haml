@@ -3,17 +3,18 @@
   #query-generator-content= render_wizard_partial(@wizard_step, "content")
   #query-generator-footer= render_wizard_partial(@wizard_step, "footer")
 
-  / Content for the model records preview dialog
-  #model-records-preview{:style => "display: none"}
-
-  / Content for the modal dialog to edit column conditions
-  #model-column-conditions{:style => "display: none"}
-
   .ajax-indicator{:style => "display: none"} Loading...
 
-:javascript
-  queryGenerator.init();
+  / Content for the modal dialog to edit column conditions
+  / Has to be in the wrapper file as the content might be replaced with
+  / another partial
+  #model-column-conditions{:style => "display: none"}
 
-  queryGenerator.urls.updateProgressView = "#{set_progress_view_query_generator_generated_queries_path}";
-  queryGenerator.urls.updateOffset = "#{set_model_offset_query_generator_generated_queries_path}";
-  #{set_security_token}
+:javascript
+  jQuery(document).ready(function() {
+    queryGenerator.urls.updateProgressView = "#{set_progress_view_query_generator_generated_queries_path}";
+    queryGenerator.urls.updateOffset = "#{set_model_offset_query_generator_generated_queries_path}";
+    queryGenerator.data.currentStep = #{query_generator_session.current_step};
+    #{set_security_token}
+    queryGenerator.init();
+  });

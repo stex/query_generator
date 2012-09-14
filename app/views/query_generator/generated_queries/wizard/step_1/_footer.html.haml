@@ -1,4 +1,4 @@
 .buttons
   = link_to_function t("query_generator.wizard.main_model.button_next"), %{jQuery("#generated_query_main_model_form").submit()}
-
+  = render :partial => "query_generator/generated_queries/wizard/step_links"
 .clear

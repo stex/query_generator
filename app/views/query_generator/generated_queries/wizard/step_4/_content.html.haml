@@ -18,3 +18,8 @@
 
     - if query_generator_session.generated_query.output_columns.any?
       = render_wizard_partial 4, "rows/preview"
+
+:javascript
+  queryGenerator.callbacks.init = function() {
+    queryGenerator.setupConditionsDialog();
+  }

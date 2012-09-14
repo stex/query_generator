@@ -135,19 +135,19 @@
       width: 25%;
       text-align: right;
 
-      a {
-        &:link {
-          border-style: solid;
-          border-width : 1px 4px 4px 1px;
-          text-decoration : none;
-          padding : 4px;
-          border-color : #69f #00f #00f #69f;
-        }
-
-        &:hover {
-          border-color: #ccc;
-        }
-      }
+      //a {
+      //  &:link {
+      //    border-style: solid;
+      //    border-width : 1px 4px 4px 1px;
+      //    text-decoration : none;
+      //    padding : 4px;
+      //    border-color : #69f #00f #00f #69f;
+      //  }
+      //
+      //  &:hover {
+      //    border-color: #ccc;
+      //  }
+      //}
     }
 
     .progress {

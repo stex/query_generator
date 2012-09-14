@@ -63,6 +63,10 @@ module QueryGenerator
       self.model_offsets ||= {}
     end
 
+    def get_model_offsets_for_step(step)
+      get_model_offsets[step] ||= {}
+    end
+
     def get_columns
       self.columns ||= []
     end
@@ -72,6 +76,12 @@ module QueryGenerator
     #--------------------------------------------------------------
     def table_header_columns(delimiter = "_")
       output_columns.map {|oc| [oc.full_column_name(delimiter), oc.name]}
+    end
+
+    # Returns the SQL generated for the ORDER BY part
+    #--------------------------------------------------------------
+    def order_by_sql
+      order_by
     end
 
     #--------------------------------------------------------------
@@ -174,7 +184,7 @@ module QueryGenerator
       unless options[:no_pagination]
         #will_paginate cannot be used here, so we
         #have to create our own pagination
-        sql_options[:limit] = (options.delete(:per_page) || 50).to_i
+        sql_options[:limit] = (options.delete(:per_page) || Configuration.get(:pagination)[:per_page]).to_i
         sql_options[:offset] = options.delete(:offset).to_i
       end
 
@@ -280,8 +290,8 @@ module QueryGenerator
     def table_js
       result = {}
       result["aaSorting"] = []
-      used_columns.each_index do |index|
-        uc = used_columns[index]
+      output_columns.each_index do |index|
+        uc = output_columns[index]
         next unless uc.order
         result["aaSorting"] << [index, uc.order]
       end

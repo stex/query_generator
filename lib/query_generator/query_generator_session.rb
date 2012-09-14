@@ -5,7 +5,7 @@
 #   :models           -- ["model1", "model2", ...]
 #   :associations     -- {"source" => {:association1 => "Target1", :association2 => "Target2"}
 #   :main_model       -- "Main Model used for query"
-#   :model_offsets    -- {"model" => [top, left]}
+#   :model_offsets    -- {step => {"model" => [top, left]}}
 #   :columns          -- [{column_1_options}, {column_2_options}, ...]
 #   :query_attributes -- Some core attributes for the generated_query, e.g. :name
 
@@ -163,6 +163,20 @@ module QueryGenerator
       end
 
       gc.reset_instance_variables
+    end
+
+    # Checks if the query generator process contains all the necessary
+    # data to display the given step
+    #--------------------------------------------------------------
+    def ready_for?(step)
+      case step.to_s
+        when "associations"
+          query.main_model && query.models.any?
+        when "conditions"
+          query.columns.any?
+        else
+          true
+      end
     end
 
     private
