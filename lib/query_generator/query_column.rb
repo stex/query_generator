@@ -91,7 +91,7 @@ module QueryGenerator
     end
 
     def group_by
-      @group_by
+      @group_by || false
     end
 
     def group_by=(group_by)

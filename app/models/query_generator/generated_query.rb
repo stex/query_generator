@@ -272,6 +272,8 @@ module QueryGenerator
       current_order != custom_columns
     end
 
+    # Converts the query to a ruby string
+    #--------------------------------------------------------------
     def to_s(options = {})
       options.reverse_merge!({:joins => true, :order => true})
 
@@ -343,20 +345,25 @@ module QueryGenerator
 
     # Removes the given model from the currently managed GeneratedQuery
     # Also removes all associations from and to it
-    # If other models are connected with this model as source, they
-    # are removed as well as they have no more connection to the graph
     # All deleted models will be returned.
     #--------------------------------------------------------------
     def remove_model(model)
+      #Return if the model to be deleted is the main model
+      return [] if model.to_s == main_model.to_s
+
       models.delete(model.to_s)
       removed_models = [model]
 
       #Remove all associations with this model as source
-      associations.delete(model.to_s)
+      remove_association_chain(model.to_s)
 
       #Remove all associations with this model as target
       associations.each do |source_name, association_targets|
-        association_targets.delete_if {|association_name, target_name| target_name == model.to_s}
+        association_targets.each do |association_name, target_name|
+          if target_name == model.to_s
+            remove_association(source_name, association_name)
+          end
+        end
       end
 
       #Remove all columns from this model
@@ -385,6 +392,7 @@ module QueryGenerator
     # having to re-search it.
     #--------------------------------------------------------------
     def add_association(source, association, target)
+      add_model(source)
       result = add_model(target)
 
       associations[source.to_s] ||= {}
@@ -450,7 +458,7 @@ module QueryGenerator
 
     private
 
-    # Generates the ":order => """ part of a query
+    # Generates the ":order => """ part of the query
     #--------------------------------------------------------------
     def order_by
       order = []
