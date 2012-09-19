@@ -10,8 +10,8 @@
     %table
       %thead
         %tr
-          %th Name
-          %th Actions
+          %th{:style => "width: 15%"} Name
+          %th{:style => "width: 85%"} Actions
       %tbody
         = render :partial => "generated_query_row", :collection => @generated_queries, :as => :generated_query
         %tr

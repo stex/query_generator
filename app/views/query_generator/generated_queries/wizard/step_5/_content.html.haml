@@ -1,2 +1,5 @@
-- form_for query_generator_session.generated_query do |f|
+- form_for query_generator_session.query do |f|
+  = f.error_messages
+
+  = f.label :name
   = f.text_field :name

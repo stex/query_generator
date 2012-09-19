@@ -48,7 +48,8 @@ module QueryGenerator
         query_generator_session.reset!
         redirect_to query_generator_generated_queries_path
       else
-        redirect_to :back
+        @wizard_step = 5
+        render :action => "wizard"
       end
     end
 
@@ -63,7 +64,8 @@ module QueryGenerator
         query_generator_session.reset!
         redirect_to query_generator_generated_queries_path
       else
-        redirect_to :back
+        @wizard_step = 5
+        render :action => "wizard"
       end
     end
 

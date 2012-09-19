@@ -1,10 +1,10 @@
 #query-generator
   #query-generator-header
     %h2
-      = human_model_name(QueryGenerator::GeneratedQuery)
+      =# human_model_name(QueryGenerator::GeneratedQuery)
+      = link_to "Queries", query_generator_generated_queries_path
+      &raquo;
       = @generated_query.name
-      %br
-      =# @generated_query.sql_lines.join("<br />")
 
     #flash= flash_messages
   #query-generator-content
@@ -12,6 +12,7 @@
       This Query contains variables which have to be set. If this isn't done, the conditions won't be included.
     = render :partial => "output"
   #query-generator-footer
+    .progress= render :partial => "generated_sql", :locals => {:generated_query => @generated_query}
 
 :javascript
   queryGenerator.urls.fetchQueryRecords = "#{query_generator_generated_query_path(@generated_query.id)}";

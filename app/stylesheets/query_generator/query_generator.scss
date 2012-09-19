@@ -92,6 +92,7 @@
     span {
       &.edit {
         font-size: 11px;
+        background-color: #f5f5dc;
       }
 
     }
@@ -162,12 +163,12 @@
 
     .progress {
       float: left;
-      width: 70%;
+      width: 60%;
       max-height: 250px;
 
       textarea {
         width: 100%;
-        height: 100px;
+        height: 150px;
       }
 
     }

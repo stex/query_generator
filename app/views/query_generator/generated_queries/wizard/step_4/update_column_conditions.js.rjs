@@ -1,3 +1,4 @@
 page["query-generator-content"].replace_html render_wizard_partial(4, "content")
 page["query-generator-footer"].replace_html render_wizard_partial(4, "footer")
 page["model-column-conditions"].replace_html render_wizard_partial(4, "edit_column_conditions")
+page << %{jQuery("#query-generator-footer > .buttons > a").button()}
