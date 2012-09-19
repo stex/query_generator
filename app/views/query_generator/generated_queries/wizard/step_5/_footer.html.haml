@@ -1,5 +1,5 @@
 .progress
-  = render_current_progress
+  = render :partial => "generated_sql", :locals => {:generated_query => query_generator_session.query}
 
 .buttons
   = link_to t("query_generator.wizard.query.button_prev"), query_generator_generated_query_wizard_path(:wizard_step => "conditions")

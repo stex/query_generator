@@ -107,6 +107,16 @@
         });
       }
     },
+    selectMainModel: function() {
+      var mainModelElement, modelCheckbox;
+      mainModelElement = jQuery("input[name=main_model]:checked").first();
+      modelCheckbox = mainModelElement.parent("td").prev("td").children("input");
+      jQuery("input.model").unbind("click");
+      modelCheckbox.attr("checked", true);
+      return modelCheckbox.bind("click", function() {
+        return false;
+      });
+    },
     graph: {
       canvasSelector: "#graph",
       addConnection: function(elem1, elem2, _label) {

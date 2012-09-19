@@ -1,3 +1,4 @@
 if @model
-  page[model_dom_id(@model)].replace_html model_node(@model, wizard_file(3, "model_node"))
+  page["query-generator-footer"].replace_html render_wizard_partial(3, "footer")
+  page << %{jQuery("#query-generator-footer > .buttons > a").button()}
 end

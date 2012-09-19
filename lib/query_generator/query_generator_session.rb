@@ -34,22 +34,6 @@ module QueryGenerator
       generated_query
     end
 
-    # Determines how the progress should be displayed
-    # Possible values are:
-    #  "single_line"
-    #  "multi_line"
-    #  "sql"
-    #--------------------------------------------------------------
-    def progress_view
-      @progress_view ||= session_namespace[:progress_view] || "multi_line"
-    end
-
-    def progress_view=(progress_view)
-      session_namespace[:progress_view] = progress_view.to_s
-      @progress_view = progress_view.to_s
-    end
-
-
     # Removes everything from the session
     #--------------------------------------------------------------
     def reset!
@@ -85,29 +69,6 @@ module QueryGenerator
     #--------------------------------------------------------------
     def model_associations
       @model_associations ||= generated_query.model_associations
-    end
-
-
-    # Generates a preview string for the currently managed
-    # GeneratedQuery
-    #--------------------------------------------------------------
-    def preview_string(options = {})
-      options.reverse_merge!({:joins => false})
-
-      result = ""
-
-      if main_model
-        joins = joins_for(main_model)
-        order = order_by
-
-        parameters = [":all"]
-        parameters << ":include => #{joins.inspect}" if options[:joins] && joins.any?
-        parameters << %{:order => "#{order}"} if options[:order] && order.any?
-
-        result = %{#{main_model}.find(#{parameters.join(", ")})}
-      end
-
-      result
     end
 
     # Checks if the currently managed query includes the given column
@@ -172,8 +133,12 @@ module QueryGenerator
       case step.to_s
         when "associations"
           query.main_model && query.models.any?
+        when "columns"
+          query.main_model && query.models.any?
         when "conditions"
           query.columns.any?
+        when "query"
+          query.columns.any? && query.output_columns.any?
         else
           true
       end

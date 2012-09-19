@@ -2,5 +2,6 @@ if @model
   if params[:reload_content]
     page["query-generator-content"].replace_html render_wizard_partial(4, "content")
     page["query-generator-footer"].replace_html render_wizard_partial(4, "footer")
+    page << %{jQuery("#query-generator-footer > .buttons > a").button()}
   end
 end

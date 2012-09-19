@@ -95,6 +95,23 @@ window.queryGenerator =
         data: ajaxData,
         type: "post"
 
+  # Makes sure that the model which is main model is always selected
+  #--------------------------------------------------------------
+  selectMainModel: () ->
+    mainModelElement = jQuery("input[name=main_model]:checked").first()
+    modelCheckbox = mainModelElement.parent("td").prev("td").children("input")
+
+    #Remove readonly from all model checkboxes
+    jQuery("input.model").unbind("click")
+
+    #Tick the checkbox
+    modelCheckbox.attr("checked", true)
+    #and make it readonly while the model is the main model
+    modelCheckbox.bind "click", () ->
+      false
+
+
+
 
   graph:
     canvasSelector: "#graph"

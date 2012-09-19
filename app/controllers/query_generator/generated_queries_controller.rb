@@ -280,7 +280,9 @@ module QueryGenerator
         end
       end
 
-      render :nothing => true
+      respond_to do |format|
+        format.js
+      end
     end
 
     # Moves the given column to the right
@@ -402,13 +404,6 @@ module QueryGenerator
         end
       end
 
-      render :nothing => true
-    end
-
-    # Sets how the wizard progress should be displayed
-    #--------------------------------------------------------------
-    def set_progress_view
-      query_generator_session.progress_view = params[:progress_view] if params[:progress_view]
       render :nothing => true
     end
 

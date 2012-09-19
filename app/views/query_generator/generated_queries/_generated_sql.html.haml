@@ -1,0 +1,5 @@
+-#Expects the local variable 'generated_query' to be set
+-#Displays the main part of the generated sql
+
+- sql_lines = generated_query.sql_lines(:what => generated_query.build_columns(:custom_names => true)).join("\n")
+= text_area_tag "generated_sql",  sql_lines, :readonly => true
