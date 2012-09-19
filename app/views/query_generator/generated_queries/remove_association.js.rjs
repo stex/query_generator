@@ -1,9 +1,10 @@
 if @model
   page.call "queryGenerator.graph.removeAllConnections"
-  page << "queryGenerator.graph.addConnections(#{@model_connections.to_json});"
 
   #Update all existing models, add associations
   query_generator_session.query.constantized_models.each do |model|
     page[model_dom_id(model)].replace_html model_node(model)
   end
+
+  page << "queryGenerator.graph.addConnections(#{@model_connections.to_json});"
 end

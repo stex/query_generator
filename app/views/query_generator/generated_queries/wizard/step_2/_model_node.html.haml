@@ -4,7 +4,7 @@
       %th.handle{:colspan => 2}
         = human_model_name(model)
         - if model != query_generator_session.query.constantized_main_model
-          = link_to_remote(image_tag("query_generator/red-x.png"), :url => remove_model_query_generator_generated_queries_path(:model => model.to_s),
+          = link_to_remote(image_tag("query_generator/red-x.png"), :url => remove_model_query_generator_generated_queries_path(:model => model.to_s, :wizard_step => params[:wizard_step]),
                                                                    :confirm => t("query_generator.wizard.associations.remove_model_warning"),
                                                                    :html => {:title => t("query_generator.wizard.associations.remove_model_title")})
 

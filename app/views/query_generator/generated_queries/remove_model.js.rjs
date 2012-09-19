@@ -11,4 +11,5 @@ if @model
   page.call "queryGenerator.graph.setModelBoxOffsets", @model_offsets.to_json
 
   page["query-generator-footer"].replace_html render_wizard_partial(2, "footer")
+  page << %{jQuery("#query-generator-footer > .buttons > a").button()}
 end

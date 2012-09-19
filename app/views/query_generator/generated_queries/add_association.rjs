@@ -12,8 +12,6 @@ if @target
   #Add the visual connection between the models
   page.call "queryGenerator.graph.addConnection", model_dom_id(@model, :include_hash => true),
             model_dom_id(@target, :include_hash => true), render_wizard_partial(2, "label", :model => @model, :name => @association)
-
-  page["query-generator-footer"].replace_html render_wizard_partial(2, "footer")
 end
 
 page[:flash].replace_html flash_messages
