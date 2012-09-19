@@ -1,3 +1,4 @@
-.buttons.large
+.buttons.large.ui-widget-header.ui-corner-all
+  = render :partial => "query_generator/generated_queries/wizard/cancel_button"
   = link_to_function t("query_generator.wizard.main_model.button_next"), %{jQuery("#generated_query_main_model_form").submit()}
 .clear

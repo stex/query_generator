@@ -1,4 +1,6 @@
+= render :partial => "query_generator/generated_queries/wizard/cancel_button"
 - QueryGenerator::WIZARD_STEPS.each do |wizard_step|
   - disabled = params[:wizard_step] == wizard_step.to_s || !query_generator_session.ready_for?(wizard_step)
   = link_to(t("query_generator.wizard.#{wizard_step}.name"), query_generator_generated_query_wizard_path(:wizard_step => wizard_step),
-                                                             :disabled => disabled, :onclick => (disabled ? "return false" : ""))
+                                                             :disabled => disabled, :onclick => (disabled ? "return false" : ""),
+                                                             :title => t("query_generator.wizard.#{wizard_step}.title"))

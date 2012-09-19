@@ -1,7 +1,7 @@
 .progress
   = render :partial => "generated_sql", :locals => {:generated_query => query_generator_session.query}
 
-.buttons.large
+.buttons.large.ui-widget-header.ui-corner-all
   = render :partial => "query_generator/generated_queries/wizard/step_links"
   = link_to_function t("query_generator.wizard.query.button_next"), %{jQuery("#query-generator").find("form").submit()}
 
