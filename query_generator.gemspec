@@ -4,8 +4,8 @@ require File.expand_path('../lib/query_generator/version', __FILE__)
 Gem::Specification.new do |gem|
   gem.authors       = ["Stefan Exner"]
   gem.email         = ["ste@informatik.uni-kiel.de"]
-  gem.description   = %q{TODO: Write a gem description}
-  gem.summary       = %q{TODO: Write a gem summary}
+  gem.description   = %q{Create SQL queries using a web GUI}
+  gem.summary       = %q{Create SQL queries using a web GUI}
   gem.homepage      = "http://www.github.com/Stex/query_generator"
 
   gem.files         = `git ls-files`.split($\)

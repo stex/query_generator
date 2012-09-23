@@ -1,95 +1,88 @@
 en:
   activerecord:
     models:
-      query_generator/generated_query: Generated Query
+      query_generator/generated_query: Erstellte Anfrage
   query_generator:
     errors:
-      model_not_found_or_permissions: The model %{model} does not exist or you don't have the necessary rights to access it.
-      record_insufficient_permissions: You don't have the necessary permissions to view this record.
+      model_not_found_or_permissions: "Das Model %{model} existiert nicht oder Sie verfügen nicht über die benötigten Rechte."
+      record_insufficient_permissions: "Sie verfügen nicht über die benötigten Rechte, um diesen Datensatz anzuzeigen."
     success:
-      model_added: Successfully added the model %{model} to your current query
+      model_added: "Das Model %{model} wurde erfolgreich zu Ihrer Anfrage hinzugefügt"
     dialog_titles:
-      model_record_preview: Preview of %{model} records
-      conditions: "Set conditions for column %{name}"
+      model_record_preview: "Vorschau der Model-Datensätze für %{model}"
+      conditions: "Spaltenbedingungen für %{name}"
     flash:
       notice: Notice
       warning: Warning
       error: Error
     misc:
       column_header_title: "Type: %{type}, Default: %{default_value}"
-      column: Column
+      column: Spalte
       model: Model
-      associations: Associations
-      actions: Actions
-      primary_key: Primary Key
-      belongs_to_key: Key for belongs_to association to %{model}
+      associations: Beziehungen
+      actions: Aktionen
+      primary_key: "Primärschlüssel"
+      belongs_to_key: "Schlüssel einer belongs_to-Assoziation zu %{model}"
       model_table: "%{model} (%{table})"
-      unfinished_query: "It looks like you have an unfinished query."
-      unfinished_query_link: "Would you like to return to it?"
-      new_generated_query: Open new query in wizard
-      edit: Edit
-      destroy: Destroy
-      show: Execute
-      export: Export
-      no_records_returned: Sorry, no records were returned by your query.
-      total_row_count: "%{count} rows in total"
+      unfinished_query: "Eine unvollständige Anfrage befindet sich im Speicher."
+      unfinished_query_link: "Möchten Sie diese fortsetzen?"
+      new_generated_query: "Erstellen einer neuen Anfrage"
+      edit: "Bearbeiten"
+      destroy: "Löschen"
+      show: "Ausführen"
+      export: "Exportieren"
+      no_records_returned: "Ihre Anfrage lieferte keine Datensätze."
+      total_row_count: "%{count} Datensätze"
       main_model: Base Model
     wizard:
-      cancel: "&otimes; Cancel"
+      cancel: "&otimes; Abbrechen"
       main_model:
         name: Models
-        title: Choose the models (tables) you'd like to use in your query.
-        description: "The base model is your query's main model and the start of all automatic joins."
-        success: Successfully set the main model.
-        button_next: "Next &raquo;"
+        title: Auswählen der Models, die in der Anfrage verwendet werden sollen.
+        description: "Das Basemodel ist das Zentrum Ihrer Anfrage und wird zur Generierung aller automatischen Joins verwendet."
+        button_next: "Nächster Schritt &raquo;"
       associations:
         name: Joins
-        title: Choose automatic joins between the models.
-        description: All automatic join chains have to start with the base model (red).
-        remove_model_warning: If you remove this model, all models connected to it will be removed as well. Continue?
-        remove_model_title: Remove this model from your current query
-        button_next: Choose Columns &raquo;
-        button_prev: "&#171; Set Main Model"
+        title: "Auswählen automatischer Joins zwischen den Models der Anfrage"
+        description: "Alle Joins müssen mit dem Basemodel verbunden sein (roter Kasten)"
+        remove_model_warning: "Wenn Sie dieses Model löschen, werden alle von ihm ausgehenden Joins ebenfalls gelöscht. Fortfahren?"
+        remove_model_title: "Dieses Model aus der Anfrage entfernen"
       columns:
-        name: Columns
-        title: Choose columns from your models.
-        description: The columns you activate in this screen can be used later for output, sorting and conditions.
-        button_next: "Set Conditions &raquo;"
-        button_prev: "&#171; Choose Associations"
+        name: Spalten
+        title: "Auswählen der Tabellenspalten"
+        description: "Die in diesem Schritt gewählten Tabellenspalten können für Ausgabe, Sortierung und Bedingungen verwendet werden."
       conditions:
-        name:  Column Options
-        title: Column Options
-        description: You can customize output and sorting of your query using the following table.
-        button_prev: "&#171; Choose Columns"
-        button_next: "Finish Query &raquo;"
+        name:  Spaltenoptionen
+        title: Spaltenoptionen
+        description: "Ausgabe und weitere SQL-Optionen können in diesem Schritt angepasst werden."
         move_right: "&raquo;"
         move_left: "&#171;"
-        variable_information: Will be asked on execution
+        variable_information: "Wird bei Ausführung abgefragt"
         types:
-          value: Value
-          column: Table Column
+          value: Wert
+          column: Tabellenspalte
           variable: Variable
           is_null: IS NULL
           is_not_null: IS NOT NULL
         order_by_options:
-          asc: ASC
-          desc: DESC
+          asc: Aufsteigend
+          desc: Absteigend
         conditions_table:
           level: Level
           connector: Connector
-          type: Type
-          comparator: Comparator
-          value: Value
+          type: Typ
+          comparator: Vergleichsoperator
+          value: Wert
         rows:
-          positions: Column Position
-          show: Show
-          custom_name: Output Name
-          order: Order By
-          conditions: Conditions
-          preview: Preview
-          group_by: Group By
+          positions: Spaltenposition
+          show: Anzeigen
+          custom_name: Ausgabename
+          order: Sortierung
+          conditions: Bedingungen
+          preview: Vorschau
+          group_by: Gruppierung
       query:
         name: Details
-        title: Query Details
-        description: "Give your query a name"
-        button_next: "Save Query &crarr;"
+        title: Anfragendetails
+        description: "Geben Sie einen Namen für diese Anfrage an."
+        button_next: "Anfrage speichern &crarr;"
