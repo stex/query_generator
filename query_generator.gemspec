@@ -17,6 +17,5 @@ Gem::Specification.new do |gem|
 
   gem.add_dependency("i18n")
   gem.add_dependency("haml")
-  gem.add_dependency("awesome_print")
   gem.add_dependency("will_paginate")
 end

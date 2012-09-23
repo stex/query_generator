@@ -5,7 +5,6 @@ source 'https://rubygems.org'
 
 #TODO Once the plugin is ready, put the gemspec back in. Gems are good stuff.
 
-gem "awesome_print"
 gem "haml"
 gem "sass"
 gem "json"
